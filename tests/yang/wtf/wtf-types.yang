@@ -48,4 +48,15 @@ module wtf-types {
       bit execute;
     }
   }
+
+  typedef custom-protocol {
+    type string {
+      pattern "user-[A-Z0-9_]" {
+        error-message "User defined protocols must start with user- and contain alphanumerics.";
+      }
+      length "7..15" {
+        error-message "Length of field must be 7-15 characters long";
+      }
+    }
+  }
 }
