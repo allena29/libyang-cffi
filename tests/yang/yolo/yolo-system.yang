@@ -123,4 +123,22 @@ module yolo-system {
       }
     }
   }
+
+  container user-input {
+
+    leaf field {
+      type union {
+        type types:protocol;
+        type types:custom-protocol;
+      }
+    }
+
+    leaf field-description {
+      type string {
+        length "1..127";
+        pattern "[A-Za-z].*";
+      }
+    }
+
+  }
 }

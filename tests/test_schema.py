@@ -59,7 +59,7 @@ class ModuleTest(unittest.TestCase):
 
     def test_mod_iter(self):
         children = list(iter(self.module))
-        self.assertEqual(len(children), 4)
+        self.assertEqual(len(children), 5)
 
     def test_mod_children_rpcs(self):
         rpcs = list(self.module.children(types=(Node.RPC,)))
@@ -287,3 +287,55 @@ class LeafTypeTest(unittest.TestCase):
         self.assertEqual(t.base(), Type.BITS)
         bits = [b for b, _ in t.bits()]
         self.assertEqual(bits, ['read', 'write', 'execute'])
+
+
+#------------------------------------------------------------------------------
+class LeafValidationsTypeTest(unittest.TestCase):
+
+    def setUp(self):
+        self.ctx = Context(YANG_DIR)
+        self.ctx.load_module('yolo-system')
+
+    def tearDown(self):
+        self.list = None
+        self.ctx = None
+
+    def test_leaf_constraints_complex(self):
+        leaf = next(self.ctx.find_path(
+            '/yolo-system:user-input/yolo-system:field'))
+        self.assertIsInstance(leaf, Leaf)
+        t = leaf.type()
+        self.assertIsInstance(t, Type)
+        self.assertEqual(t.name(), 'string')
+        self.assertEqual(t.base(), None)
+        self.assertEqual(list(t.leaf_pattern_constraints()),
+                          [(None, None)])
+        self.assertEqual(list(t.leaf_length_constraints()), (None, None))
+
+    def test_leaf_constraints(self):
+        leaf = next(self.ctx.find_path('/yolo-system:user-input/yolo-system:field-description'))
+        self.assertIsInstance(leaf, Leaf)
+        t = leaf.type()
+        self.assertIsInstance(t, Type)
+        self.assertEqual(t.name(), 'string')
+        self.assertEqual(t.base(), Type.STRING)
+        self.assertEqual(list(t.leaf_pattern_constraints()),
+                          [(None, None)])
+        self.assertEqual(list(t.leaf_length_constraints()), (None, None))
+
+    def test_all_related_types_complex_union(self):
+        leaf = next(self.ctx.find_path('/yolo-system:user-input/yolo-system:field'))
+        t = leaf.type()
+        results = list(t._resolve_typedef_types(t))
+
+        self.assertEqual(len(results), 2)
+        self.assertEqual(results[0].name(), "TO BE DECIDED")
+        self.assertEqual(results[1].name(), "TO BE DECIDED")
+
+    def test_all_related_types(self):
+        leaf = next(self.ctx.find_path('/yolo-system:user-input/yolo-system:field-description'))
+        t = leaf.type()
+        results = list(t._resolve_typedef_types(t))
+
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0].name(), "TO BE DECIDED")
