@@ -154,11 +154,28 @@ struct lys_type_info_union {
 	int has_ptr_type;
 };
 
+struct lys_restr {
+	const char* expr;
+	const char* dsc;
+	const char* ref;
+	const char* eapptag;
+	const char* emsg;
+	...;
+};
+
+struct lys_type_info_str {
+	struct lys_restr* length;
+	struct lys_restr* patterns;
+	int pat_count;
+	...;
+};
+
 union lys_type_info {
 	struct lys_type_info_bits bits;
 	struct lys_type_info_enums enums;
 	struct lys_type_info_lref lref;
 	struct lys_type_info_union uni;
+	struct lys_type_info_str str;
 	...;
 };
 
