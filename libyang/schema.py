@@ -200,6 +200,27 @@ class Type(object):
         UINT64: 'uint64',
     }
 
+    YANGTYPES = (
+        'bits',
+        'boolean',
+        'decimal64',
+        'empty',
+        'enumeration',
+        'identityref',
+        'instance-id',
+        'leafref',
+        'string',
+        'union',
+        'int8',
+        'uint8',
+        'int16',
+        'uint16',
+        'int32',
+        'uint32',
+        'int64',
+        'uint64'
+        )
+
     def __init__(self, context, type_p):
         self.context = context
         self._type = type_p
@@ -252,6 +273,27 @@ class Type(object):
             return None
         lref = self._type.info.lref
         return Type(self.context, ffi.addressof(lref.target.type))
+
+    def leaf_length_constraints(self):
+        if self.name() not in self.YANGTYPES:
+            t = self._type.der.type
+        else:
+            t = self._type
+        if t.base != self.STRING:
+            return None
+        if t.info.str.length.expr:
+            return c2str(t.info.str.length.expr), c2str(t.info.str.length.emsg)
+
+    def leaf_pattern_constraints(self):
+        if self.name() not in self.YANGTYPES:
+            t = self._type.der.type
+        else:
+            t = self._type
+        if t.base != self.STRING:
+            return None
+
+        for i in range(t.info.str.pat_count):
+            yield c2str(t.info.str.patterns[i].expr)[1:], c2str(t.info.str.patterns[i].emsg)
 
     def union_types(self):
         if self._type.base != self.UNION:
