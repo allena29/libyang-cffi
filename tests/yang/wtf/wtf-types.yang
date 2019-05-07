@@ -49,6 +49,19 @@ module wtf-types {
     }
   }
 
+  typedef long-description {
+    type verylong-description {
+      length "1..127";
+      pattern "[A-Za-z].*";
+    }
+  }
+
+  typedef verylong-description {
+    type string {
+      length "1..4096";
+    }
+  }
+
   typedef custom-protocol {
     type string {
       pattern "user-[A-Z0-9_]" {
