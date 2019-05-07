@@ -290,52 +290,63 @@ class LeafTypeTest(unittest.TestCase):
 
 
 #------------------------------------------------------------------------------
-class LeafValidationsTypeTest(unittest.TestCase):
+class LeafConstraintsTest(unittest.TestCase):
 
     def setUp(self):
         self.ctx = Context(YANG_DIR)
         self.ctx.load_module('yolo-system')
 
     def tearDown(self):
-        self.list = None
         self.ctx = None
 
-    def test_leaf_constraints_complex(self):
-        leaf = next(self.ctx.find_path(
-            '/yolo-system:user-input/yolo-system:field'))
+    def test_leaf_constraints_typedef_(self):
+        leaf = next(self.ctx.find_path('/yolo-system:user-input/yolo-system:long-description'))
         self.assertIsInstance(leaf, Leaf)
         t = leaf.type()
         self.assertIsInstance(t, Type)
-        self.assertEqual(t.name(), 'string')
-        self.assertEqual(t.base(), None)
-        self.assertEqual(list(t.leaf_pattern_constraints()),
-                          [(None, None)])
-        self.assertEqual(list(t.leaf_length_constraints()), (None, None))
-
-    def test_leaf_constraints(self):
-        leaf = next(self.ctx.find_path('/yolo-system:user-input/yolo-system:field-description'))
-        self.assertIsInstance(leaf, Leaf)
-        t = leaf.type()
-        self.assertIsInstance(t, Type)
-        self.assertEqual(t.name(), 'string')
+        self.assertEqual(t.name(), 'long-description')
         self.assertEqual(t.base(), Type.STRING)
         self.assertEqual(list(t.leaf_pattern_constraints()),
-                          [(None, None)])
-        self.assertEqual(list(t.leaf_length_constraints()), (None, None))
+                         [
+                             ('[A-Za-z].*', None)
+                         ])
+        self.assertEqual(t.leaf_length_constraints(), ('1..127', None))
+
+    def test_leaf_constraints_multiple_levels_of_constraints(self):
+        leaf = next(self.ctx.find_path('/yolo-system:user-input/yolo-system:short-description'))
+        self.assertIsInstance(leaf, Leaf)
+        t = leaf.type()
+        self.assertIsInstance(t, Type)
+        self.assertEqual(t.name(), 'long-description')
+        self.assertEqual(t.base(), Type.STRING)
+        self.assertEqual(list(t.leaf_pattern_constraints()),
+                         [
+                             ('Summary: [A-Za-z].*', 'Must start with the tag Summary:'),
+                             ('[A-Za-z].*', None)
+                         ])
+        self.assertEqual(t.leaf_length_constraints(), ('1..63', 'This is a short-description.'))
 
     def test_all_related_types_complex_union(self):
+
         leaf = next(self.ctx.find_path('/yolo-system:user-input/yolo-system:field'))
         t = leaf.type()
-        results = list(t._resolve_typedef_types(t))
+        results = list(t.all_related_types())
+        self.assertEqual(len(results), 0)
 
-        self.assertEqual(len(results), 2)
-        self.assertEqual(results[0].name(), "TO BE DECIDED")
-        self.assertEqual(results[1].name(), "TO BE DECIDED")
+    def test_all_related_types_with_typedef(self):
+        leaf = next(self.ctx.find_path('/yolo-system:user-input/yolo-system:short-description'))
+        t = leaf.type()
+        results = list(t.all_related_types())
+
+        self.assertEqual(len(results), 3)
+        self.assertEqual(results[0].name(), 'long-description')
+        self.assertEqual(results[1].name(), 'verylong-description')
+        self.assertEqual(results[2].name(), 'string')
 
     def test_all_related_types(self):
-        leaf = next(self.ctx.find_path('/yolo-system:user-input/yolo-system:field-description'))
+        leaf = next(self.ctx.find_path('/yolo-system:user-input/yolo-system:keywords'))
         t = leaf.type()
-        results = list(t._resolve_typedef_types(t))
+        results = list(t.all_related_types())
 
         self.assertEqual(len(results), 1)
-        self.assertEqual(results[0].name(), "TO BE DECIDED")
+        self.assertEqual(results[0].name(), 'string')

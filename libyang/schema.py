@@ -274,46 +274,37 @@ class Type(object):
         lref = self._type.info.lref
         return Type(self.context, ffi.addressof(lref.target.type))
 
-    @staticmethod
-    def _resolve_typedef_types(t):
-        """
-        This method assumes it's safe to keep calling derrived_type(), this gives us
-        something like the following which can be used to find type.info.
-        [<libyang.schema.Type: more-restrictive-length>,
-         <libyang.schema.Type: str-lenconstraint>]
+    def all_related_types(self):
+        t = self
 
-        As soon as we find a primitive yang type (string, uint etc) we stop.
-        """
-        yield t
-        while True:
-            t = t.derived_type()
+        if not t.name() in self.YANGTYPES and not t.base() == Type.UNION:
             yield t
-            if t.name() in Type.YANGTYPES:
+
+        while True:
+            if t.base() == Type.UNION:
+                pass
+            else:
+                t = t.derived_type()
+                yield t
+
+            if t.name() in self.YANGTYPES:
                 return
 
     def leaf_length_constraints(self):
-        """
-        Return the first length constraint we find.
-        """
-        if self.name() in self.YANGTYPES:
-            types = [self]
-        else:
-            types = Type._resolve_typedef_types(self)
-
+        types = self.all_related_types()
         for t in types:
-            if  t._type.info.str.length:
+            if t.base() == Type.ENUM:
+                pass
+            elif t._type.base == Type.STRING and t._type.info.str.length:
                 return c2str(t._type.info.str.length.expr), c2str(t._type.info.str.length.emsg)
         return None
 
     def leaf_pattern_constraints(self):
-        if self.name() in self.YANGTYPES:
-            types = [self]
-        else:
-            types = Type._resolve_typedef_types(self)
-
+        types = self.all_related_types()
         for t in types:
-            for i in range(t._type.info.str.pat_count):
-                yield c2str(t._type.info.str.patterns[i].expr)[1:], c2str(t._type.info.str.patterns[i].emsg)
+            if t._type.base == Type.STRING:
+                for i in range(t._type.info.str.pat_count):
+                    yield c2str(t._type.info.str.patterns[i].expr)[1:], c2str(t._type.info.str.patterns[i].emsg)
 
     def union_types(self):
         if self._type.base != self.UNION:
