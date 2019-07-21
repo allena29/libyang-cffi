@@ -6,3 +6,5 @@ context.load_module("integrationtest")
 
 data = libyang.Data(context)
 data.set_data_by_xpath("/integrationtest:simpleleaf", "A")
+data.set_data_by_xpath("/integrationtest:simpleenum", "A")
+data.dump()

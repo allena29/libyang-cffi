@@ -322,6 +322,18 @@ int lys_print_fd(int, const struct lys_module *, LYS_OUTFORMAT, const char *, in
 /* from libc, needed to free allocated strings */
 void free(void *);
 
+/* data based things */
+typedef enum {
+	LYD_UNKNOWN,
+	LYD_XML,
+	LYD_JSON,
+	LYD_LYB
+} LYD_FORMAT;
+
+struct lyd_node *lyd_new_path(struct lyd_node*, const struct ly_ctx*, const char*, void*, int, int);
+int lyd_print_file(FILE *f, const struct lyd_node *root, LYD_FORMAT format, int options);
+
+
 /* extra functions */
 const struct lys_ext_instance *lypy_find_ext(
 	const struct lys_ext_instance **, uint8_t,

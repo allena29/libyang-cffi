@@ -1,0 +1,16 @@
+<xml>
+  <simpleleaf xmlns="http://brewerslabng.mellon-collie.net/yang/integrationtest">a</simpleleaf>
+<simpleenum xmlns="http://brewerslabng.mellon-collie.net/yang/integrationtest">A</simpleenum>
+<simplelist xmlns="http://brewerslabng.mellon-collie.net/yang/integrationtest">
+  <simplekey>A</simplekey>
+</simplelist>
+<simplelist xmlns="http://brewerslabng.mellon-collie.net/yang/integrationtest">
+  <simplekey>B</simplekey>
+</simplelist>
+<simplelist xmlns="http://brewerslabng.mellon-collie.net/yang/integrationtest">
+  <simplekey>C</simplekey>
+</simplelist>
+<simplelist xmlns="http://brewerslabng.mellon-collie.net/yang/integrationtest">
+  <simplekey>D</simplekey>
+</simplelist>
+</xml>

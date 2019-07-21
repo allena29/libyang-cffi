@@ -34,16 +34,27 @@ from .util import str2c
 class Data(object):
 
     def __init__(self, ctx):
-        self._ctx = print(ctx)
-        self.root_a = None
-        self.root_b = None
+        self._ctx = ctx._ctx
+        self.root = [None, None]
 
         print("Libyang initialised with a ctx")
 
-    def set_data_by_xpath(self, path, value):
-        x=c2str(lib.adams())
-        print(x)
-         #ffi.gc(lib.lyd_new_path(ffi.NULL, ctx, "/integrationtest:simpleleaf","a", 0, 0));
+    def set_data_by_xpath(self, xpath, value, doc_id=0):
+        if self.root[doc_id] is None:
+            print("We do not have a roto document yet:c tx", self._ctx)
+            self.root[doc_id] = lib.lyd_new_path(ffi.NULL, self._ctx, str2c(xpath), str2c(value),0,0)
+        else:
+            lib.lyd_new_path(self.root[doc_id], ffi.NULL, str2c(xpath), str2c(value), 0,0)
+
+        #x=2str(lib.adams())
+        #print(x)
+
+    def dump(self):
+        f=open("/tmp/libyang.py.xml","w")
+        lib.lyd_print_file(f, self.root[0], lib.LYD_JSON, 0)
+        print("DUMP DONE")
+        f.close()
+
 #------------------------------------------------------------------------------
 
 
