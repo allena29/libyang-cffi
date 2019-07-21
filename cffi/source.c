@@ -133,3 +133,8 @@ static char *lypy_node_fullname(const struct lys_node *node)
 
 	return fullname;
 }
+
+static char *adams(){
+	char *fullname = "adam";
+	return fullname;
+}

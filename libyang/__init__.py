@@ -31,7 +31,22 @@ from .util import c2str
 from .util import str2c
 
 
+class Data(object):
+
+    def __init__(self, ctx):
+        self._ctx = print(ctx)
+        self.root_a = None
+        self.root_b = None
+
+        print("Libyang initialised with a ctx")
+
+    def set_data_by_xpath(self, path, value):
+        x=c2str(lib.adams())
+        print(x)
+         #ffi.gc(lib.lyd_new_path(ffi.NULL, ctx, "/integrationtest:simpleleaf","a", 0, 0));
 #------------------------------------------------------------------------------
+
+
 class Context(object):
 
     def __init__(self, search_path=None,

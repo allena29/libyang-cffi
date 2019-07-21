@@ -5,6 +5,7 @@ struct ly_ctx *ctx = NULL;
 struct lyd_node *root_a = NULL;
 struct lyd_node *root_b = NULL;
 struct lyd_difflist *diff;
+char *str; // * means dereference
 
 int main()
 {
@@ -32,8 +33,13 @@ int main()
    uint64_t i;
    printf("Got a diffresult (%d)\n", diff_size);
    for(i=0; i<diff_size; i++){
-     printf("Diff result %llu:\n", i);
-   }
+     printf("\n   Diff result %i\n", i);
+    //see: test_diff2(void **state)
 
+     //printf((str = lyd_path(diff->first[i])));
+     //printf("%s",diff[i]);
+   }
+// we can serialise into xml/json  - probably
+///   https://netopeer.liberouter.org/doc/libyang/master/group__datatree.html#ga5dee9dd41c57edc1fc2185f6a2c233a3
    return 0;
 }
