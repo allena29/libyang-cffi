@@ -68,6 +68,21 @@ class Data(object):
         lib.lyd_print_file(f, self.root[doc_id], self._get_format(format), lib.LYP_WITHSIBLINGS)
         f.close()
 
+    def diff(self):
+        print("diff")
+        diff_list = lib.lyd_diff(self.root[0], self.root[1], 0)
+
+        for i in range(40):
+            diff_type = diff_list.type[i];
+
+            if diff_type == lib.LYD_DIFF_END:
+                print("END OF DIFF SET", i)
+                return
+
+            if diff_type == lib.LYD_DIFF_DELETED:
+                print("DIFF DELETED", i)
+                print(c2str(lib.lyd_path(diff_list.first[i])))
+
     def _get_format(self, format):
         if format == "xml":
             return  lib.LYD_XML
