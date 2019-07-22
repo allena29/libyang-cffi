@@ -28,6 +28,8 @@ struct ly_ctx;
 #define LY_CTX_DISABLE_SEARCHDIRS ...
 #define LY_CTX_DISABLE_SEARCHDIR_CWD ...
 #define LY_CTX_PREFER_SEARCHDIRS ...
+#define LYD_OPT_CONFIG ...
+#define LYP_WITHSIBLINGS ...
 
 struct ly_ctx *ly_ctx_new(const char *, int);
 int ly_ctx_set_searchdir(struct ly_ctx *, const char *);
@@ -330,14 +332,27 @@ typedef enum {
 	LYD_LYB
 } LYD_FORMAT;
 
+struct lyd_node {
+    struct lys_node *schema;
+    uint8_t validity;
+    uint8_t dflt:1;
+    uint8_t when_status:3;
+    struct lyd_attr *attr;
+    struct lyd_node *next;
+    struct lyd_node *prev;
+    struct lyd_node *parent;
+		struct lyd_node *child;
+};
+
 struct lyd_node *lyd_new_path(struct lyd_node*, const struct ly_ctx*, const char*, void*, int, int);
 int lyd_print_file(FILE *f, const struct lyd_node *root, LYD_FORMAT format, int options);
-
+struct ly_set *lyd_find_path(const struct lyd_node *ctx_node, const char *path);
+struct lyd_node *lyd_parse_path(struct ly_ctx *ctx, const char *path, LYD_FORMAT format, int options);
 
 /* extra functions */
 const struct lys_ext_instance *lypy_find_ext(
-	const struct lys_ext_instance **, uint8_t,
-	const char *, const char *, const char *);
+const struct lys_ext_instance **, uint8_t,
+const char *, const char *, const char *);
 char *lypy_data_path_pattern(const struct lys_node *);
 char *lypy_node_fullname(const struct lys_node *);
 char *adams();

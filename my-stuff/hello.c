@@ -33,6 +33,8 @@ int main()
    //root_a = lyd_new_path(NULL, ctx, "/integrationtest:simpleenum","A", 0, 0);
    lyd_new_path(root_a, NULL, "/integrationtest:simplelist[simplekey='A']/simplekey","A" , 0, 0);
    lyd_new_path(root_a, NULL, "/integrationtest:simplelist[simplekey='B']/simplekey","B" , 0, 0);
+   lyd_new_path(root_a, NULL, "/integrationtest:simplelist[simplekey='B']/nonleafkey", "4444" , 0, 0);
+
    lyd_new_path(root_a, NULL, "/integrationtest:simplelist[simplekey='C']/simplekey","C" , 0, 0);
    lyd_new_path(root_a, NULL, "/integrationtest:simplelist[simplekey='D']/simplekey","D" , 0, 0);
    //lyd_new_path(root_a, NULL, "/integrationtest:simpleenum","A", 0, 0);
@@ -80,11 +82,15 @@ int main()
           printf("Diff changed\n");
           char* path = lyd_path(diff->first[i]);
           printf("Path: %s\n", path);
+          //printf("%s",diff->first[i]->attrvalue_str);
       }
       if(diff_type == LYD_DIFF_DELETED){
           printf("Diff deleted\n");
           char* path = lyd_path(diff->first[i]);
           printf("Path: %s\n", path);
+          //printf("xx%s",diff->first[i]->attr->value_str);
+
+
 
       }
 
@@ -99,6 +105,7 @@ int main()
       if(diff_type == LYD_DIFF_MOVEDAFTER2 ){
         printf("Diff moved after 2 \n");
       }
+
 
       //printf("Type %i: %s", i, diff->type[i]);
       // switch(diff->type[i]){
@@ -167,8 +174,85 @@ void lyd_free_withsiblings	(	struct lyd_node * 	node	)
 
      fclose(f);
 
+     // struct ly_set *set = NULL;
+     // set = lyd_find_path(root_a, "/integrationtest:simpleleaf");
+     // if (set== NULL){
+     //   printf("lyd_find_path was null");
+     // }
+     // printf("found an attribute from lyd_find_path\n");
+     // struct lys_type *type = NULL;
+     // type = lyd_leaf_type((struct lyd_node_leaf_list *)set);
+     //
+     //
+     // printf("Segfaulty here");
+//     set = lyd_find_path(root_a, "/integrationtest:simplelist");
+     // lyd_free_withsiblings(set);
 
 // we can serialise into xml/json  - probably
 ///   https://netopeer.liberouter.org/doc/libyang/master/group__datatree.html#ga5dee9dd41c57edc1fc2185f6a2c233a3
+
+/*
+
+struct lys_type* lyd_leaf_type	(	const struct lyd_node_leaf_list * 	leaf	)
+Get the type structure of a leaf.
+
+In case of a union, the correct specific type is found. In case of a leafref, the final (if there is a chain of leafrefs) target's type is found.
+
+Parameters
+[in]	leaf	Leaf to examine.
+Returns
+Found type, NULL on error.
+
+*/
+
+  struct lyd_node *my_node;
+  struct ly_set *my_set;
+  const char *str;
+
+  struct lyd_node_leaf_list my_leaf;
+
+
+  my_set = lyd_find_path(root_a, "/integrationtest:simpleleaf");
+  if(my_set == NULL){
+    printf("my_set is null");
+  }else{
+    printf("my_set is not null");
+    printf("my_set size: %d ", my_set->number);
+    my_node = my_set->set.d[0];
+    if(my_node == NULL){
+      printf("my node is null!!!");
+    }
+
+
+    /*
+
+    with a lot of work finally got to read the values.....
+
+    copied from....
+    sr_libyang_leaf_copy_value(const struct lyd_node_leaf_list *leaf, sr_val_t *value)
+
+    */
+    //printf("Name: %s, type: %s\n", set->set.d[i]->schema->name, set->set.d[i]->schema->nodetype==LYS_LIST?"LYS_LIST":"");
+    printf("\n");
+    str = my_set->set.d[0]->schema->name;
+    printf("sting : %s\n", str);
+    //str = my_set->set.d[0]->attr->value_str;
+    if(my_set->set.d[0]->schema->nodetype & (LYS_LEAF | LYS_LEAFLIST)){
+      printf("This is a leaf or a leaf list\n");
+      my_node = my_set->set.d[0];
+      my_leaf = *(struct lyd_node_leaf_list *)my_node;
+      str = my_leaf.value_str;
+      //.val_str;
+      // see
+
+    }
+    //str = my_set->set.d[0]->value_str;
+    printf("sting : %s\n", str);
+
+    //struct lyd_node *my_node;
+    //my_node = my_set->set.d[0];
+    //printf("%s",my_node->attr->value_str);
+  }
+
    return 0;
 }
