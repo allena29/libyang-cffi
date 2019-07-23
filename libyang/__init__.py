@@ -40,48 +40,49 @@ class Data(object):
 
     def set_data_by_xpath(self, xpath, value, doc_id=0):
         if self.root[doc_id] is None:
-            print("We do not have a roto document yet:c tx", self._ctx)
-            self.root[doc_id] = lib.lyd_new_path(ffi.NULL, self._ctx, str2c(xpath), str2c(value),0,0)
+            self.root[doc_id] = lib.lyd_new_path(ffi.NULL, self._ctx, str2c(xpath), str2c(value),0,lib.LYD_PATH_OPT_UPDATE)
             print(self.root[doc_id])
         else:
-            print("We do ahve root ", self._ctx, self.root[doc_id])
-            node = lib.lyd_new_path(self.root[doc_id], ffi.NULL, str2c(xpath), str2c(value), 0,0)
+            node = lib.lyd_new_path(self.root[doc_id], ffi.NULL, str2c(xpath), str2c(value), 0, lib.LYD_PATH_OPT_UPDATE)
 
-        #x=2str(lib.adams())
-        #print(x)
+    def get_data_by_xpath(self, xpath, doc_id=0):
+        print("!!!GET",xpath)
+        x = c2str(lib.get_value_by_xpath(self.root[doc_id], str2c(xpath)))
+        print(">>>>>>", x,"<<<<<")
+        return x
 
     def load_from_file(self, filename, doc_id=0, format="xml"):
         """
         Load XML or JSON from a file into a data structure.
         """
-        if self.root[doc_id]:
-            print("We need to think about clean up the old root....")
-
         self.root[doc_id] = lib.lyd_parse_path(self._ctx, str2c(filename), self._get_format(format), lib.LYD_OPT_CONFIG)
 
-    def dump(self, filename, doc_id=0, format="xml"):
+    def save_to_file(self, filename, doc_id=0, format="xml"):
         """
         Dump XML or JSON to a file from a data structure.
         """
-        print("Dump to ",filename)
-        f=open(filename,"w")
-        lib.lyd_print_file(f, self.root[doc_id], self._get_format(format), lib.LYP_WITHSIBLINGS)
-        f.close()
-
-    def diff(self):
-        print("diff")
-        diff_list = lib.lyd_diff(self.root[0], self.root[1], 0)
-
-        for i in range(40):
-            diff_type = diff_list.type[i];
-
-            if diff_type == lib.LYD_DIFF_END:
-                print("END OF DIFF SET", i)
-                return
-
-            if diff_type == lib.LYD_DIFF_DELETED:
-                print("DIFF DELETED", i)
-                print(c2str(lib.lyd_path(diff_list.first[i])))
+        fh=open(filename,"w")
+        lib.lyd_print_file(fh, self.root[doc_id], self._get_format(format), lib.LYP_WITHSIBLINGS)
+        fh.close()
+# #
+#     def diff(self):
+#         print("diff")
+#         # diff_list = lib.lyd_diff(self.root[0], self.root[1], lib.LYD_DIFFOPT_WITHDEFAULTS)
+#         diff_list = lib.lyd_diff(self.root[0], self.root[1], 0)
+#         for i in range(40):
+#             diff_type = diff_list.type[i];
+#
+#             if diff_type == lib.LYD_DIFF_END:
+#                 print("END OF DIFF SET", i)
+#                 return
+#
+#             if diff_type == lib.LYD_DIFF_DELETED:
+#                 print("DIFF DELETED", i)
+#                 print(c2str(lib.lyd_path(diff_list.first[i])))
+#
+#             if diff_type == lib.LYD_DIFF_CREATED:
+#                 print("DIFF CREATED", i)
+#                 print(c2str(lib.lyd_path(diff_list.second[i])))
 
     def _get_format(self, format):
         if format == "xml":
@@ -144,6 +145,7 @@ class Context(object):
 
     def load_module(self, name):
         mod = lib.ly_ctx_load_module(self._ctx, str2c(name), ffi.NULL)
+        print("!!!! LOAD_MDOUEL", name)
         if not mod:
             raise self.error('cannot load module')
 

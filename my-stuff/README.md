@@ -1,3 +1,6 @@
+docker run -i -t -v /Users/adam/libyang-cffi:/working:rw  allena29/yangvoodoo:builder /bin/bash
+
+
 # Pure C
 
  ```bash
@@ -67,5 +70,5 @@ class Data(object):
         x=c2str(lib.adams())
         print(x)
 
-        
+
 ```

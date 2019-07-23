@@ -138,3 +138,37 @@ static char *adams(){
 	char *fullname = "adam";
 	return fullname;
 }
+
+const char *get_value_by_xpath(const struct lyd_node *node, const char *xpath){
+
+	  struct lyd_node *my_node;
+	  struct ly_set *my_set;
+	  const char *str;
+
+	  struct lyd_node_leaf_list my_leaf;
+
+
+	  my_set = lyd_find_path(node, "/integrationtest:simpleleaf");
+		if(!my_set){
+			return NULL;
+		}
+    my_node = my_set->set.d[0];
+    if(!my_node){
+      return NULL;
+    }
+
+    str = my_set->set.d[0]->schema->name;
+	  if(my_set->set.d[0]->schema->nodetype & (LYS_LEAF | LYS_LEAFLIST)){
+	      my_node = my_set->set.d[0];
+	      my_leaf = *(struct lyd_node_leaf_list *)my_node;
+	      str = my_leaf.value_str;
+
+				//free(my_set);
+				printf("%s",str);
+				printf("This came from inside");
+
+				return str;
+		}
+		free(my_set);
+		return NULL;
+}

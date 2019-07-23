@@ -1,0 +1,10 @@
+#!/bin/bash
+set -euo pipefail
+gcc -Wall -g -o hello2 hello2.c -lyang -I /usr/local/include/libyang/
+if [ $? == 0 ]
+then
+  echo "Compile ok";
+else
+  exit 1;
+fi
+./hello2

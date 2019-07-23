@@ -1,0 +1,39 @@
+module integrationtest {
+
+  namespace "http://brewerslabng.mellon-collie.net/yang/simple-integrationtest";
+  prefix "integrationtest";
+
+
+  container bronze {
+    container silver {
+      presence true;
+      container gold {
+        container platinum {
+          leaf deep {
+            type string;
+          }
+        }
+      }
+    }
+  }
+  list list-outside {
+    key firstkey;
+    leaf firstkey {
+      type string;
+    }
+    list list-inside {
+      key "insidekey1 insidekey2";
+      leaf insidekey1 {
+        type string;
+      }
+      leaf insidekey2 {
+        type string;
+      }
+    }
+  }
+
+  leaf simpleleaf {
+    type string;
+  }
+
+}

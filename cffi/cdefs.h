@@ -30,6 +30,7 @@ struct ly_ctx;
 #define LY_CTX_PREFER_SEARCHDIRS ...
 #define LYD_OPT_CONFIG ...
 #define LYP_WITHSIBLINGS ...
+#define LYD_PATH_OPT_UPDATE ...
 
 struct ly_ctx *ly_ctx_new(const char *, int);
 int ly_ctx_set_searchdir(struct ly_ctx *, const char *);
@@ -275,6 +276,7 @@ struct lys_node_list {
 
 union ly_set_set {
 	struct lys_node **s;
+	struct lyd_node **d;
 	...;
 };
 
@@ -332,6 +334,45 @@ typedef enum {
 	LYD_LYB
 } LYD_FORMAT;
 
+
+typedef union lyd_value_u {
+    const char *binary;          /**< base64 encoded, NULL terminated string */
+    struct lys_type_bit **bit;   /**< bitmap of pointers to the schema definition of the bit value that are set,
+                                      its size is always the number of defined bits in the schema */
+    int8_t bln;                  /**< 0 as false, 1 as true */
+    int64_t dec64;               /**< decimal64: value = dec64 / 10^fraction-digits  */
+    struct lys_type_enum *enm;   /**< pointer to the schema definition of the enumeration value */
+    struct lys_ident *ident;     /**< pointer to the schema definition of the identityref value */
+    struct lyd_node *instance;   /**< pointer to the instance-identifier target, note that if the tree was modified,
+                                      the target (address) can be invalid - the pointer is correctly checked and updated
+                                      by lyd_validate() */
+    int8_t int8;                 /**< 8-bit signed integer */
+    int16_t int16;               /**< 16-bit signed integer */
+    int32_t int32;               /**< 32-bit signed integer */
+    int64_t int64;               /**< 64-bit signed integer */
+    struct lyd_node *leafref;    /**< pointer to the referenced leaf/leaflist instance in data tree */
+    const char *string;          /**< string */
+    uint8_t uint8;               /**< 8-bit unsigned integer */
+    uint16_t uint16;             /**< 16-bit signed integer */
+    uint32_t uint32;             /**< 32-bit signed integer */
+    uint64_t uint64;             /**< 64-bit signed integer */
+    void *ptr;                   /**< arbitrary data stored using a type plugin */
+} lyd_val;
+
+
+struct lyd_attr {
+  struct lyd_node *parent;
+  struct lyd_attr *next;
+  struct lys_ext_instance_complex *annotation;
+  const char *name;
+  const char *value_str;
+  lyd_val value;
+	...;
+  //LY_DATA_TYPE _PACKED value_type;
+  //uint8_t value_flags;
+};
+
+
 struct lyd_node {
     struct lys_node *schema;
     uint8_t validity;
@@ -341,7 +382,10 @@ struct lyd_node {
     struct lyd_node *next;
     struct lyd_node *prev;
     struct lyd_node *parent;
+	  uint32_t hash;
+		struct hash_table *ht;
 		struct lyd_node *child;
+
 };
 
 typedef enum {
@@ -374,3 +418,4 @@ const char *, const char *, const char *);
 char *lypy_data_path_pattern(const struct lys_node *);
 char *lypy_node_fullname(const struct lys_node *);
 char *adams();
+const char *get_value_by_xpath(const struct lyd_node* , const char*);
