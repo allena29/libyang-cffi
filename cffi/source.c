@@ -148,17 +148,24 @@ const char *get_value_by_xpath(const struct lyd_node *node, const char *xpath){
 	  struct lyd_node_leaf_list my_leaf;
 
 
-	  my_set = lyd_find_path(node, "/integrationtest:simpleleaf");
+	  my_set = lyd_find_path(node, xpath);
 		if(!my_set){
+			printf("Exiting point 1\n");
 			return NULL;
 		}
     my_node = my_set->set.d[0];
     if(!my_node){
+			printf("Exiting point 2\n");
       return NULL;
     }
-
+		printf("Beyond exit point 2\n");
     str = my_set->set.d[0]->schema->name;
+		printf("Here we are with a name of %s\n", str);
 	  if(my_set->set.d[0]->schema->nodetype & (LYS_LEAF | LYS_LEAFLIST)){
+			// copy this from sysrepo
+			//  i.e.  sr_libyang_leaf_copy_value(const struct lyd_node_leaf_list *leaf, sr_val_t *value)
+
+
 	      my_node = my_set->set.d[0];
 	      my_leaf = *(struct lyd_node_leaf_list *)my_node;
 	      str = my_leaf.value_str;

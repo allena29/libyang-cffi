@@ -9,7 +9,6 @@ class test_libyangdata( unittest.TestCase):
         # self.ctx.load_module("integrationtest")
         self.ctx=libyang.Context("/Users/adam/libyang-cffi/my-stuff/yang")
         self.module_name = "minimal-integrationtest"
-        self.module_name = "integrationtest_underscore"
         #self.module_name = "integrationtest"
         sec =self.ctx.load_module(self.module_name)
         print(sec)
@@ -28,6 +27,19 @@ class test_libyangdata( unittest.TestCase):
     # def test_list(self):
     #     self.subject.set_data_by_xpath("/simple-integrationtest:bronze/silver/gold/platinum/deep", "DOWN HERE")
 
+    def test_leaf_uint8(self):
+        #self.module_name = "integrationtest"
+        xpath="/" +self.module_name +":types/number-u8"
+        schema_xpath="/" +self.module_name +":types/"+ self.module_name+ ":number-u8"
+        print(schema_xpath)
+        print(list(self.ctx.find_path(schema_xpath)))
+        value = 50
+        self.subject.set_data_by_xpath(xpath, value)
+
+        result = self.subject.get_data_by_xpath(xpath)
+        self.assertEqual(result, value)
+        self.dump_files()
+
     def test_leaf(self):
         #self.module_name = "integrationtest"
         xpath="/" +self.module_name +":simpleleaf"
@@ -38,4 +50,3 @@ class test_libyangdata( unittest.TestCase):
 
         result = self.subject.get_data_by_xpath(xpath)
         self.assertEqual(result, value)
-        self.dump_files()

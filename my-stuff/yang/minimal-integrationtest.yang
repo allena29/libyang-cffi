@@ -1,7 +1,7 @@
 module minimal-integrationtest {
 
   namespace "http://brewerslabng.mellon-collie.net/yang/simple-integrationtest";
-  prefix "minimal-integrationtest";
+  prefix "can-be-anything";
 
 
   container bronze {
@@ -36,4 +36,9 @@ module minimal-integrationtest {
     type string;
   }
 
+  container types {
+    leaf number-u8 {
+      type uint8;
+    }
+  }
 }
