@@ -15,6 +15,10 @@ module minimal-integrationtest {
     leaf str3 {
       type string;
     }
+    leaf str4 {
+      type string;
+      default "string4-default";
+    }
     leaf enumeratio {
       type enumeration {
         enum A;
@@ -62,6 +66,9 @@ module minimal-integrationtest {
     list collection {
       key x;
       leaf x {
+        type string;
+      }
+      leaf y {
         type string;
       }
     }
