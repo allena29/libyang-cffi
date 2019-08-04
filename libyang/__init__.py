@@ -141,7 +141,7 @@ class DataTree:
         if self._root is None:
             self._root = lib.lyd_new_path(ffi.NULL, self._ctx, str2c(xpath), value, 0, lib.LYD_PATH_OPT_UPDATE)
         else:
-            lib.lyd_new_path(self._root, ffi.NULL, str2c(xpath),value, 0, lib.LYD_PATH_OPT_UPDATE)
+            lib.lyd_new_path(self._root, ffi.NULL, str2c(xpath), value, 0, lib.LYD_PATH_OPT_UPDATE)
 
     def get_xpath(self, xpath):
         """
@@ -187,8 +187,8 @@ class DataTree:
         if node_set == ffi.NULL:
             return
 
-        if not node_set.number  == 1:
-            raise LibyangError("delete_xpath only tested to delete single xpaths to avoid caring about order")
+        if not node_set.number == 1:
+            raise LibyangError('delete_xpath only tested to delete single xpaths to avoid caring about order')
         lib.lyd_unlink(node_set.set.d[0])
 
     def count_xpath(self, xpath):
@@ -203,18 +203,51 @@ class DataTree:
             return 0
         return int(node_set.number)
 
-    def save_to_file(self, filename, format=lib.LYD_XML):
-        fh=open(filename, "w")
-        lib.lyd_print_file(fh, self._root, format, lib.LYP_WITHSIBLINGS)
-        fh.close()
+    def dump(self, filename, format=lib.LYD_XML):
+        """
+        Dump to a file with the specified format
+        """
+        with open(filename, 'w') as fh:
+            lib.lyd_print_file(fh, self._root, format, lib.LYP_WITHSIBLINGS)
 
-    
+    def load(self, filename, format=lib.LYD_XML):
+        """
+        Load from a file with the specified format
+        # TODO:  what about freeing an initial root if one exists
+        """
+        if self._root:
+            raise LibyangError('load() not supported when data is already set - because the old note is not cleanly released.')
+        self._root = lib.lyd_parse_path(self._ctx, str2c(filename), format, lib.LYD_OPT_CONFIG)
+
+    def loads(self, payload, format=lib.LYD_XML):
+        """
+        Load from a string with the specified format
+        """
+        if self._root:
+            raise LibyangError('load() not supported when data is already set - because the old note is not cleanly released.')
+
+        self._root = lib.lyd_parse_mem(self._ctx, str2c(payload), format, lib.LYD_OPT_CONFIG)
+
+    def dumps(self, format=lib.LYD_XML):
+        """
+        Load from a string with the specified format
+        """
+        if not self._root:
+            raise LibyangError('No data to dump')
+
+        buf = ffi.new('char **')
+        lib.lyd_print_mem(buf, self._root, format, lib.LYP_WITHSIBLINGS)
+        return c2str(buf[0])
+
+
 #------------------------------------------------------------------------------
 LOG_LEVELS = {
     lib.LY_LLERR: logging.ERROR,
     lib.LY_LLWRN: logging.WARNING,
     lib.LY_LLVRB: logging.INFO,
     lib.LY_LLDBG: logging.DEBUG,
+
+
 }
 
 
