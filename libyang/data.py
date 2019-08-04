@@ -1,3 +1,24 @@
+# Copyright (c) 2018 Robin Jarry
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+
 from _libyang import ffi
 from _libyang import lib
 
@@ -31,7 +52,7 @@ class DataNode(object):
     )
 
     def __init__(self, context, lyd_node, xpath=None):
-        self.value = self._get_value_from_lyd_node(lyd_node,xpath)
+        self.value = self._get_value_from_lyd_node(lyd_node, xpath)
         self.xpath = xpath
 
     @staticmethod
@@ -54,7 +75,7 @@ class DataNode(object):
 
         This method gets the value from a lyd_node and converts it to proper python types.
         """
-        if lyd_node.schema.nodetype  in (lib.LYS_LEAF, lib.LYS_LEAFLIST):
+        if lyd_node.schema.nodetype in (lib.LYS_LEAF, lib.LYS_LEAFLIST):
             leaf = ffi.cast('struct lyd_node_leaf_list *', lyd_node)
             sleaf = ffi.cast('struct lys_node_leaf *', lyd_node.schema)
             type = ffi.addressof(sleaf.type).base
@@ -76,7 +97,7 @@ class DataNode(object):
         if lyd_node.schema.nodetype == lib.LYS_CONTAINER:
             return True
 
-        raise ValueError("Didnt manage to set a vlue.... %s" %(lyd_node.schema.nodetype))
+        raise ValueError('Didnt manage to set a vlue.... %s' % (lyd_node.schema.nodetype))
         return None
 
     def __str__(self):
@@ -84,4 +105,4 @@ class DataNode(object):
 
     def __repr__(self):
         cls = self.__class__
-        return '<%s.%s: %s>' % (cls.__module__, cls.__name__, str(self) )
+        return '<%s.%s: %s>' % (cls.__module__, cls.__name__, str(self))
