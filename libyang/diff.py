@@ -20,10 +20,10 @@
 
 from _libyang import ffi
 from _libyang import lib
-from libyang import LibyangError
-from .util import c2str
 
+from libyang import LibyangError
 from .data import DataNode
+from .util import c2str
 
 
 DIFF_PATH_CREATED = 1
@@ -60,7 +60,6 @@ class Differ:
                 break
 
             xpath = None
-            #
             if diff.type[i] == lib.LYD_DIFF_CREATED:  # 4
                 newnode = lib.lypy_get_last_lyd_node(diff.second[i])
                 xpath = c2str(lib.lyd_path(newnode))
@@ -86,6 +85,7 @@ class Differ:
             i = i + 1
 
         lib.lyd_free_diff(diff)
+
     #
     # def _process_diff(self, diff_node, diff_type=0):
     #     print('PROCESS:', c2str(lib.lyd_path(lib.lypy_get_last_lyd_node(diff_node))))

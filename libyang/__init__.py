@@ -24,15 +24,15 @@ import os
 from _libyang import ffi
 from _libyang import lib
 
+from .data import DataNode
 from .schema import Module
 from .schema import Node
-from .data import DataNode
 from .util import LibyangError
 from .util import c2str
 from .util import str2c
 
 
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 class Context(object):
 
     def __init__(self, search_path=None,
@@ -116,7 +116,7 @@ class Context(object):
             mod = lib.ly_ctx_get_module_iter(self._ctx, idx)
 
 
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 class DataTree:
 
@@ -240,7 +240,7 @@ class DataTree:
         return c2str(buf[0])
 
 
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 LOG_LEVELS = {
     lib.LY_LLERR: logging.ERROR,
     lib.LY_LLWRN: logging.WARNING,

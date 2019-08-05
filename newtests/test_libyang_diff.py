@@ -18,11 +18,12 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-
 import os
 import unittest
+
 import libyang
 from libyang import diff
+
 
 YANG_DIR = os.path.join(os.path.dirname(__file__), 'yang')
 YANG_MODULE = 'minimal-integrationtest'
@@ -105,12 +106,12 @@ class test_libyangdata(unittest.TestCase):
         self.assertEqual(expected_result, result)
 
     def test_basic_diff_list_ordering(self):
-        '''
+        """
         In the first version we are not handling list ordering...
         ... TODO: if a list has ordered by user on it then it will report a diffset for the
         following. The information is there.
 
-        '''
+        """
         # Arrange
         self.data.set_xpath("/minimal-integrationtest:types/collection[x='a']/x", 'a')
         self.data.set_xpath("/minimal-integrationtest:types/collection[x='b']/x", 'b')
