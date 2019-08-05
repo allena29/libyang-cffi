@@ -418,22 +418,6 @@ struct lyd_node {
 
 };
 
-typedef enum {
-  	LYD_DIFF_END = 0,
-    LYD_DIFF_DELETED,
-    LYD_DIFF_CHANGED,
-    LYD_DIFF_MOVEDAFTER1,
-    LYD_DIFF_CREATED,
-    LYD_DIFF_MOVEDAFTER2
-} LYD_DIFFTYPE;
-
-struct lyd_difflist {
-    LYD_DIFFTYPE *type;
-    struct lyd_node **first;
-    struct lyd_node **second;
-};
-
-
 struct lyd_node_leaf_list {
     struct lys_node *schema;
     uint8_t validity;
