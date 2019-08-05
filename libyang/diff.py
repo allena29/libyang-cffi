@@ -49,9 +49,9 @@ class Differ:
             raise LibyangError('Both nodes must match the libyang context of this object instance (%s)' % (self._ctx))
 
         if node_a._root is None:
-            raise LibyangError('Node A does not have any data - unable to diff')
+            node_a._root = ffi.NULL
         if node_b._root is None:
-            raise LibyangError('Node B does not have any data - unable to diff')
+            node_b._root = ffi.NULL
 
         diff = lib.lyd_diff(node_a._root, node_b._root, 0)
         i = 0
@@ -61,24 +61,29 @@ class Differ:
 
             xpath = None
             if diff.type[i] == lib.LYD_DIFF_CREATED:  # 4
-                newnode = lib.lypy_get_last_lyd_node(diff.second[i])
-                xpath = c2str(lib.lyd_path(newnode))
-                oldval = None
-                newval = DataNode(self._ctx, newnode).value
-                yield(xpath, oldval, newval, DIFF_PATH_CREATED)
+                nodes = []
+                Differ._find_nodes(nodes, diff.second[i], None)
+                for (node, _) in nodes:
+                    xpath = c2str(lib.lyd_path(node))
+                    oldval = None
+                    newval = DataNode(self._ctx, node).value
+                    yield(xpath, oldval, newval, DIFF_PATH_CREATED)
             elif diff.type[i] == lib.LYD_DIFF_DELETED:
-                oldnode = lib.lypy_get_last_lyd_node(diff.first[i])
-                xpath = c2str(lib.lyd_path(oldnode))
-                newval = None
-                oldval = DataNode(self._ctx, oldnode).value
-                yield(xpath, oldval, newval, DIFF_PATH_REMOVED)
+                nodes = []
+                Differ._find_nodes(nodes, diff.first[i], None)
+                for (node, _) in nodes:
+                    xpath = c2str(lib.lyd_path(node))
+                    newval = None
+                    oldval = DataNode(self._ctx, node).value
+                    yield(xpath, oldval, newval, DIFF_PATH_REMOVED)
             elif diff.type[i] == lib.LYD_DIFF_CHANGED:
-                oldnode = lib.lypy_get_last_lyd_node(diff.first[i])
-                newnode = lib.lypy_get_last_lyd_node(diff.second[i])
-                xpath = c2str(lib.lyd_path(oldnode))
-                newval = DataNode(self._ctx, newnode).value
-                oldval = DataNode(self._ctx, oldnode).value
-                yield(xpath, oldval, newval, DIFF_PATH_MODIFIED)
+                nodes = []
+                Differ._find_nodes(nodes, diff.first[i], diff.second[i])
+                for (node, nodeb) in nodes:
+                    xpath = c2str(lib.lyd_path(node))
+                    newval = DataNode(self._ctx, nodeb).value
+                    oldval = DataNode(self._ctx, node).value
+                    yield(xpath, oldval, newval, DIFF_PATH_MODIFIED)
             else:
                 raise ValueError('UNHANDLE DIFF TYPE', diff.type[i], i)
 
@@ -86,6 +91,42 @@ class Differ:
 
         lib.lyd_free_diff(diff)
 
+    @staticmethod
+    def _find_nodes(nodelist, start_node, other_node):
+        """
+        This logic seems to work ok.... although it may not be the most optium.
+        And this is only really tested with adds so far
+        find_nodes called <cdata 'struct lyd_node *' 0x7f909d0029e0> /minimal-integrationtest:nesting
+        find_nodes called <cdata 'struct lyd_node *' 0x7f909d003cd0> /minimal-integrationtest:nesting/bronze
+        find_nodes called <cdata 'struct lyd_node *' 0x7f909d002250> /minimal-integrationtest:nesting/bronze/silver
+        find_nodes called <cdata 'struct lyd_node *' 0x7f909d004b10> /minimal-integrationtest:nesting/bronze/silver/gold
+        find_nodes called <cdata 'struct lyd_node *' 0x7f909d002c20> /minimal-integrationtest:nesting/bronze/silver/gold/platinum
+        find_nodes called <cdata 'struct lyd_node *' 0x7f909d004be0> /minimal-integrationtest:nesting/bronze/silver/gold/platinum/deep
+        find_nodes called <cdata 'struct lyd_node *' 0x7f909d001c80> /minimal-integrationtest:nesting/bronze/silver/gold/platinum/deep2
+        .... got node /minimal-integrationtest:nesting/bronze/silver/gold/platinum/deep
+        .... got node /minimal-integrationtest:nesting/bronze/silver/gold/platinum/deep2
+        """
+        if start_node.schema.nodetype in (4, 8):    # LEAF or LEAF_LIST
+            nodelist.append((start_node, other_node))
+
+            if not start_node.next == ffi.NULL and not other_node:
+                if other_node:
+                    Differ._find_nodes(nodelist, start_node.next, other_node.next)
+                else:
+                    Differ._find_nodes(nodelist, start_node.next, None)
+        else:
+
+            if not start_node.next == ffi.NULL:
+                if other_node:
+                    Differ._find_nodes(nodelist, start_node.next, other_node.next)
+                else:
+                    Differ._find_nodes(nodelist, start_node.next, None)
+            if not start_node.child == ffi.NULL:
+                if other_node:
+                    Differ._find_nodes(nodelist, start_node.child, other_node.child)
+                else:
+                    Differ._find_nodes(nodelist, start_node.child, None)
+        #
     #
     # def _process_diff(self, diff_node, diff_type=0):
     #     print('PROCESS:', c2str(lib.lyd_path(lib.lypy_get_last_lyd_node(diff_node))))

@@ -85,6 +85,18 @@ module minimal-integrationtest {
             leaf deep {
               type string;
             }
+            leaf deep2 {
+              type string;
+            }
+            leaf deep3 {
+              type string;
+            }
+            leaf deep4 {
+              type string;
+            }
+            leaf deep5 {
+              type string;
+            }
           }
         }
       }
