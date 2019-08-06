@@ -117,3 +117,34 @@ class DataNode(object):
     def __repr__(self):
         cls = self.__class__
         return '<%s.%s: %s>' % (cls.__module__, cls.__name__, str(self))
+
+    def dump_datanodes(self):
+        # This is suboptimal at present - want to move this down to C or
+        # avoid the extra funaction call.
+        nodelist = {}
+        start_node = self.lyd_node
+
+        DataNode._find_nodes(self.context, nodelist, start_node)
+
+        sorted_keys = list(nodelist.keys())
+        sorted_keys.sort()
+
+        for key in sorted_keys:
+            yield nodelist[key]
+
+    @staticmethod
+    def _find_nodes(context, nodelist, start_node):
+        node = start_node
+        while 1:
+            if node.schema.nodetype in (4, 8):    # LEAF or LEAF_LIST
+                xpath = c2str(lib.lyd_path(node))
+                nodelist[xpath] = DataNode(context, node, xpath)
+
+            if node.schema.nodetype not in (4, 8):    # LEAF or LEAF_LIST
+                if not node.child == ffi.NULL:
+                    DataNode._find_nodes(context, nodelist, node.child)
+
+            if node.next == ffi.NULL:
+                break
+
+            node = node.next
