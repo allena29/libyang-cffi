@@ -215,3 +215,16 @@ class test_libyangdata(unittest.TestCase):
 
         # Assert
         self.assertEqual(next(self.data.get_xpath('/minimal-integrationtest:types/str1')).value, 'this-is-a-string')
+
+    def test_deep_nodes_and_get_schema(self):
+        # Arrange
+        xpath = '/minimal-integrationtest:nesting/bronze/silver/gold/platinum/deep'
+
+        # Act
+        self.data.set_xpath(xpath, "down here")
+        node = next(self.data.get_xpath(xpath))
+
+        # Assert
+        self.assertEqual(node.xpath, xpath)
+        self.assertEqual(node.value, 'down here')
+        self.assertEqual(repr(node.get_schema()), '<libyang.schema.Node: deep>')
