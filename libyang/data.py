@@ -22,6 +22,7 @@
 from _libyang import ffi
 from _libyang import lib
 
+from .schema import Node
 from .util import c2str
 from .util import str2c
 
@@ -54,6 +55,11 @@ class DataNode(object):
     def __init__(self, context, lyd_node, xpath=None):
         self.value = self._get_value_from_lyd_node(lyd_node, xpath)
         self.xpath = xpath
+        self.lyd_node = lyd_node
+        self.context = context
+
+    def get_schema(self):
+        return Node(self.context, self.lyd_node.schema)
 
     @staticmethod
     def convert_python_value(value):
