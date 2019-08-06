@@ -58,6 +58,9 @@ class DataNode(object):
         self.lyd_node = lyd_node
         self.context = context
 
+    def get_root(self):
+        return DataNode(self.context, lib.lypy_get_root_node(self.lyd_node))
+
     def get_schema(self):
         return Node(self.context, self.lyd_node.schema)
 
@@ -107,6 +110,8 @@ class DataNode(object):
         return None
 
     def __str__(self):
+        if not self.xpath:
+            return '/'
         return self.xpath
 
     def __repr__(self):
