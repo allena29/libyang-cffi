@@ -452,4 +452,4 @@ const struct lys_ext_instance **, uint8_t,
 const char *, const char *, const char *);
 char *lypy_data_path_pattern(const struct lys_node *);
 char *lypy_node_fullname(const struct lys_node *);
-const struct lyd_node *lypy_get_last_lyd_node(const struct lyd_node *node);
+const struct lyd_node *lypy_get_root_node(const struct lyd_node *node);

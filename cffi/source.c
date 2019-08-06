@@ -117,20 +117,13 @@ static char *lypy_node_fullname(const struct lys_node *node)
 	return fullname;
 }
 
-
-const struct lyd_node *lypy_get_last_lyd_node(const struct lyd_node *node) {
+const struct lyd_node *lypy_get_root_node(const struct lyd_node *node) {
   const struct lyd_node *tmp_node = NULL;
-  tmp_node = node;
+	tmp_node = node;
   while(1){
-    if(tmp_node->schema->nodetype & (LYS_LEAF | LYS_LEAFLIST)){
-      break;
-    }
-    if(tmp_node->child){
-      tmp_node = tmp_node->child;
-    }else{
-      break;
-    }
+		if(!tmp_node->parent){
+			return tmp_node;
+		}
+		tmp_node = tmp_node->parent;
   }
-
-  return tmp_node;
 }

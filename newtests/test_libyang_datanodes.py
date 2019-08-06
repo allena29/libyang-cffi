@@ -223,8 +223,10 @@ class test_libyangdata(unittest.TestCase):
         # Act
         self.data.set_xpath(xpath, "down here")
         node = next(self.data.get_xpath(xpath))
+        root = node.get_root()
 
         # Assert
         self.assertEqual(node.xpath, xpath)
         self.assertEqual(node.value, 'down here')
         self.assertEqual(repr(node.get_schema()), '<libyang.schema.Node: deep>')
+        self.assertEqual(repr(root), '<libyang.data.DataNode: />')
