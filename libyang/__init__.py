@@ -35,8 +35,21 @@ from .util import str2c
 # ------------------------------------------------------------------------------
 class Context(object):
 
+    LYPY_MIN_LIBYANG_VERSION = '1.1.30'
+
     def __init__(self, search_path=None,
                  options=lib.LY_CTX_DISABLE_SEARCHDIR_CWD):
+        # This is a placeholder whilst working out what the earliest version of
+        # libyang is that supports the new data tree things. This may only be
+        # useful whilst new people come up to speed with libyang... once things
+        # settle down this probably can just be reverted.
+        installed_version = '{0}.{1}.{2}'.format(lib.LY_VERSION_MAJOR,
+                                                 lib.LY_VERSION_MINOR,
+                                                 lib.LY_VERSION_MICRO)
+        if not installed_version == self.LYPY_MIN_LIBYANG_VERSION:
+            raise RuntimeError('libyangversion installed {0} but require {1}'.format(installed_version,
+                                                                                     self.LYPY_MIN_LIBYANG_VERSION))
+
         self._ctx = ffi.gc(lib.ly_ctx_new(ffi.NULL, options),
                            lambda c: lib.ly_ctx_destroy(c, ffi.NULL))
         if not self._ctx:
