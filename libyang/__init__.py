@@ -252,6 +252,20 @@ class DataTree:
         lib.lyd_print_mem(buf, self._root, format, lib.LYP_WITHSIBLINGS)
         return c2str(buf[0])
 
+    def dump_datanodes(self):
+        # This is suboptimal at present - want to move this down to C or
+        # avoid the extra funaction call.
+        nodelist = {}
+        start_node = lib.lypy_get_root_node(self._root)
+
+        DataNode._find_nodes(self._ctx, nodelist, start_node)
+
+        sorted_keys = list(nodelist.keys())
+        sorted_keys.sort()
+
+        for key in sorted_keys:
+            yield nodelist[key]
+
 
 # ------------------------------------------------------------------------------
 LOG_LEVELS = {

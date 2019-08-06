@@ -221,7 +221,7 @@ class test_libyangdata(unittest.TestCase):
         xpath = '/minimal-integrationtest:nesting/bronze/silver/gold/platinum/deep'
 
         # Act
-        self.data.set_xpath(xpath, "down here")
+        self.data.set_xpath(xpath, 'down here')
         node = next(self.data.get_xpath(xpath))
         root = node.get_root()
 
@@ -230,3 +230,70 @@ class test_libyangdata(unittest.TestCase):
         self.assertEqual(node.value, 'down here')
         self.assertEqual(repr(node.get_schema()), '<libyang.schema.Node: deep>')
         self.assertEqual(repr(root), '<libyang.data.DataNode: />')
+
+    def test_deep_nodes_and_get_schema(self):
+        """
+        libyang definetely keeps track of insertion order.
+
+        If we change the order of the set_xpath()'s operations we will get a different
+        order in the results. This (for now) is mitigated by sorting the result by
+        xpath - see data/dump_datanodes (i.e. sorted_keys.sort())
+        """
+        # Arrange
+        xpath = '/minimal-integrationtest:nesting/bronze/silver/gold/platinum/deep'
+        xpath2 = '/minimal-integrationtest:nesting/bronze/silver/gold/platinum/deep2'
+        xpath3 = '/minimal-integrationtest:nesting/bronze/silver/gold/platinum/deep3'
+        xpath4 = '/minimal-integrationtest:types/str1'
+
+        # Act
+        self.data.set_xpath(xpath, 'down here')
+        self.data.set_xpath(xpath2, 'down here too')
+        self.data.set_xpath(xpath3, 'im down here too')
+        self.data.set_xpath(xpath4, 'top level string')
+
+        node = next(self.data.get_xpath(xpath))
+        root = node.get_root()
+        results = list(root.dump_datanodes())
+
+        # Assert
+        expected_results = [
+            '<libyang.data.DataNode: /minimal-integrationtest:nesting/bronze/silver/gold/platinum/deep>',
+            '<libyang.data.DataNode: /minimal-integrationtest:nesting/bronze/silver/gold/platinum/deep2>',
+            '<libyang.data.DataNode: /minimal-integrationtest:nesting/bronze/silver/gold/platinum/deep3>',
+            '<libyang.data.DataNode: /minimal-integrationtest:types/str1>'
+        ]
+        for result in results:
+            self.assertEqual(expected_results.pop(0), repr(result))
+
+    def test_deep_nodes_and_get_schema_different_order(self):
+        """
+        libyang definetely keeps track of insertion order.
+
+        If we change the order of the set_xpath()'s operations we will get a different
+        order in the results.
+        """
+        # Arrange
+        xpath = '/minimal-integrationtest:nesting/bronze/silver/gold/platinum/deep'
+        xpath2 = '/minimal-integrationtest:nesting/bronze/silver/gold/platinum/deep2'
+        xpath3 = '/minimal-integrationtest:nesting/bronze/silver/gold/platinum/deep3'
+        xpath4 = '/minimal-integrationtest:types/str1'
+
+        # Act
+        self.data.set_xpath(xpath4, 'top level string')
+        self.data.set_xpath(xpath3, 'im down here too')
+        self.data.set_xpath(xpath2, 'down here too')
+        self.data.set_xpath(xpath, 'down here')
+
+        node = next(self.data.get_xpath(xpath))
+        root = node.get_root()
+        results = list(root.dump_datanodes())
+
+        # Assert
+        expected_results = [
+            '<libyang.data.DataNode: /minimal-integrationtest:nesting/bronze/silver/gold/platinum/deep>',
+            '<libyang.data.DataNode: /minimal-integrationtest:nesting/bronze/silver/gold/platinum/deep2>',
+            '<libyang.data.DataNode: /minimal-integrationtest:nesting/bronze/silver/gold/platinum/deep3>',
+            '<libyang.data.DataNode: /minimal-integrationtest:types/str1>'
+        ]
+        for result in results:
+            self.assertEqual(expected_results.pop(0), repr(result))
