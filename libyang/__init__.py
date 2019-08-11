@@ -112,19 +112,32 @@ class DataTree:
     """
 
     def __init__(self, ctx):
-        self._ctx = ctx._ctx
+        self._ctx = ctx
+        self._lyctx = ctx._ctx
         self._root = None
 
     def set_xpath(self, xpath, value):
         """
         Set a value by XPAH - with siblings/dependent nodes getting created.
+
+        If the path already exists with the same value (no data change0 then lyd_new_path
+        will return NULL.
         """
-        value = DataNode.convert_python_value(value)
+
+        libyang_value = DataNode.convert_python_value(value)
 
         if self._root is None:
-            self._root = lib.lyd_new_path(ffi.NULL, self._ctx, str2c(xpath), value, 0, lib.LYD_PATH_OPT_UPDATE)
+            node = lib.lyd_new_path(ffi.NULL, self._lyctx , str2c(xpath), libyang_value, 0, lib.LYD_PATH_OPT_UPDATE)
+            if not node:
+                raise LibyangError('The value {0} was not set at {1}\nCheck the path and value'.format(value, xpath))
+            self._root = node
         else:
-            lib.lyd_new_path(self._root, ffi.NULL, str2c(xpath), value, 0, lib.LYD_PATH_OPT_UPDATE)
+            node = lib.lyd_new_path(self._root, ffi.NULL, str2c(xpath), libyang_value, 0, lib.LYD_PATH_OPT_UPDATE)
+
+        if not node:
+            node_set = lib.lyd_find_path(self._root, str2c(xpath))
+            if node_set.number == 0:
+                raise LibyangError('The value {0} was not set at {1}\nCheck the path and value'.format(value, xpath))
 
     def get_xpath(self, xpath):
         """
@@ -199,8 +212,10 @@ class DataTree:
         # TODO:  what about freeing an initial root if one exists
         """
         if self._root:
-            raise LibyangError('load() not supported when data is already set - because the old note is not cleanly released.')
-        self._root = lib.lyd_parse_path(self._ctx, str2c(filename), format, lib.LYD_OPT_CONFIG)
+            raise LibyangError('load() not supported when data is already set - because the old node is not cleanly released.')
+        self._root = lib.lyd_parse_path(self._lyctx , str2c(filename), format, lib.LYD_OPT_CONFIG)
+        if self._root == ffi.NULL:
+            raise self._ctx.error('Marshalling Error')
 
     def loads(self, payload, format=lib.LYD_XML):
         """
@@ -209,7 +224,9 @@ class DataTree:
         if self._root:
             raise LibyangError('load() not supported when data is already set - because the old note is not cleanly released.')
 
-        self._root = lib.lyd_parse_mem(self._ctx, str2c(payload), format, lib.LYD_OPT_CONFIG)
+        self._root = lib.lyd_parse_mem(self._lyctx, str2c(payload), format, lib.LYD_OPT_CONFIG)
+        if self._root == ffi.NULL:
+            raise self._ctx.error('Marshalling Error')
 
     def dumps(self, format=lib.LYD_XML):
         """
@@ -228,13 +245,10 @@ class DataTree:
         nodelist = {}
         start_node = lib.lypy_get_root_node(self._root)
 
-        DataNode._find_nodes(self._ctx, nodelist, start_node)
+        DataNode._find_nodes(self._lyctx, nodelist, start_node)
 
-        sorted_keys = list(nodelist.keys())
-        sorted_keys.sort()
-
-        for key in sorted_keys:
-            yield nodelist[key]
+        for node in nodelist:
+            yield nodelist[node]
 
 
 # ------------------------------------------------------------------------------
