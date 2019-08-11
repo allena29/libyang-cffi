@@ -148,13 +148,25 @@ class DataTree:
     def set_xpath(self, xpath, value):
         """
         Set a value by XPAH - with siblings/dependent nodes getting created.
+
+        If the path already exists with the same value (no data change0 then lyd_new_path
+        will return NULL.
         """
-        value = DataNode.convert_python_value(value)
+
+        libyang_value = DataNode.convert_python_value(value)
 
         if self._root is None:
-            self._root = lib.lyd_new_path(ffi.NULL, self._ctx, str2c(xpath), value, 0, lib.LYD_PATH_OPT_UPDATE)
+            node = lib.lyd_new_path(ffi.NULL, self._ctx, str2c(xpath), libyang_value, 0, lib.LYD_PATH_OPT_UPDATE)
+            if not node:
+                raise LibyangError('The value {0} was not set at {1}\nCheck the path and value'.format(value, xpath))
+            self._root = node
         else:
-            lib.lyd_new_path(self._root, ffi.NULL, str2c(xpath), value, 0, lib.LYD_PATH_OPT_UPDATE)
+            node = lib.lyd_new_path(self._root, ffi.NULL, str2c(xpath), libyang_value, 0, lib.LYD_PATH_OPT_UPDATE)
+
+        if not node:
+            node_set = lib.lyd_find_path(self._root, str2c(xpath))
+            if node_set.number == 0:
+                raise LibyangError('The value {0} was not set at {1}\nCheck the path and value'.format(value, xpath))
 
     def get_xpath(self, xpath):
         """
@@ -260,11 +272,8 @@ class DataTree:
 
         DataNode._find_nodes(self._ctx, nodelist, start_node)
 
-        sorted_keys = list(nodelist.keys())
-        sorted_keys.sort()
-
-        for key in sorted_keys:
-            yield nodelist[key]
+        for node in nodelist:
+            yield nodelist[node]
 
 
 # ------------------------------------------------------------------------------
