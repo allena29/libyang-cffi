@@ -79,10 +79,11 @@ class DataNode(object):
     @staticmethod
     def _get_value_from_lyd_node(lyd_node, xpath=None):
         """
-        When data is set /got from a lyd_node things come back as strings instead of their
-        proper types.
+        When data is set /got from a lyd_node things come back as strings instead of
+        their proper types.
 
-        This method gets the value from a lyd_node and converts it to proper python types.
+        This method gets the value from a lyd_node and converts it to proper python
+        types.
         """
         if lyd_node.schema.nodetype in (lib.LYS_LEAF, lib.LYS_LEAFLIST):
             leaf = ffi.cast('struct lyd_node_leaf_list *', lyd_node)
@@ -106,7 +107,6 @@ class DataNode(object):
         if lyd_node.schema.nodetype == lib.LYS_CONTAINER:
             return True
 
-        raise ValueError('Didnt manage to set a vlue.... %s' % (lyd_node.schema.nodetype))
         return None
 
     def __str__(self):
