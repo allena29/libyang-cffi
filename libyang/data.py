@@ -136,7 +136,7 @@ class DataNode(object):
     def _find_nodes(context, nodelist, start_node):
         node = start_node
         while 1:
-            if node.schema.nodetype in (4, 8):    # LEAF or LEAF_LIST
+            if node.schema.nodetype in (1, 4, 8):    # LEAF or LEAF_LIST
                 xpath = c2str(lib.lyd_path(node))
                 nodelist[xpath] = DataNode(context, node, xpath)
 
