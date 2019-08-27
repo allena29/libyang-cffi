@@ -292,6 +292,19 @@ class test_libyangdata(unittest.TestCase):
             '<libyang.data.DataNode: /minimal-integrationtest:nesting/bronze/silver/gold/platinum/deep3>',
             '<libyang.data.DataNode: /minimal-integrationtest:types/str1>'
         ]
+        expected_results = [
+            '<libyang.data.DataNode: /minimal-integrationtest:nesting>',
+            '<libyang.data.DataNode: /minimal-integrationtest:nesting/bronze>',
+            '<libyang.data.DataNode: /minimal-integrationtest:nesting/bronze/silver>',
+            '<libyang.data.DataNode: /minimal-integrationtest:nesting/bronze/silver/gold>',
+            '<libyang.data.DataNode: /minimal-integrationtest:nesting/bronze/silver/gold/platinum>',
+            '<libyang.data.DataNode: /minimal-integrationtest:nesting/bronze/silver/gold/platinum/deep>',
+            '<libyang.data.DataNode: /minimal-integrationtest:nesting/bronze/silver/gold/platinum/deep2>',
+            '<libyang.data.DataNode: /minimal-integrationtest:nesting/bronze/silver/gold/platinum/deep3>',
+            '<libyang.data.DataNode: /minimal-integrationtest:types>',
+            '<libyang.data.DataNode: /minimal-integrationtest:types/str1>'
+        ]
+
         for result in results:
             self.assertEqual(expected_results.pop(0), repr(result))
 
@@ -320,10 +333,15 @@ class test_libyangdata(unittest.TestCase):
 
         # Assert
         expected_results = [
+            '<libyang.data.DataNode: /minimal-integrationtest:nesting>',
+            '<libyang.data.DataNode: /minimal-integrationtest:nesting/bronze>',
+            '<libyang.data.DataNode: /minimal-integrationtest:nesting/bronze/silver>',
+            '<libyang.data.DataNode: /minimal-integrationtest:nesting/bronze/silver/gold>',
+            '<libyang.data.DataNode: /minimal-integrationtest:nesting/bronze/silver/gold/platinum>',
             '<libyang.data.DataNode: /minimal-integrationtest:nesting/bronze/silver/gold/platinum/deep>',
             '<libyang.data.DataNode: /minimal-integrationtest:nesting/bronze/silver/gold/platinum/deep2>',
-            '<libyang.data.DataNode: /minimal-integrationtest:nesting/bronze/silver/gold/platinum/deep3>',
-            '<libyang.data.DataNode: /minimal-integrationtest:types/str1>'
+            '<libyang.data.DataNode: /minimal-integrationtest:nesting/bronze/silver/gold/platinum/deep3>'
         ]
+
         for result in results:
             self.assertEqual(expected_results.pop(0), repr(result))
