@@ -241,17 +241,25 @@ class DataTree:
         # TODO:  what about freeing an initial root if one exists
         """
         if self._root:
-            raise LibyangError('load() not supported when data is already set - because the old note is not cleanly released.')
+            raise LibyangError('load() not supported when data is already set - because the old node is not cleanly released.')
         self._root = lib.lyd_parse_path(self._ctx, str2c(filename), format, lib.LYD_OPT_CONFIG)
+        if self._root == ffi.NULL:
+            msg = c2str(lib.ly_errmsg(self._ctx))
+            path = c2str(lib.ly_errpath(self._ctx))
+            raise ValueError('%s %s' %(msg, path))
 
     def loads(self, payload, format=lib.LYD_XML):
         """
         Load from a string with the specified format
         """
         if self._root:
-            raise LibyangError('load() not supported when data is already set - because the old note is not cleanly released.')
+            raise LibyangError('load() not supported when data is already set - because the old node is not cleanly released.')
 
         self._root = lib.lyd_parse_mem(self._ctx, str2c(payload), format, lib.LYD_OPT_CONFIG)
+        if self._root == ffi.NULL:
+            msg = c2str(lib.ly_errmsg(self._ctx))
+            path = c2str(lib.ly_errpath(self._ctx))
+            raise ValueError('%s %s' %(msg, path))
 
     def dumps(self, format=lib.LYD_XML):
         """
