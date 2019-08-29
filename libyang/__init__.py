@@ -306,7 +306,7 @@ def set_log_level(level):
 
 
 set_log_level(logging.ERROR)
-lib.ly_set_log_clb(lib.lypy_log_cb, True)
+# lib.ly_set_log_clb(lib.lypy_log_cb, True)
 lib.ly_log_options(lib.LY_LOLOG | lib.LY_LOSTORE)
 LOG = logging.getLogger(__name__)
 LOG.addHandler(logging.NullHandler())
