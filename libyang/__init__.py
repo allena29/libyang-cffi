@@ -244,9 +244,7 @@ class DataTree:
             raise LibyangError('load() not supported when data is already set - because the old node is not cleanly released.')
         self._root = lib.lyd_parse_path(self._ctx, str2c(filename), format, lib.LYD_OPT_CONFIG)
         if self._root == ffi.NULL:
-            msg = c2str(lib.ly_errmsg(self._ctx))
-            path = c2str(lib.ly_errpath(self._ctx))
-            raise ValueError('%s %s' %(msg, path))
+            self._ctx.error("Marshalling Error")
 
     def loads(self, payload, format=lib.LYD_XML):
         """
@@ -257,9 +255,7 @@ class DataTree:
 
         self._root = lib.lyd_parse_mem(self._ctx, str2c(payload), format, lib.LYD_OPT_CONFIG)
         if self._root == ffi.NULL:
-            msg = c2str(lib.ly_errmsg(self._ctx))
-            path = c2str(lib.ly_errpath(self._ctx))
-            raise ValueError('%s %s' %(msg, path))
+            self._ctx.error("Marshalling Error")
 
     def dumps(self, format=lib.LYD_XML):
         """
