@@ -142,7 +142,8 @@ class DataTree:
     """
 
     def __init__(self, ctx):
-        self._ctx = ctx._ctx
+        self._ctx = ctx
+        self._lyctx = ctx._ctx
         self._root = None
 
     def set_xpath(self, xpath, value):
@@ -156,7 +157,7 @@ class DataTree:
         libyang_value = DataNode.convert_python_value(value)
 
         if self._root is None:
-            node = lib.lyd_new_path(ffi.NULL, self._ctx, str2c(xpath), libyang_value, 0, lib.LYD_PATH_OPT_UPDATE)
+            node = lib.lyd_new_path(ffi.NULL, self._lyctx , str2c(xpath), libyang_value, 0, lib.LYD_PATH_OPT_UPDATE)
             if not node:
                 raise LibyangError('The value {0} was not set at {1}\nCheck the path and value'.format(value, xpath))
             self._root = node
@@ -242,11 +243,9 @@ class DataTree:
         """
         if self._root:
             raise LibyangError('load() not supported when data is already set - because the old node is not cleanly released.')
-        self._root = lib.lyd_parse_path(self._ctx, str2c(filename), format, lib.LYD_OPT_CONFIG)
+        self._root = lib.lyd_parse_path(self._lyctx , str2c(filename), format, lib.LYD_OPT_CONFIG)
         if self._root == ffi.NULL:
-            msg = c2str(lib.ly_errmsg(self._ctx))
-            path = c2str(lib.ly_errpath(self._ctx))
-            raise ValueError('%s %s' %(msg, path))
+            raise self._ctx.error('Marshalling Error')
 
     def loads(self, payload, format=lib.LYD_XML):
         """
@@ -255,11 +254,9 @@ class DataTree:
         if self._root:
             raise LibyangError('load() not supported when data is already set - because the old node is not cleanly released.')
 
-        self._root = lib.lyd_parse_mem(self._ctx, str2c(payload), format, lib.LYD_OPT_CONFIG)
+        self._root = lib.lyd_parse_mem(self._lyctx, str2c(payload), format, lib.LYD_OPT_CONFIG)
         if self._root == ffi.NULL:
-            msg = c2str(lib.ly_errmsg(self._ctx))
-            path = c2str(lib.ly_errpath(self._ctx))
-            raise ValueError('%s %s' %(msg, path))
+            raise self._ctx.error('Marshalling Error')
 
     def dumps(self, format=lib.LYD_XML):
         """
@@ -278,7 +275,7 @@ class DataTree:
         nodelist = {}
         start_node = lib.lypy_get_root_node(self._root)
 
-        DataNode._find_nodes(self._ctx, nodelist, start_node)
+        DataNode._find_nodes(self._lyctx, nodelist, start_node)
 
         for node in nodelist:
             yield nodelist[node]
