@@ -246,6 +246,17 @@ class test_libyangdata(unittest.TestCase):
         # Assert
         self.assertEqual(next(self.data.get_xpath('/minimal-integrationtest:types/str1')).value, 'this-is-a-string')
 
+    def test_loads_invalid_data(self):
+        # Arrange
+        payload = '{"minimal-integrationtest:types":{"int_8":"this-is-a-string"}}'
+
+        # Act
+        with self.assertRaises(libyang.util.LibyangError) as err_context:
+            self.data.loads(payload, libyang.lib.LYD_JSON)
+
+        # Assert
+        self.assertTrue('Marshalling Error' in str(err_context.exception))
+
     def test_deep_nodes_and_get_schema(self):
         # Arrange
         xpath = '/minimal-integrationtest:nesting/bronze/silver/gold/platinum/deep'
