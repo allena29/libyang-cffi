@@ -246,6 +246,51 @@ class test_libyangdata(unittest.TestCase):
         # Assert
         self.assertEqual(next(self.data.get_xpath('/minimal-integrationtest:types/str1')).value, 'this-is-a-string')
 
+    def test_loads_merges(self):
+        # Arrange
+        payload = '{"minimal-integrationtest:types":{"str1":"this-is-a-string"}}'
+
+        # Act
+        self.data.loads(payload, libyang.lib.LYD_JSON)
+
+        # Assert
+        self.assertEqual(next(self.data.get_xpath('/minimal-integrationtest:types/str1')).value, 'this-is-a-string')
+        with self.assertRaises(StopIteration):
+            next(self.data.get_xpath('/minimal-integrationtest:types/str2'))
+
+        # Arrange
+        payload = '{"minimal-integrationtest:types":{"str2":"this-is-a-string"}}'
+
+        # Act
+        self.data.merges(payload, libyang.lib.LYD_JSON)
+
+        # Assert
+        self.assertEqual(next(self.data.get_xpath('/minimal-integrationtest:types/str1')).value, 'this-is-a-string')
+        self.assertEqual(next(self.data.get_xpath('/minimal-integrationtest:types/str2')).value, 'this-is-a-string')
+
+    def test_loads_merges_with_invalid_data_in_second_payload(self):
+        # Arrange
+        payload = '{"minimal-integrationtest:types":{"str1":"this-is-a-string"}}'
+
+        # Act
+        self.data.loads(payload, libyang.lib.LYD_JSON)
+
+        # Assert
+        self.assertEqual(next(self.data.get_xpath('/minimal-integrationtest:types/str1')).value, 'this-is-a-string')
+        with self.assertRaises(StopIteration):
+            next(self.data.get_xpath('/minimal-integrationtest:types/str2'))
+
+        # Arrange
+        payload = '{"minimal-integrationtest:types":{"u_int_8":"this-is-a-string"}}'
+
+        # Act
+        with self.assertRaises(libyang.util.LibyangError) as err_context:
+            self.data.merges(payload, libyang.lib.LYD_JSON)
+
+        # Assert
+        self.assertEqual(next(self.data.get_xpath('/minimal-integrationtest:types/str1')).value, 'this-is-a-string')
+        self.assertTrue('Marshalling Merge Error' in str(err_context.exception))
+
     def test_loads_invalid_data(self):
         # Arrange
         payload = '{"minimal-integrationtest:types":{"int_8":"this-is-a-string"}}'
@@ -272,7 +317,7 @@ class test_libyangdata(unittest.TestCase):
         self.assertEqual(repr(node.get_schema()), '<libyang.schema.Node: deep>')
         self.assertEqual(repr(root), '<libyang.data.DataNode: />')
 
-    def test_deep_nodes_and_get_schema(self):
+    def test_dump_datanodes(self):
         """
         libyang definetely keeps track of insertion order.
 
