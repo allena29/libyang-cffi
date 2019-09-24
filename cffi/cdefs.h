@@ -14,6 +14,8 @@ struct ly_ctx;
 #define LYD_OPT_CONFIG ...
 #define LYP_WITHSIBLINGS ...
 #define LYD_PATH_OPT_UPDATE ...
+#define LYD_OPT_EXPLICIT ...
+#define LYD_OPT_DESTRUCT ...
 
 struct ly_ctx *ly_ctx_new(const char *, int);
 int ly_ctx_set_searchdir(struct ly_ctx *, const char *);
@@ -438,6 +440,7 @@ struct lyd_node_leaf_list {
 struct lyd_node *lyd_new_path(struct lyd_node*, const struct ly_ctx*, const char*, void*, int, int);
 int lyd_print_file(FILE *f, const struct lyd_node *root, LYD_FORMAT format, int options);
 int lyd_print_mem(char **, const struct lyd_node *root, LYD_FORMAT format, int options);
+int lyd_merge(struct lyd_node*, const struct lyd_node*, int options);
 struct ly_set *lyd_find_path(const struct lyd_node *ctx_node, const char *path);
 struct lyd_node *lyd_parse_path(struct ly_ctx *ctx, const char *path, LYD_FORMAT format, int options);
 struct lyd_node *lyd_parse_mem(struct ly_ctx *ctx, const char *data, LYD_FORMAT format, int options);

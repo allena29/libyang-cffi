@@ -228,6 +228,20 @@ class DataTree:
         if self._root == ffi.NULL:
             raise self._ctx.error('Marshalling Error')
 
+    def merges(self, payload, format=lib.LYD_XML):
+        """
+        Load from a string with the specified format
+        """
+        if not self._root:
+            raise LibyangError('merges() not possible until data exists on the root object.')
+
+        tmp = lib.lyd_parse_mem(self._lyctx, str2c(payload), format, lib.LYD_OPT_CONFIG)
+        if tmp == ffi.NULL:
+            raise self._ctx.error('Marshalling Merge Error')
+
+        if not lib.lyd_merge(self._root, tmp, lib.LYD_OPT_DESTRUCT) == 0:
+            return self._ctx.error('Merge Error')
+
     def dumps(self, format=lib.LYD_XML):
         """
         Load from a string with the specified format
