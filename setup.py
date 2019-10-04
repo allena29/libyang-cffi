@@ -63,6 +63,7 @@ class BuildCLib(build_clib):
             ],
             ['make', '-j%d' % multiprocessing.cpu_count()],
             ['make', 'install'],
+            ['ldconfig']
         ]
         for cmd in commands:
             log.debug('%s$ %s', CLIB_PREFIX, ' '.join(cmd))
