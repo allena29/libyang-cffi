@@ -87,7 +87,7 @@ class test_libyangdata(unittest.TestCase):
         # Arrange
         xpath1 = BASE_XPATH + ':types/str1'
         xpath2 = BASE_XPATH + ':types/u_int_8'
-        value1 = "HELLO"
+        value1 = 'HELLO'
         value2 = 9999
 
         # Act
@@ -102,7 +102,7 @@ class test_libyangdata(unittest.TestCase):
         # Arrange
         xpath1 = BASE_XPATH + ':types/str1'
         xpath2 = BASE_XPATH + ':types/uint8'
-        value1 = "HELLO"
+        value1 = 'HELLO'
         value2 = 99
 
         # Act
@@ -160,6 +160,19 @@ class test_libyangdata(unittest.TestCase):
 
         # Assert
         self.assertEqual(result, value)
+
+    def test_list_max_elementst(self):
+        # Arrange
+        xpath = BASE_XPATH + ":maxelem[a='a']/a"
+        value = 'mykey'
+
+        # Act
+        self.data.set_xpath(xpath, value)
+        length = self.data.count_xpath(BASE_XPATH + ':maxelem')
+
+        # Assert
+        self.data.validate()
+        self.assertEqual(length, 1)
 
     def test_list(self):
         # Arrange

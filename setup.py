@@ -71,7 +71,7 @@ class BuildCLib(build_clib):
     def get_library_names(self):
         if not self.libraries:
             return []
-        return ['pcre', 'metadata', 'yangdata', 'nacm', 'user_date_and_time']
+        return ['pcre', 'metadata', 'yangdata', 'nacm']
 
 
 class BuildExt(build_ext):

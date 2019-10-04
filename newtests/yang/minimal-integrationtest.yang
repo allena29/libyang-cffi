@@ -5,6 +5,13 @@ module minimal-integrationtest {
 
   description "A yang module to tets the important things of libyang's data nodes";
 
+  list maxelem {
+    key a;
+    max-elements 2;
+    leaf a {
+      type string;
+    }
+  }
   container types {
     leaf str1 {
       type string;
