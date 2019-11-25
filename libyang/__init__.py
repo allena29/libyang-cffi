@@ -236,36 +236,45 @@ class DataTree:
         with open(filename, 'w') as fh:
             lib.lyd_print_file(fh, self._root, format, lib.LYP_WITHSIBLINGS)
 
-    def load(self, filename, format=lib.LYD_XML):
+    def load(self, filename, format=lib.LYD_XML, trusted=False):
         """
         Load from a file with the specified format
         # TODO:  what about freeing an initial root if one exists
         """
+        option = lib.LYD_OPT_CONFIG
+        if trusted:
+            option = lib.LYD_OPT_TRUSTED
         if self._root:
             raise LibyangError('load() not supported when data is already set - because the old node is not cleanly released.')
-        self._root = lib.lyd_parse_path(self._lyctx , str2c(filename), format, lib.LYD_OPT_CONFIG)
+        self._root = lib.lyd_parse_path(self._lyctx , str2c(filename), format, option)
         if self._root == ffi.NULL:
             raise self._ctx.error('Marshalling Error')
 
-    def loads(self, payload, format=lib.LYD_XML):
+    def loads(self, payload, format=lib.LYD_XML, trusted=False):
         """
         Load from a string with the specified format
         """
+        option = lib.LYD_OPT_CONFIG
+        if trusted:
+            option = lib.LYD_OPT_TRUSTED
         if self._root:
             raise LibyangError('load() not supported when data is already set - because the old node is not cleanly released.')
 
-        self._root = lib.lyd_parse_mem(self._lyctx, str2c(payload), format, lib.LYD_OPT_CONFIG)
+        self._root = lib.lyd_parse_mem(self._lyctx, str2c(payload), format, option)
         if self._root == ffi.NULL:
             raise self._ctx.error('Marshalling Error')
 
-    def merges(self, payload, format=lib.LYD_XML):
+    def merges(self, payload, format=lib.LYD_XML, trusted=True):
         """
         Load from a string with the specified format
         """
+        option = lib.LYD_OPT_CONFIG
+        if trusted:
+            option = lib.LYD_OPT_TRUSTED
         if not self._root:
             raise LibyangError('merges() not possible until data exists on the root object.')
 
-        tmp = lib.lyd_parse_mem(self._lyctx, str2c(payload), format, lib.LYD_OPT_CONFIG)
+        tmp = lib.lyd_parse_mem(self._lyctx, str2c(payload), format, option)
         if tmp == ffi.NULL:
             raise self._ctx.error('Marshalling Merge Error')
 
