@@ -145,32 +145,27 @@ class DataTree:
         """
         # TODO: work out what happens with a python generator, if the caller just calls next() does gc get as
         # far as actually calling ly_set_free()????
+        if self._root is not None:
+            node_set = lib.lyd_find_path(self._root, str2c(xpath))
+            if node_set == ffi.NULL:
+                yield None
 
-        if self._root is None:
-            return
-
-        node_set = lib.lyd_find_path(self._root, str2c(xpath))
-        if node_set == ffi.NULL:
-            return
-
-        for i in range(node_set.number):
-            yield DataNode(self, node_set.set.d[i], xpath)
-        lib.ly_set_free(node_set)
+            for i in range(node_set.number):
+                yield DataNode(self, node_set.set.d[i], xpath)
+            lib.ly_set_free(node_set)
 
     def gets_xpath(self, xpath):
         """
         Get the XPATH of each list element wtithin the list - returns a generator
         """
-        if self._root is None:
-            return
-
-        node_set = lib.lyd_find_path(self._root, str2c(xpath))
-        if node_set == ffi.NULL:
-            return []
-
-        for i in range(node_set.number):
-            yield c2str(lib.lyd_path(node_set.set.d[i]))
-        lib.ly_set_free(node_set)
+        if self._root is not None:
+            node_set = lib.lyd_find_path(self._root, str2c(xpath))
+            if node_set == ffi.NULL:
+                yield []
+            else:
+                for i in range(node_set.number):
+                    yield c2str(lib.lyd_path(node_set.set.d[i]))
+            lib.ly_set_free(node_set)
 
     def delete_xpath(self, xpath):
         """
