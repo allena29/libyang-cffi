@@ -143,4 +143,12 @@ const struct lyd_node *lypy_get_root_node(const struct lyd_node *node) {
 		}
 		tmp_node = tmp_node->parent;
   }
+
+}
+
+int validate_data_tree(struct lyd_node *node){
+	struct lyd_node *ptr = node;
+	int response = 0;
+	response = lyd_validate(&ptr, LYD_OPT_CONFIG, NULL);
+	return response;
 }

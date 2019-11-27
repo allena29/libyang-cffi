@@ -449,3 +449,4 @@ void lyd_free_diff(struct lyd_difflist *diff);
 
 const char* ly_errmsg(const struct ly_ctx *ctx);
 const char* ly_errpath(const struct ly_ctx *ctx);
+int validate_data_tree( struct lyd_node *node);
