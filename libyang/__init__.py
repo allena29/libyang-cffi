@@ -271,8 +271,8 @@ class DataTree:
     def validate(self):
         if not self._root:
             return True
-        
-        result = lib.validate_data_tree(self._root)
+
+        result = lib.validate_data_tree(self._root, self._ctx._ctx)
 
         if result == 0:
             return True
