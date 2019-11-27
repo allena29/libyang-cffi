@@ -298,6 +298,12 @@ class DataTree:
         for node in nodelist:
             yield nodelist[node]
 
+    def validate(self):
+        if not self._root:
+            raise LibyangError('validate() not possible until data exists on the root object.')
+        result = lib.validate_data_tree(self._root)
+        raise ValueError('Response from validaate == %s' %(result))
+
 
 # ------------------------------------------------------------------------------
 LOG_LEVELS = {
