@@ -302,7 +302,10 @@ class DataTree:
         if not self._root:
             raise LibyangError('validate() not possible until data exists on the root object.')
         result = lib.validate_data_tree(self._root)
-        raise ValueError('Response from validaate == %s' %(result))
+
+        if result == 0:
+            return True
+        raise self._ctx.error('Validation Error')
 
 
 # ------------------------------------------------------------------------------
