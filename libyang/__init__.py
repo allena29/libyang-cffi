@@ -298,6 +298,16 @@ class DataTree:
         for node in nodelist:
             yield nodelist[node]
 
+    def validate(self):
+        if not self._root:
+            return True
+        
+        result = lib.validate_data_tree(self._root)
+
+        if result == 0:
+            return True
+        raise self._ctx.error('Validation Error')
+
 
 # ------------------------------------------------------------------------------
 LOG_LEVELS = {
