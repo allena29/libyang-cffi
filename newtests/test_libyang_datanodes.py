@@ -191,21 +191,6 @@ class test_libyangdata(unittest.TestCase):
         for result in results:
             self.assertEqual(result.value, expected_results.pop(0))
 
-    # def test_load(self):
-    #     # Act
-    #     self.data.load('/tmp/unittest.json', libyang.lib.LYD_JSON)
-    #
-    #     self.assertEqual(next(self.data.get_xpath('/minimal-integrationtest:types/str1')).value, 'this-is-a-string')
-    #
-    # def test_dump(self):
-    #     # Arrange
-    #     xpath = BASE_XPATH + ':types/str1'
-    #     value = 'this-is-a-string'
-    #     self.data.set_xpath(xpath, value)
-    #
-    #     # Act
-    #     self.data.dump('/tmp/unittest.json', libyang.lib.LYD_JSON)
-
     def test_dumps(self):
         # Arrange
         xpath = BASE_XPATH + ":types/collection[x='mykey']/x"
@@ -284,6 +269,56 @@ class test_libyangdata(unittest.TestCase):
 
         # Assert
         self.assertTrue('Marshalling Error' in str(err_context.exception))
+
+    def test_merges_into_the_same_container(self):
+        # Arrange
+        payload_one = '''<metals xmlns="http://mellon-collie.net/yang/minimal-integrationtest">
+        <a>AA</a><b>BB</b><metal><iron><ore>AAA</ore></iron></metal></metals>'''
+        payload_two = '''<metals xmlns="http://mellon-collie.net/yang/minimal-integrationtest">
+        <a>AA</a><b>BB</b><metal><nickel><coin>b</coin></nickel></metal></metals>'''
+        payload_three = '''<metals xmlns="http://mellon-collie.net/yang/minimal-integrationtest">
+        <a>AA</a><b>BB</b><metal><steel><girder>c</girder></steel></metal></metals>'''
+
+        # Act
+        self.data.loads(payload_one)
+        self.data.merges(payload_two)
+        self.data.merges(payload_three)
+        result = self.data.dumps()
+
+        # # Assert
+        xpath = '/minimal-integrationtest:metals[a="AA"][b="BB"]'
+        self.assertEqual(next(self.data.get_xpath(xpath + '/metal/iron/ore')).value, 'AAA')
+        self.assertEqual(next(self.data.get_xpath(xpath + '/metal/nickel/coin')).value, 'b')
+        self.assertEqual(next(self.data.get_xpath(xpath + '/metal/steel/girder')).value, 'c')
+
+        expected_result = '<metals xmlns="http://mellon-collie.net/yang/minimal-integrationtest"><a>AA</a><b>BB</b>'
+        expected_result += '<metal><iron><ore>AAA</ore></iron><steel><girder>c</girder></steel></metal></metals>'
+        self.assertEqual(result, expected_result)
+
+    def test_merges_into_the_same_container_with_matching_default(self):
+        # Arrange
+        payload_one = '''<metals xmlns="http://mellon-collie.net/yang/minimal-integrationtest">
+        <a>AA</a><b>BB</b><metal><iron><ore>a</ore></iron></metal></metals>'''
+        payload_two = '''<metals xmlns="http://mellon-collie.net/yang/minimal-integrationtest">
+        <a>AA</a><b>BB</b><metal><nickel><coin>b</coin></nickel></metal></metals>'''
+        payload_three = '''<metals xmlns="http://mellon-collie.net/yang/minimal-integrationtest">
+        <a>AA</a><b>BB</b><metal><steel><girder>c</girder></steel></metal></metals>'''
+
+        # Act
+        self.data.loads(payload_one)
+        self.data.merges(payload_two)
+        self.data.merges(payload_three)
+        result = self.data.dumps()
+
+        # # Assert
+        xpath = '/minimal-integrationtest:metals[a="AA"][b="BB"]'
+        self.assertEqual(next(self.data.get_xpath(xpath + '/metal/iron/ore')).value, 'a')
+        self.assertEqual(next(self.data.get_xpath(xpath + '/metal/nickel/coin')).value, 'b')
+        self.assertEqual(next(self.data.get_xpath(xpath + '/metal/steel/girder')).value, 'c')
+
+        expected_result = '<metals xmlns="http://mellon-collie.net/yang/minimal-integrationtest"><a>AA</a><b>BB</b>'
+        expected_result += '<metal><iron><ore>a</ore></iron><steel><girder>c</girder></steel></metal></metals>'
+        self.assertEqual(result, expected_result)
 
     def test_deep_nodes_and_get_schema(self):
         # Arrange

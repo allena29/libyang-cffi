@@ -77,6 +77,34 @@ module minimal-integrationtest {
     }
   }
 
+  list metals {
+    key "a b";
+    leaf a {
+      type string;
+    }
+    leaf b {
+      type string;
+    }
+    container metal {
+      container iron {
+        leaf ore {
+          default "a";
+          type string;
+        }
+      }
+      container nickel {
+        leaf coin {
+          type string;
+          default "b";
+        }
+      }
+      container steel {
+        leaf girder {
+          type string;
+        }
+      }
+    }
+  }
   container nesting {
     container bronze {
       container silver {

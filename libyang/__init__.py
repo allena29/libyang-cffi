@@ -243,7 +243,7 @@ class DataTree:
         if tmp == ffi.NULL:
             raise self._ctx.error('Marshalling Merge Error')
 
-        if not lib.lyd_merge(self._root, tmp, lib.LYD_OPT_DESTRUCT) == 0:
+        if not lib.lyd_merge(self._root, tmp, lib.LYD_OPT_EXPLICIT) == 0:
             return self._ctx.error('Merge Error')
 
     def dumps(self, format=lib.LYD_XML):
