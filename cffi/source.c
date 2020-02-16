@@ -118,13 +118,10 @@ static char *lypy_node_fullname(const struct lys_node *node)
 }
 
 
-static char *get_xpath_from_lyd_node(const struct lyd_node *node) {
+const struct lyd_node *lypy_get_last_lyd_node(const struct lyd_node *node) {
   const struct lyd_node *tmp_node = NULL;
-
   tmp_node = node;
-  while(1==1){
-
-    printf("node type; %d\n", tmp_node->schema->nodetype);
+  while(1){
     if(tmp_node->schema->nodetype & (LYS_LEAF | LYS_LEAFLIST)){
       break;
     }
@@ -135,5 +132,5 @@ static char *get_xpath_from_lyd_node(const struct lyd_node *node) {
     }
   }
 
-  return lyd_path(tmp_node);
+  return tmp_node;
 }

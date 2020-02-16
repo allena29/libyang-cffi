@@ -453,8 +453,10 @@ struct lyd_node_leaf_list {
 
 struct lyd_node *lyd_new_path(struct lyd_node*, const struct ly_ctx*, const char*, void*, int, int);
 int lyd_print_file(FILE *f, const struct lyd_node *root, LYD_FORMAT format, int options);
+int lyd_print_mem(char **, const struct lyd_node *root, LYD_FORMAT format, int options);
 struct ly_set *lyd_find_path(const struct lyd_node *ctx_node, const char *path);
 struct lyd_node *lyd_parse_path(struct ly_ctx *ctx, const char *path, LYD_FORMAT format, int options);
+struct lyd_node *lyd_parse_mem(struct ly_ctx *ctx, const char *data, LYD_FORMAT format, int options);
 struct lyd_difflist *lyd_diff(struct lyd_node *first, struct lyd_node *second, int options);
 char *lyd_path(const struct lyd_node *node);
 void lyd_free(struct lyd_node *node);
@@ -466,5 +468,4 @@ const struct lys_ext_instance **, uint8_t,
 const char *, const char *, const char *);
 char *lypy_data_path_pattern(const struct lys_node *);
 char *lypy_node_fullname(const struct lys_node *);
-
-static char *get_xpath_from_lyd_node(const struct lyd_node *node);
+const struct lyd_node *lypy_get_last_lyd_node(const struct lyd_node *node);
