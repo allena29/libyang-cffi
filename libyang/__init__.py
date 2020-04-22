@@ -201,27 +201,31 @@ class DataTree:
         with open(filename, 'w') as fh:
             lib.lyd_print_file(fh, self._root, format, lib.LYP_WITHSIBLINGS)
 
-    def load(self, filename, format=lib.LYD_XML, trusted=False):
+    def load(self, filename, format=lib.LYD_XML, trusted=False, strict=True):
         """
         Load from a file with the specified format
         # TODO:  what about freeing an initial root if one exists
         """
         option = lib.LYD_OPT_CONFIG
+        if strict:
+            option = option | lib.LYD_OPT_STRICT
         if trusted:
-            option = lib.LYD_OPT_TRUSTED
+            option = option | lib.LYD_OPT_TRUSTED
         if self._root:
             raise LibyangError('load() not supported when data is already set - because the old node is not cleanly released.')
         self._root = lib.lyd_parse_path(self._lyctx , str2c(filename), format, option)
         if self._root == ffi.NULL:
             raise self._ctx.error('Marshalling Error')
 
-    def loads(self, payload, format=lib.LYD_XML, trusted=False):
+    def loads(self, payload, format=lib.LYD_XML, trusted=False, strict=True):
         """
         Load from a string with the specified format
         """
         option = lib.LYD_OPT_CONFIG
+        if strict:
+            option = option | lib.LYD_OPT_STRICT
         if trusted:
-            option = lib.LYD_OPT_TRUSTED
+            option = option | lib.LYD_OPT_TRUSTED
         if self._root:
             raise LibyangError('load() not supported when data is already set - because the old note is not cleanly released.')
 
@@ -229,13 +233,15 @@ class DataTree:
         if self._root == ffi.NULL:
             raise self._ctx.error('Marshalling Error')
 
-    def merges(self, payload, format=lib.LYD_XML, trusted=True):
+    def merges(self, payload, format=lib.LYD_XML, trusted=True, strict=True):
         """
         Load from a string with the specified format
         """
         option = lib.LYD_OPT_CONFIG
+        if strict:
+            option = option | lib.LYD_OPT_STRICT
         if trusted:
-            option = lib.LYD_OPT_TRUSTED
+            option = option | lib.LYD_OPT_TRUSTED
         if not self._root:
             raise LibyangError('merges() not possible until data exists on the root object.')
 

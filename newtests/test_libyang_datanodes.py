@@ -232,7 +232,15 @@ class test_libyangdata(unittest.TestCase):
         # Act
         self.data.merges(payload, libyang.lib.LYD_JSON)
 
+        # Arrange
+        payload = '{"minimal-integrationtest:types":{"invalid-node-name":"this-is-a-string"}}'
+
+        # Act
+        with self.assertRaises(libyang.util.LibyangError) as err:
+            self.data.merges(payload, libyang.lib.LYD_JSON, strict=True)
+
         # Assert
+        self.assertTrue('Unknown element "invalid-node-name"' in str(err.exception))
         self.assertEqual(next(self.data.get_xpath('/minimal-integrationtest:types/str1')).value, 'this-is-a-string')
         self.assertEqual(next(self.data.get_xpath('/minimal-integrationtest:types/str2')).value, 'this-is-a-string')
 
@@ -419,3 +427,14 @@ class test_libyangdata(unittest.TestCase):
 
         for result in results:
             self.assertEqual(expected_results.pop(0), repr(result))
+
+    def test_loads_with_unrecognised_nodes(self):
+        # Arrange
+        payload = '{"minimal-integrationtest:types":{"invalid-node-name":"this-should-blowup"}}'
+
+        # Act
+        with self.assertRaises(libyang.util.LibyangError) as err:
+            self.data.loads(payload, libyang.lib.LYD_JSON, strict=True)
+
+        # Assert
+        self.assertTrue('Unknown element "invalid-node-name"' in str(err.exception))
