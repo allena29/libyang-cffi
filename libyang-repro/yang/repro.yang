@@ -1,0 +1,16 @@
+module repro {
+  
+  namespace "http://example.com/repro";
+  prefix "repro";
+
+  leaf bob {
+    type uint64;
+  }
+  leaf tarzan {
+    type enumeration {
+      enum A;
+      enum B;
+      enum C;
+    }
+  }
+}

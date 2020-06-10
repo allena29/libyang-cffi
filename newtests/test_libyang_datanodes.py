@@ -438,3 +438,17 @@ class test_libyangdata(unittest.TestCase):
 
         # Assert
         self.assertTrue('Unknown element "invalid-node-name"' in str(err.exception))
+
+    def test_libyang_1_0_130_defect_with_setting_invalid_data(self):
+        # Arrange
+        xpath = '/minimal-integrationtest:types/enumeratio'
+
+        # Act
+        self.data.set_xpath(xpath, 'A')
+
+        self.assertEqual(next(self.data.get_xpath(xpath)).value, 'A')
+
+        # Act
+        self.data.set_xpath(xpath, 'C')
+
+        self.assertEqual(next(self.data.get_xpath(xpath)).value, 'A')
