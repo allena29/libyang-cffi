@@ -132,6 +132,6 @@ const struct lyd_node *lypy_get_root_node(const struct lyd_node *node) {
 int validate_data_tree(struct lyd_node *node, struct ly_ctx *ctx){
 	struct lyd_node *ptr = node;
 	int response = 0;
-	response = lyd_validate(&ptr, LYD_OPT_DATA_NO_YANGLIB, ctx);
+	response = lyd_validate(&ptr, LYD_OPT_DATA_NO_YANGLIB | LYD_OPT_STRICT, ctx);
 	return response;
 }
