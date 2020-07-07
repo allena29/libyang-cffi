@@ -452,3 +452,59 @@ class test_libyangdata(unittest.TestCase):
         self.data.set_xpath(xpath, 'C')
 
         self.assertEqual(next(self.data.get_xpath(xpath)).value, 'A')
+
+    def test_deleting_a_list_element_from_a_list(self):
+        # Arrange
+        payload = ('<types xmlns="http://mellon-collie.net/yang/minimal-integrationtest"><collection>'
+        '<x>a</x></collection><collection><x>b</x><y>b</y></collection><collection><x>c</x>'
+        '</collection></types>')
+
+        # Act
+        self.data.loads(payload, libyang.lib.LYD_XML)
+        self.data.delete_xpath("/minimal-integrationtest:types/collection[x='b']")
+
+        # Assert
+        expected_result = ('<types xmlns="http://mellon-collie.net/yang/minimal-integrationtest">'
+        '<collection><x>a</x></collection><collection><x>c</x></collection></types>')
+
+        self.assertEqual(self.data.dumps(),  expected_result)
+
+    def test_deleting_a_presence_container_that_is_empty(self):
+        # Arrange
+        self.maxDiff=None
+        payload = ('<types xmlns="http://mellon-collie.net/yang/minimal-integrationtest"><collection>'
+        '<x>a</x></collection><collection><x>b</x><y>b</y><z><zzz/></z></collection><collection><x>c</x>'
+        '</collection></types>')
+
+        # Act
+        self.data.loads(payload, libyang.lib.LYD_XML)
+        self.data.delete_xpath("/minimal-integrationtest:types/collection[x='b']/z/zzz")
+
+        # Assert
+
+        expected_result = ('<types xmlns="http://mellon-collie.net/yang/minimal-integrationtest">'
+                           '<collection><x>a</x></collection><collection><x>b</x><y>b</y><z/>'
+                           '</collection><collection><x>c</x></collection></types>')
+
+        self.assertEqual(self.data.dumps(),  expected_result)
+
+    def test_deleting_a_presence_container_that_is_populated_and_then_trying_to_delete_its_contents(self):
+        # Arrange
+        self.maxDiff=None
+        payload = ('<types xmlns="http://mellon-collie.net/yang/minimal-integrationtest"><collection>'
+        '<x>a</x></collection><collection><x>b</x><y>b</y><z><zzz/></z></collection><collection><x>c</x>'
+        '</collection></types>')
+
+        # Act
+        self.data.loads(payload, libyang.lib.LYD_XML)
+        self.data.delete_xpath("/minimal-integrationtest:types/collection[x='b']/z")
+
+        # Assert
+
+        expected_result = ('<types xmlns="http://mellon-collie.net/yang/minimal-integrationtest">'
+                           '<collection><x>a</x></collection><collection><x>b</x><y>b</y>'
+                           '</collection><collection><x>c</x></collection></types>')
+
+        self.assertEqual(self.data.dumps(),  expected_result)
+
+        self.data.delete_xpath("/minimal-integrationtest:types/collection[x='b']/z/zzz")

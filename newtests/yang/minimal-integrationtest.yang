@@ -71,6 +71,12 @@ module minimal-integrationtest {
       leaf y {
         type string;
       }
+      container z {
+        presence true;
+        leaf zzz {
+          type empty;
+        }
+      }
     }
     leaf-list simplecollection {
       type string;

@@ -178,9 +178,10 @@ class DataTree:
         if node_set == ffi.NULL:
             return
 
-        if not node_set.number == 1:
-            raise LibyangError('delete_xpath only tested to delete single xpaths to avoid caring about order')
-        lib.lyd_unlink(node_set.set.d[0])
+        if node_set.number > 0:
+            result = lib.lyd_unlink(node_set.set.d[0])
+            if result:
+                raise LibyangError('Unable to delete xpath: %s' %(xpath))
 
     def count_xpath(self, xpath):
         """
