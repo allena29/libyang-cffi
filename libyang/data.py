@@ -114,6 +114,12 @@ class DataNode(object):
         for key in sorted_keys:
             yield nodelist[key]
 
+
+
+    @staticmethod
+    def _find_netconf_attributes(node):
+        print('TODO')
+
     @staticmethod
     def _find_nodes(context, nodelist, start_node):
         node = start_node

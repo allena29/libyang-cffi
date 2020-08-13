@@ -275,6 +275,29 @@ class DataTree:
         for node in nodelist:
             yield nodelist[node]
 
+
+    def get_nodes_with_netconf_replace_delete(self):
+        nodelist = {}
+        start_node = lib.lypy_get_root_node(self._root)
+
+        DataNode._find_nodes(self._lyctx, nodelist, start_node)
+
+        for xpath in nodelist:
+            node = nodelist[xpath].lyd_node
+
+            if node.attr == ffi.NULL:
+                # yield f'{xpath} has no attrs'
+                continue
+            if node.attr.name == ffi.NULL or node.attr.value_str == ffi.NULL:
+                # yield f'{xpath} has no name or valuestr'
+                continue
+            if c2str(node.attr.name) == 'operation':
+                if c2str(node.attr.value_str) == 'replace':
+                    yield xpath
+                if c2str(node.attr.value_str) == 'delete':
+                    yield xpath
+
+
     def validate(self):
         if not self._root:
             return True

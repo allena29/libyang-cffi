@@ -491,20 +491,32 @@ class test_libyangdata(unittest.TestCase):
     def test_deleting_a_presence_container_that_is_populated_and_then_trying_to_delete_its_contents(self):
         # Arrange
         self.maxDiff=None
-        payload = ('<types xmlns="http://mellon-collie.net/yang/minimal-integrationtest"><collection>'
-        '<x>a</x></collection><collection><x>b</x><y>b</y><z><zzz/></z></collection><collection><x>c</x>'
-        '</collection></types>')
+        self.ctx.load_module('repro')
+        self.ctx.load_module('ietf-netconf')
+        payload = ('<a xmlns="http://example.com/repro"  xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0">'
+        '<my-list>'
+    '<my-key>b</my-key>'
+  '</my-list>'
+  '<my-list>'
+    '<my-key>c</my-key>'
+    '<my-nonkey-leaf>C</my-nonkey-leaf>'
+  '</my-list>'
+  '<b nc:operation="delete">c</b>'
+  '<d>e</d>'
+  '<f nc:operation="replace">'
+    '<g>'
+      '<h>i</h>'
+    '</g>'
+  '</f>'
+'</a>')
+
+        self.data.loads(payload, libyang.lib.LYD_XML)
 
         # Act
-        self.data.loads(payload, libyang.lib.LYD_XML)
-        self.data.delete_xpath("/minimal-integrationtest:types/collection[x='b']/z")
+        results = list(self.data.get_nodes_with_netconf_replace_delete())
+
 
         # Assert
+        expected_results = ['/repro:a/b', '/repro:a/f']
 
-        expected_result = ('<types xmlns="http://mellon-collie.net/yang/minimal-integrationtest">'
-                           '<collection><x>a</x></collection><collection><x>b</x><y>b</y>'
-                           '</collection><collection><x>c</x></collection></types>')
-
-        self.assertEqual(self.data.dumps(),  expected_result)
-
-        self.data.delete_xpath("/minimal-integrationtest:types/collection[x='b']/z/zzz")
+        self.assertEqual(results, expected_results)

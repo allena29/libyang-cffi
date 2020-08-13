@@ -1,0 +1,36 @@
+module repro {
+
+  namespace "http://example.com/repro";
+  prefix "repro";
+
+
+  container a {
+    leaf b {
+      type string;
+    }
+
+
+    leaf d {
+      type string;
+    }
+
+    container f {
+      presence true;
+      container g {
+        leaf h {
+          type string;
+        }
+      }
+    }
+    list my-list {
+      key my-key;
+
+      leaf my-key {
+        type string;
+      }
+      leaf my-nonkey-leaf {
+        type string;
+      }
+    }
+  }
+}
