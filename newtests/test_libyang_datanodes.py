@@ -17,6 +17,7 @@ class test_libyangdata(unittest.TestCase):
     def setUp(self):
         self.ctx = libyang.Context(YANG_DIR)
         self.ctx.load_module('minimal-integrationtest')
+        self.ctx.load_module('ietf-netconf')
         self.data = libyang.DataTree(self.ctx)
 
     def test_basic(self):
@@ -508,3 +509,14 @@ class test_libyangdata(unittest.TestCase):
         self.assertEqual(self.data.dumps(),  expected_result)
 
         self.data.delete_xpath("/minimal-integrationtest:types/collection[x='b']/z/zzz")
+
+
+    def test_load_get_netconf_tags(self):
+        payload_one = '''<metals xmlns="http://mellon-collie.net/yang/minimal-integrationtest" xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0" nc:operation="replace">
+                <a>AA</a><b>BB</b><metal><iron><ore>AAA</ore></iron></metal></metals>'''
+        self.data.loads(payload_one)
+
+        result = self.data.advancedmerge()
+
+        # Assert
+        self.assertEqual(result, 'operation')

@@ -135,3 +135,18 @@ int validate_data_tree(struct lyd_node *node, struct ly_ctx *ctx){
 	response = lyd_validate(&ptr, LYD_OPT_DATA_NO_YANGLIB | LYD_OPT_STRICT, ctx);
 	return response;
 }
+
+const char *lypy_get_netconf_annotated_nodes(const struct lyd_node *root)
+{
+	const struct lyd_node *elem, *next;
+	struct lyd_attr *node_attr;
+
+	LY_TREE_DFS_BEGIN(root, next, elem) 
+	{
+		for (node_attr = elem->attr; node_attr; node_attr = node_attr->next) {
+			return node_attr->name;
+		}
+        LY_TREE_DFS_END(root, next, elem);
+	}
+	return "None";
+}

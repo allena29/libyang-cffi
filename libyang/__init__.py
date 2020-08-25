@@ -252,6 +252,10 @@ class DataTree:
 
         if not lib.lyd_merge(self._root, tmp, lib.LYD_OPT_EXPLICIT) == 0:
             return self._ctx.error('Merge Error')
+    
+    def advancedmerge(self):
+        if self._root:
+            return c2str(lib.lypy_get_netconf_annotated_nodes(self._root))
 
     def dumps(self, format=lib.LYD_XML):
         """
