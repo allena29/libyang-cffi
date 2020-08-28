@@ -152,15 +152,15 @@ int lypy_process_attributes(struct lyd_node *root, struct ly_ctx *ctx, struct ly
 {
 	struct lyd_node *elem, *next;
 	struct lyd_attr *node_attr;
-	struct ly_set *nodes_to_delete = ly_set_new();
+	struct ly_set *nodes_to_remove = ly_set_new();
 
 	LY_TREE_DFS_BEGIN(tempRoot, next, elem) 
 	{
 		for (node_attr = elem->attr; node_attr; node_attr = node_attr->next) {
 			if(strcmp(node_attr->name, "operation") == 0) {
-				if(strcmp(node_attr->value_str, "delete") == 0) {
+				if(strcmp(node_attr->value_str, "remove") == 0) {
 					char *node_xpath = lyd_path(elem);
-					ly_set_merge(nodes_to_delete, lyd_find_path(root, node_xpath), 0);
+					ly_set_merge(nodes_to_remove, lyd_find_path(root, node_xpath), 0);
 					lyd_free(elem);
 					elem = tempRoot;
 				}
@@ -169,10 +169,10 @@ int lypy_process_attributes(struct lyd_node *root, struct ly_ctx *ctx, struct ly
         LY_TREE_DFS_END(tempRoot, next, elem);
 	}
 	
-	for(unsigned int i = 0; i < nodes_to_delete->number; i++)
+	for(unsigned int i = 0; i < nodes_to_remove->number; i++)
 	{
-		lyd_free(nodes_to_delete->set.d[i]);
+		lyd_free(nodes_to_remove->set.d[i]);
 	}
-	ly_set_free(nodes_to_delete);
+	ly_set_free(nodes_to_remove);
 	return validate_data_tree(root, ctx);
 }

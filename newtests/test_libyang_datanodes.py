@@ -541,13 +541,13 @@ class test_libyangdata(unittest.TestCase):
 
 
 
-    def test_merge_delete_tags(self):
+    def test_merge_remove_tags(self):
         payload_one = '''<metals xmlns="http://mellon-collie.net/yang/minimal-integrationtest">
         <a>AA</a><b>BB</b><metal><iron><ore>AAA</ore></iron><nickel><coin>money</coin></nickel></metal></metals>'''
         self.data.loads(payload_one)
 
         payload_two = '''<metals xmlns="http://mellon-collie.net/yang/minimal-integrationtest" xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0">
-        <a>AA</a><b>BB</b><metal><iron><ore nc:operation="delete">AAA</ore></iron><nickel><coin>money</coin></nickel></metal></metals>'''
+        <a>AA</a><b>BB</b><metal><iron><ore nc:operation="remove">AAA</ore></iron><nickel><coin>money</coin></nickel></metal></metals>'''
 
         self.data.advancedmerge(payload_two)
 
