@@ -136,17 +136,22 @@ int validate_data_tree(struct lyd_node *node, struct ly_ctx *ctx){
 	return response;
 }
 
-const char *lypy_get_netconf_annotated_nodes(const struct lyd_node *root)
+int lypy_get_netconf_annotated_nodes(struct lyd_node *root, struct ly_ctx *ctx)
 {
-	const struct lyd_node *elem, *next;
+	struct lyd_node *elem, *next;
 	struct lyd_attr *node_attr;
 
 	LY_TREE_DFS_BEGIN(root, next, elem) 
 	{
 		for (node_attr = elem->attr; node_attr; node_attr = node_attr->next) {
-			return node_attr->name;
+			if(strcmp(node_attr->name, "operation") == 0) {
+				if(strcmp(node_attr->value_str, "delete") == 0) {
+					lyd_free(elem);
+					elem = root;
+				}
+			}
 		}
         LY_TREE_DFS_END(root, next, elem);
 	}
-	return "None";
+	return validate_data_tree(root, ctx);
 }
