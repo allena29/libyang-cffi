@@ -511,12 +511,47 @@ class test_libyangdata(unittest.TestCase):
         self.data.delete_xpath("/minimal-integrationtest:types/collection[x='b']/z/zzz")
 
 
-    def test_load_get_netconf_tags(self):
-        payload_one = '''<metals xmlns="http://mellon-collie.net/yang/minimal-integrationtest" xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0" nc:operation="replace">
-                <a>AA</a><b>BB</b><metal><iron><ore>AAA</ore></iron></metal></metals>'''
+    def test_load_delete_tags(self):
+        payload_one = '''
+                            <metals xmlns="http://mellon-collie.net/yang/minimal-integrationtest" xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0">
+                                <a>AA</a>
+                                <b>BB</b>
+                                <metal>
+                                    <iron>
+                                        <ore nc:operation="delete">AAA</ore>
+                                    </iron>
+                                    <nickel>
+                                        <coin nc:operation="delete">money</coin>
+                                    </nickel>
+                                    <steel>
+                                        <girder>beam</girder>
+                                    </steel>
+                                </metal>
+                            </metals>
+                        '''
         self.data.loads(payload_one)
 
-        result = self.data.advancedmerge()
+        self.data.advancedmerge()
 
         # Assert
-        self.assertEqual(result, 'operation')
+        xpath = '/minimal-integrationtest:metals[a="AA"][b="BB"]'
+        self.assertEqual(next(self.data.get_xpath(xpath + '/metal/iron/ore')).value, 'a')
+        self.assertEqual(next(self.data.get_xpath(xpath + '/metal/nickel/coin')).value, 'b')
+        self.assertEqual(next(self.data.get_xpath(xpath + '/metal/steel/girder')).value, 'beam')
+
+
+
+    def test_merge_delete_tags(self):
+        payload_one = '''<metals xmlns="http://mellon-collie.net/yang/minimal-integrationtest">
+        <a>AA</a><b>BB</b><metal><iron><ore>AAA</ore></iron><nickel><coin>money</coin></nickel></metal></metals>'''
+        self.data.loads(payload_one)
+
+        payload_two = '''<metals xmlns="http://mellon-collie.net/yang/minimal-integrationtest" xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0">
+        <a>AA</a><b>BB</b><metal><iron><ore nc:operation="delete">AAA</ore></iron><nickel><coin>money</coin></nickel></metal></metals>'''
+
+        self.data.advancedmerge(payload_two)
+
+        # Assert
+        xpath = '/minimal-integrationtest:metals[a="AA"][b="BB"]'
+        self.assertEqual(next(self.data.get_xpath(xpath + '/metal/iron/ore')).value, 'a')
+        self.assertEqual(next(self.data.get_xpath(xpath + '/metal/nickel/coin')).value, 'money')

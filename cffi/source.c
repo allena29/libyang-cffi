@@ -136,22 +136,43 @@ int validate_data_tree(struct lyd_node *node, struct ly_ctx *ctx){
 	return response;
 }
 
-int lypy_get_netconf_annotated_nodes(struct lyd_node *root, struct ly_ctx *ctx)
+/**
+ * @brief Function to perform the actions of netconf operational attributes of 'delete' or 'replace'.
+ * Delete will delete the node and then validate the data tree at the end.
+ * 
+ * TODO: Delete needs to check if the node exists or not and throw an error if node doesn't exist?
+ * Replace is similar to delete but guess when it is a list it will behave differently.
+ * Replace could be a delete and then a node create?
+ * 
+ * Do loose validate here and then we can perform a strict validate at the end in python ourselves
+ * 
+ * TODO: BUG. Libyang does not seem to create the attributes when using a merge. 
+ */
+int lypy_process_attributes(struct lyd_node *root, struct ly_ctx *ctx, struct lyd_node *tempRoot)
 {
 	struct lyd_node *elem, *next;
 	struct lyd_attr *node_attr;
+	struct ly_set *nodes_to_delete = ly_set_new();
 
-	LY_TREE_DFS_BEGIN(root, next, elem) 
+	LY_TREE_DFS_BEGIN(tempRoot, next, elem) 
 	{
 		for (node_attr = elem->attr; node_attr; node_attr = node_attr->next) {
 			if(strcmp(node_attr->name, "operation") == 0) {
 				if(strcmp(node_attr->value_str, "delete") == 0) {
+					char *node_xpath = lyd_path(elem);
+					ly_set_merge(nodes_to_delete, lyd_find_path(root, node_xpath), 0);
 					lyd_free(elem);
-					elem = root;
+					elem = tempRoot;
 				}
 			}
 		}
-        LY_TREE_DFS_END(root, next, elem);
+        LY_TREE_DFS_END(tempRoot, next, elem);
 	}
+	
+	for(unsigned int i = 0; i < nodes_to_delete->number; i++)
+	{
+		lyd_free(nodes_to_delete->set.d[i]);
+	}
+	ly_set_free(nodes_to_delete);
 	return validate_data_tree(root, ctx);
 }
