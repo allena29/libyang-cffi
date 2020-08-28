@@ -83,6 +83,84 @@ module minimal-integrationtest {
     }
   }
 
+  list materials {
+    key "a b c";
+    leaf a {
+      type string;
+    }
+    leaf b {
+      type string;
+    }
+    leaf c {
+      type uint32;
+    }
+
+    container available {
+      presence true;
+
+      leaf factory {
+        type string;
+        default beer;
+      }
+
+      list locations {
+        key location;
+        leaf location {
+          type string;
+        }
+
+        list workers  {
+          key worker;
+
+          leaf worker {
+            type string;
+          }
+
+          leaf location {
+            type locationtype;
+          }
+
+          container personal-info {
+            presence true;
+            leaf age {
+              type uint32;
+            }
+            leaf salary {
+              type enumeration {
+                enum underpaid;
+                enum overpaid;
+              }
+            }        
+          }
+
+          container stats {
+            leaf workrate {
+              type uint32;
+            }
+            leaf idle {
+              type boolean;
+            }
+            leaf-list skills {
+              type string;
+            }
+
+          }
+        }
+
+      }
+    }
+  }
+
+  typedef locationtype {
+    type union {
+      type enumeration {
+        enum uk;
+        enum europe;
+        enum americas;
+      }
+      type string;
+    }
+  }
   list metals {
     key "a b";
     leaf a {

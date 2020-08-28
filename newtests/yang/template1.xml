@@ -1,0 +1,23 @@
+<materials xmlns="http://mellon-collie.net/yang/minimal-integrationtest" xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0">
+    <a>a</a>
+    <b>b</b>
+    <c>500</c>
+    <available>
+      <factory>beer</factory>
+      <locations>
+        <location>grimsby</location>
+        <workers>
+          <worker>adam</worker>
+          <stats nc:operation="remove">
+          </stats>
+        </workers>
+        <workers>
+          <worker>alice</worker>
+          <stats>
+            <skills>fisherwoman</skills>
+            <workrate>0</workrate>
+          </stats>
+        </workers>
+      </locations>
+    </available>
+  </materials>
