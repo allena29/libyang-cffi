@@ -4,22 +4,18 @@
     <c>500</c>
     <available>
       <factory>beer</factory>
-      <locations>
-        <location>grimsby</location>
+      <locations nc:operation="replace">
+        <location>pembrokshire</location>
         <workers>
-          <worker>adam</worker>
-          <stats nc:operation="remove">
-            <workrate>99</workrate>
-            <idle>false</idle>
-            <skills>beer</skills>
-            <skills>drinking beer</skills>
-            <skills>more beer</skills>
+          <worker>chris</worker>
+          <stats>
+            <skills>brewing tea on beach</skills>
           </stats>
         </workers>
         <workers>
-          <worker>alice</worker>
+          <worker>rosie</worker>
           <stats>
-            <skills>fisherwoman</skills>
+            <skills>surfer</skills>
             <workrate>0</workrate>
           </stats>
         </workers>

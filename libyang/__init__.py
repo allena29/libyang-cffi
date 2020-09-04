@@ -261,10 +261,9 @@ class DataTree:
             if trusted:
                 option = option | lib.LYD_OPT_TRUSTED
             template_root = lib.lyd_parse_mem(self._lyctx, str2c(payload), format, option)
-
+            
             if lib.lypy_process_attributes(self._root, self._lyctx, template_root) == 1:
                 raise LibyangError('Validation failed after processing attributes')
-            # lib.lyd_merge(self._root, template_root, lib.LYD_OPT_EXPLICIT)
         else:
             raise LibyangError('advanced merges() not possible until data exists on the root object.')
 
@@ -320,7 +319,7 @@ def libyang_c_logging_callback(level, msg, path):
         args.append(c2str(path))
     else:
         fmt = '%s'
-    LOG.log(LOG_LEVELS.get(level, logging.NOTSET), fmt, *args)
+    print(LOG_LEVELS.get(level, logging.NOTSET), fmt, *args)
 
 
 def set_log_level(level):

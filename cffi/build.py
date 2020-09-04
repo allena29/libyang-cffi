@@ -19,7 +19,8 @@ if 'LIBYANG_HEADERS' in os.environ:
 LIBRARIES = []
 if 'LIBYANG_LIBRARIES' in os.environ:
     LIBRARIES.append(os.environ['LIBYANG_LIBRARIES'])
-EXTRA_CFLAGS = ['-Werror', '-std=c99']
+# EXTRA_CFLAGS = ['-Werror', '-std=c99']
+EXTRA_CFLAGS = ['-std=c99']
 EXTRA_CFLAGS += shlex.split(os.environ.get('LIBYANG_EXTRA_CFLAGS', ''))
 EXTRA_LDFLAGS = shlex.split(os.environ.get('LIBYANG_EXTRA_LDFLAGS', ''))
 

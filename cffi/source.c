@@ -150,17 +150,39 @@ int validate_data_tree(struct lyd_node *node, struct ly_ctx *ctx){
  */
 int lypy_process_attributes(struct lyd_node *root, struct ly_ctx *ctx, struct lyd_node *tempRoot)
 {
-	struct lyd_node *elem, *next;
+	struct lyd_node *elem, *next, *toreplace = lyd_dup(tempRoot, LYD_DUP_OPT_RECURSIVE | LYD_DUP_OPT_NO_ATTR);
 	struct lyd_attr *node_attr;
 	struct ly_set *nodes_to_remove = ly_set_new();
+	char *node_xpath;
+	char *list_xpath = NULL;
+	short mergeReplacement = 0;
+
+	//Merge  the temp root into root. Then we can process the attributes as we have a final model
+	lyd_merge(root, tempRoot, LYD_OPT_EXPLICIT);
 
 	LY_TREE_DFS_BEGIN(tempRoot, next, elem) 
 	{
 		for (node_attr = elem->attr; node_attr; node_attr = node_attr->next) {
 			if(strcmp(node_attr->name, "operation") == 0) {
 				if(strcmp(node_attr->value_str, "remove") == 0) {
-					char *node_xpath = lyd_path(elem);
+					node_xpath = lyd_path(elem);
 					ly_set_merge(nodes_to_remove, lyd_find_path(root, node_xpath), 0);
+					lyd_free(elem);
+					elem = tempRoot;
+				} else if (strcmp(node_attr->value_str, "replace") == 0) {
+					if (elem->schema->nodetype == LYS_LIST) {
+						const char *list_name = elem->schema->name;
+						const char *list_parent_xpath = lyd_path(elem->parent);
+						list_xpath = (char *) malloc(1 + strlen(list_parent_xpath) + strlen(list_name));
+						sprintf(list_xpath, "/%s/%s", list_parent_xpath, list_name);
+						node_xpath = list_xpath;
+					} else
+					{
+						node_xpath = lyd_path(elem);
+					}
+					ly_set_merge(nodes_to_remove, lyd_find_path(root, node_xpath), 0);
+					if(list_xpath != NULL) { free(list_xpath); };
+					mergeReplacement = 1;
 					lyd_free(elem);
 					elem = tempRoot;
 				}
@@ -173,6 +195,12 @@ int lypy_process_attributes(struct lyd_node *root, struct ly_ctx *ctx, struct ly
 	{
 		lyd_free(nodes_to_remove->set.d[i]);
 	}
+	
+	if(mergeReplacement) { lyd_merge(root, toreplace, LYD_OPT_EXPLICIT | LYD_OPT_DESTRUCT); };
+
 	ly_set_free(nodes_to_remove);
+
+	lyd_free(tempRoot);
+
 	return validate_data_tree(root, ctx);
 }

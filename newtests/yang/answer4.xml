@@ -33,7 +33,7 @@
         <workers>
           <worker>chris</worker>
           <stats>
-            <skills>brewing tea</skills>
+            <workrate>15</workrate>
           </stats>
         </workers>
       </locations>
