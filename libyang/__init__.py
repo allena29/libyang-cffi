@@ -319,7 +319,7 @@ def libyang_c_logging_callback(level, msg, path):
         args.append(c2str(path))
     else:
         fmt = '%s'
-    print(LOG_LEVELS.get(level, logging.NOTSET), fmt, *args)
+    LOG.log(LOG_LEVELS.get(level, logging.NOTSET), fmt, *args)
 
 
 def set_log_level(level):

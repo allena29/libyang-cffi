@@ -136,18 +136,6 @@ int validate_data_tree(struct lyd_node *node, struct ly_ctx *ctx){
 	return response;
 }
 
-/**
- * @brief Function to perform the actions of netconf operational attributes of 'delete' or 'replace'.
- * Delete will delete the node and then validate the data tree at the end.
- * 
- * TODO: Delete needs to check if the node exists or not and throw an error if node doesn't exist?
- * Replace is similar to delete but guess when it is a list it will behave differently.
- * Replace could be a delete and then a node create?
- * 
- * Do loose validate here and then we can perform a strict validate at the end in python ourselves
- * 
- * TODO: BUG. Libyang does not seem to create the attributes when using a merge. 
- */
 int lypy_process_attributes(struct lyd_node *root, struct ly_ctx *ctx, struct lyd_node *tempRoot)
 {
 	struct lyd_node *elem, *next, *toreplace = lyd_dup(tempRoot, LYD_DUP_OPT_RECURSIVE | LYD_DUP_OPT_NO_ATTR);
