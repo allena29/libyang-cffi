@@ -154,7 +154,7 @@ int lypy_process_attributes(struct lyd_node *root, struct ly_ctx *ctx, struct ly
 					lyd_free(elem);
 					elem = tempRoot;
 				} else if (strcmp(node_attr->value_str, "replace") == 0) {
-					if (elem->schema->nodetype == LYS_LIST) {
+					if ((elem->schema->nodetype == LYS_LIST) || (elem->schema->nodetype == LYS_LEAFLIST)) {
 						const char *list_name = elem->schema->name;
 						const char *list_parent_xpath = lyd_path(elem->parent);
 						list_xpath = (char *) malloc(1 + strlen(list_parent_xpath) + strlen(list_name));
