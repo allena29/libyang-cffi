@@ -579,3 +579,17 @@ class test_libyangdata(unittest.TestCase):
             for line in expected_fh:
                 expected += line.strip()
             self.assertEqual(result, expected)
+
+
+    def test_merge_multiple_attributes(self):
+        self.data.load('newtests/yang/base.xml')
+        with open('newtests/yang/template5.xml') as template:
+            self.data.advancedmerge(template.read())
+        
+        result = self.data.dumps()
+        expected = ""
+        self.maxDiff = None
+        with open('newtests/yang/answer5.xml') as expected_fh:
+            for line in expected_fh:
+                expected += line.strip()
+            self.assertEqual(result, expected)

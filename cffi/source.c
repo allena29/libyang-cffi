@@ -138,15 +138,11 @@ int validate_data_tree(struct lyd_node *node, struct ly_ctx *ctx){
 
 int lypy_process_attributes(struct lyd_node *root, struct ly_ctx *ctx, struct lyd_node *tempRoot)
 {
-	struct lyd_node *elem, *next, *toreplace = lyd_dup(tempRoot, LYD_DUP_OPT_RECURSIVE | LYD_DUP_OPT_NO_ATTR);
+	struct lyd_node *elem, *next;
 	struct lyd_attr *node_attr;
 	struct ly_set *nodes_to_remove = ly_set_new();
 	char *node_xpath;
 	char *list_xpath = NULL;
-	short mergeReplacement = 0;
-
-	//Merge  the temp root into root. Then we can process the attributes as we have a final model
-	lyd_merge(root, tempRoot, LYD_OPT_EXPLICIT);
 
 	LY_TREE_DFS_BEGIN(tempRoot, next, elem) 
 	{
@@ -170,9 +166,7 @@ int lypy_process_attributes(struct lyd_node *root, struct ly_ctx *ctx, struct ly
 					}
 					ly_set_merge(nodes_to_remove, lyd_find_path(root, node_xpath), 0);
 					if(list_xpath != NULL) { free(list_xpath); };
-					mergeReplacement = 1;
-					lyd_free(elem);
-					elem = tempRoot;
+					lyd_free_attr(ctx, elem, node_attr, 0);
 				}
 			}
 		}
@@ -183,12 +177,10 @@ int lypy_process_attributes(struct lyd_node *root, struct ly_ctx *ctx, struct ly
 	{
 		lyd_free(nodes_to_remove->set.d[i]);
 	}
-	
-	if(mergeReplacement) { lyd_merge(root, toreplace, LYD_OPT_EXPLICIT | LYD_OPT_DESTRUCT); };
+
+	lyd_merge(root, tempRoot, LYD_OPT_EXPLICIT | LYD_OPT_DESTRUCT);
 
 	ly_set_free(nodes_to_remove);
-
-	lyd_free(tempRoot);
 
 	return validate_data_tree(root, ctx);
 }
