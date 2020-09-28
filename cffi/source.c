@@ -124,23 +124,23 @@ int validate_data_tree(struct lyd_node *node, struct ly_ctx *ctx){
 	return response;
 }
 
-int lypy_process_attributes(struct lyd_node *root, struct ly_ctx *ctx, struct lyd_node *tempRoot)
+int lypy_process_attributes(struct lyd_node *root, struct ly_ctx *ctx, struct lyd_node *template_root)
 {
 	struct lyd_node *elem, *next;
 	struct lyd_attr *node_attr;
-	struct ly_set *nodes_to_remove = ly_set_new();
+	struct ly_set *nodes_to_remove_from_root = ly_set_new();
+	struct ly_set *nodes_to_remove_from_template = ly_set_new();
 	char *node_xpath;
 	char *list_xpath = NULL;
 
-	LY_TREE_DFS_BEGIN(tempRoot, next, elem) 
+	LY_TREE_DFS_BEGIN(template_root, next, elem)
 	{
 		for (node_attr = elem->attr; node_attr; node_attr = node_attr->next) {
 			if(strcmp(node_attr->name, "operation") == 0) {
 				if(strcmp(node_attr->value_str, "remove") == 0) {
 					node_xpath = lyd_path(elem);
-					ly_set_merge(nodes_to_remove, lyd_find_path(root, node_xpath), 0);
-					lyd_free(elem);
-					elem = tempRoot;
+					ly_set_merge(nodes_to_remove_from_root, lyd_find_path(root, node_xpath), 0);
+					ly_set_merge(nodes_to_remove_from_template, lyd_find_path(template_root, node_xpath), 0);
 				} else if (strcmp(node_attr->value_str, "replace") == 0) {
 					if ((elem->schema->nodetype == LYS_LIST) || (elem->schema->nodetype == LYS_LEAFLIST)) {
 						const char *list_name = elem->schema->name;
@@ -152,23 +152,29 @@ int lypy_process_attributes(struct lyd_node *root, struct ly_ctx *ctx, struct ly
 					{
 						node_xpath = lyd_path(elem);
 					}
-					ly_set_merge(nodes_to_remove, lyd_find_path(root, node_xpath), 0);
+					ly_set_merge(nodes_to_remove_from_root, lyd_find_path(root, node_xpath), 0);
 					if(list_xpath != NULL) { free(list_xpath); };
 					lyd_free_attr(ctx, elem, node_attr, 0);
 				}
 			}
 		}
-        LY_TREE_DFS_END(tempRoot, next, elem);
+        LY_TREE_DFS_END(template_root, next, elem);
 	}
-	
-	for(unsigned int i = 0; i < nodes_to_remove->number; i++)
+
+	for(unsigned int i = 0; i < nodes_to_remove_from_template->number; i++)
 	{
-		lyd_free(nodes_to_remove->set.d[i]);
+		lyd_free(nodes_to_remove_from_template->set.d[i]);
 	}
 
-	lyd_merge(root, tempRoot, LYD_OPT_EXPLICIT | LYD_OPT_DESTRUCT);
+	for(unsigned int i = 0; i < nodes_to_remove_from_root->number; i++)
+	{
+		lyd_free(nodes_to_remove_from_root->set.d[i]);
+	}
 
-	ly_set_free(nodes_to_remove);
+	lyd_merge(root, template_root, LYD_OPT_EXPLICIT | LYD_OPT_DESTRUCT);
+
+	ly_set_free(nodes_to_remove_from_template);
+	ly_set_free(nodes_to_remove_from_root);
 
 	return validate_data_tree(root, ctx);
 }
