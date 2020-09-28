@@ -282,9 +282,7 @@ class DataTree:
         # This is suboptimal at present - want to move this down to C or
         # avoid the extra funaction call.
         nodelist = {}
-        start_node = lib.lypy_get_root_node(self._root)
-
-        DataNode._find_nodes(self._lyctx, nodelist, start_node)
+        DataNode._find_nodes(self._lyctx, nodelist, self._root)
 
         for node in nodelist:
             yield nodelist[node]
