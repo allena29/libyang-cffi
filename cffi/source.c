@@ -117,6 +117,18 @@ static char *lypy_node_fullname(const struct lys_node *node)
 	return fullname;
 }
 
+const struct lyd_node *lypy_get_root_node(const struct lyd_node *node) {
+  const struct lyd_node *tmp_node = NULL;
+	tmp_node = node;
+  while(1){
+		if(!tmp_node->parent){
+			return tmp_node;
+		}
+		tmp_node = tmp_node->parent;
+  }
+
+}
+
 int validate_data_tree(struct lyd_node *node, struct ly_ctx *ctx){
 	struct lyd_node *ptr = node;
 	int response = 0;
