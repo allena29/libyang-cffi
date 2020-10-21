@@ -1,0 +1,41 @@
+<materials xmlns="http://mellon-collie.net/yang/minimal-integrationtest">
+    <a>a</a>
+    <b>b</b>
+    <c>500</c>
+    <available>
+      <factory>beer</factory>
+      <locations>
+        <location>grimsby</location>
+        <workers>
+          <worker>adam</worker>
+          <location>up north</location>
+          <personal-info>
+            <age>1</age>
+          </personal-info>
+          <stats>
+            <workrate>99</workrate>
+            <idle>false</idle>
+            <skills>beer</skills>
+            <skills>drinking beer</skills>
+            <skills>more beer</skills>
+          </stats>
+        </workers>
+        <workers>
+          <worker>bob</worker>
+          <stats>
+            <skills>fishing</skills>
+            <workrate>0</workrate>
+          </stats>
+        </workers>
+      </locations>
+      <locations>
+        <location>suffolk</location>
+        <workers>
+          <worker>chris</worker>
+          <stats>
+            <workrate>15</workrate>
+          </stats>
+        </workers>
+      </locations>
+    </available>
+</materials>

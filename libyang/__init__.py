@@ -252,6 +252,20 @@ class DataTree:
 
         if not lib.lyd_merge(self._root, tmp, lib.LYD_OPT_EXPLICIT) == 0:
             return self._ctx.error('Merge Error')
+    
+    def advancedmerge(self, payload, format=lib.LYD_XML, trusted=True, strict=True):
+        if self._root:
+            option = lib.LYD_OPT_CONFIG
+            if strict:
+                option = option | lib.LYD_OPT_STRICT
+            if trusted:
+                option = option | lib.LYD_OPT_TRUSTED
+            template_root = lib.lyd_parse_mem(self._lyctx, str2c(payload), format, option)
+            
+            if lib.lypy_process_attributes(self._root, self._lyctx, template_root) == 1:
+                raise LibyangError('Validation failed after processing attributes')
+        else:
+            raise LibyangError('advanced merges() not possible until data exists on the root object.')
 
     def dumps(self, format=lib.LYD_XML):
         """

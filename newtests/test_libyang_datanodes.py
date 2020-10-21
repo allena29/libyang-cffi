@@ -17,6 +17,7 @@ class test_libyangdata(unittest.TestCase):
     def setUp(self):
         self.ctx = libyang.Context(YANG_DIR)
         self.ctx.load_module('minimal-integrationtest')
+        self.ctx.load_module('ietf-netconf')
         self.data = libyang.DataTree(self.ctx)
 
     def test_basic(self):
@@ -508,3 +509,87 @@ class test_libyangdata(unittest.TestCase):
         self.assertEqual(self.data.dumps(),  expected_result)
 
         self.data.delete_xpath("/minimal-integrationtest:types/collection[x='b']/z/zzz")
+
+
+    def test_merge_remove_tags(self):
+        payload_one = '''<metals xmlns="http://mellon-collie.net/yang/minimal-integrationtest">
+        <a>AA</a><b>BB</b><metal><iron><ore>AAA</ore></iron><nickel><coin>money</coin></nickel></metal></metals>'''
+        self.data.loads(payload_one)
+
+        payload_two = '''<metals xmlns="http://mellon-collie.net/yang/minimal-integrationtest" xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0">
+        <a>AA</a><b>BB</b><metal><iron><ore nc:operation="remove">AAA</ore></iron><nickel><coin>money</coin></nickel></metal></metals>'''
+
+        self.data.advancedmerge(payload_two)
+
+        # Assert
+        xpath = '/minimal-integrationtest:metals[a="AA"][b="BB"]'
+        self.assertEqual(next(self.data.get_xpath(xpath + '/metal/iron/ore')).value, 'a')
+        self.assertEqual(next(self.data.get_xpath(xpath + '/metal/nickel/coin')).value, 'money')
+
+    
+    def test_merge_complex_tags_delete_simple(self):
+        self.data.load('newtests/yang/base.xml')
+        with open('newtests/yang/template1.xml') as template:
+            self.data.advancedmerge(template.read())
+        
+        result = self.data.dumps()
+        expected = ""
+        with open('newtests/yang/answer1.xml') as expected_fh:
+            for line in expected_fh:
+                expected += line.strip()
+            self.assertEqual(result, expected)
+    
+
+    def test_merge_complex_tags_delete_lists(self):
+        self.data.load('newtests/yang/base.xml')
+        with open('newtests/yang/template3.xml') as template:
+            self.data.advancedmerge(template.read())
+        
+        result = self.data.dumps()
+        expected = ""
+        with open('newtests/yang/answer3.xml') as expected_fh:
+            for line in expected_fh:
+                expected += line.strip()
+            self.assertEqual(result, expected)
+
+
+    def test_merge_complex_tags_replace_location(self):
+        self.data.load('newtests/yang/base.xml')
+        with open('newtests/yang/template2.xml') as template:
+            self.data.advancedmerge(template.read())
+        
+        result = self.data.dumps()
+        expected = ""
+        self.maxDiff = None
+        with open('newtests/yang/answer2.xml') as expected_fh:
+            for line in expected_fh:
+                expected += line.strip()
+            self.assertEqual(result, expected)
+
+
+    def test_merge_complex_tags_replace_container(self):
+        self.data.load('newtests/yang/base.xml')
+        with open('newtests/yang/template4.xml') as template:
+            self.data.advancedmerge(template.read())
+        
+        result = self.data.dumps()
+        expected = ""
+        self.maxDiff = None
+        with open('newtests/yang/answer4.xml') as expected_fh:
+            for line in expected_fh:
+                expected += line.strip()
+            self.assertEqual(result, expected)
+
+
+    def test_merge_multiple_attributes(self):
+        self.data.load('newtests/yang/base.xml')
+        with open('newtests/yang/template5.xml') as template:
+            self.data.advancedmerge(template.read())
+        
+        result = self.data.dumps()
+        expected = ""
+        self.maxDiff = None
+        with open('newtests/yang/answer5.xml') as expected_fh:
+            for line in expected_fh:
+                expected += line.strip()
+            self.assertEqual(result, expected)
