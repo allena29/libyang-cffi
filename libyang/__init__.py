@@ -178,8 +178,8 @@ class DataTree:
         if node_set == ffi.NULL:
             return
 
-        if node_set.number > 0:
-            result = lib.lyd_unlink(node_set.set.d[0])
+        for i in range(node_set.number):
+            result = lib.lyd_unlink(node_set.set.d[i])
             if result:
                 raise LibyangError('Unable to delete xpath: %s' %(xpath))
 
