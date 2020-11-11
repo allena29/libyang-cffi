@@ -36,6 +36,12 @@ module minimal-integrationtest {
         fraction-digits 3;
       }
     }
+    container cont {
+      presence false;
+    }
+    container pcont {
+      presence true;
+    }
     leaf int_8 {
       type int8;
     }
@@ -130,7 +136,7 @@ module minimal-integrationtest {
                 enum underpaid;
                 enum overpaid;
               }
-            }        
+            }
           }
 
           container stats {
