@@ -261,6 +261,8 @@ class DataTree:
             if trusted:
                 option = option | lib.LYD_OPT_TRUSTED
             template_root = lib.lyd_parse_mem(self._lyctx, str2c(payload), format, option)
+            if template_root == ffi.NULL:
+                raise self._ctx.error('Marshalling Advanced Merge Error')
             
             if lib.lypy_process_attributes(self._root, self._lyctx, template_root) == 1:
                 raise LibyangError('Validation failed after processing attributes')
