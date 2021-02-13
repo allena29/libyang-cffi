@@ -80,14 +80,14 @@ class DataNode(object):
             elif type in DataNode.DECIMAL_TYPES:
                 return float(c2str(leaf.value_str))
             elif type in DataNode.EMPTY_TYPES:
-                return True
+                return ''
             return c2str(leaf.value_str)
 
         if lyd_node.schema.nodetype == lib.LYS_LIST:
-            return True
+            return ''
 
         if lyd_node.schema.nodetype == lib.LYS_CONTAINER:
-            return True
+            return ''
 
         return None
 
