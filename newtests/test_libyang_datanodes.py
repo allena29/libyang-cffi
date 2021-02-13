@@ -599,3 +599,86 @@ class test_libyangdata(unittest.TestCase):
             for line in expected_fh:
                 expected += line.strip()
             self.assertEqual(result, expected)
+
+    def test_ipv4addresses(self):
+        xpath = '/minimal-integrationtest:ip/minimal-integrationtest:ipv4'
+        self.data.set_xpath(xpath, '10.4.4.4/8')
+
+        node = next(self.data.get_xpath(xpath))
+        self.assertEqual(node.value, '10.0.0.0/8')
+
+        xpath = "/minimal-integrationtest:ip/minimal-integrationtest:v4[prefix='10.4.4.4/8']"
+        self.data.set_xpath(xpath, '')
+
+        node = next(self.data.get_xpath(xpath +'/prefix'))
+        self.assertEqual(node.value, '10.0.0.0/8')
+
+        xpath = "/minimal-integrationtest:ip/minimal-integrationtest:four[.='10.4.4.4/16']"
+        self.data.set_xpath(xpath, '')
+
+        node = next(self.data.get_xpath(xpath))
+        self.assertEqual(node.value, '10.4.0.0/16')
+
+    def test_ipv6addresses(self):
+        xpath = '/minimal-integrationtest:ip/minimal-integrationtest:ipv6'
+        self.data.set_xpath(xpath, '2001:8d8:100f:f000::2e1/32')
+
+        node = next(self.data.get_xpath(xpath))
+        self.assertEqual(node.value, '2001:8d8::/32')
+
+        xpath = "/minimal-integrationtest:ip/minimal-integrationtest:v6[prefix='2001:8d8:100f:f000::2e1/32']"
+        self.data.set_xpath(xpath, '')
+
+        node = next(self.data.get_xpath(xpath +'/prefix'))
+        self.assertEqual(node.value, '2001:8d8::/32')
+
+        xpath = "/minimal-integrationtest:ip/minimal-integrationtest:six[.='2001:8d8:100f:f000::2e1/48']"
+        self.data.set_xpath(xpath, '')
+
+        node = next(self.data.get_xpath(xpath))
+        self.assertEqual(node.value, '2001:8d8:100f::/48')
+
+    def test_when_must_extraction(self):
+        prefix = '/minimal-integrationtest:types/minimal-integrationtest:when-condition'
+
+        # a container with a when and a must
+        node = next(self.ctx.find_path(prefix))
+        self.assertEqual(node.when_condition(), "../str1='z'")
+        self.assertListEqual(list(node.must_conditions()), ["../str1!='a'", "../str2!='z'"])
+
+        # a leaf with a when
+        node = next(self.ctx.find_path(prefix + '/minimal-integrationtest:a'))
+        self.assertEqual(node.when_condition(), "../b='a'")
+
+        #  a leaf with a must
+        node = next(self.ctx.find_path(prefix + '/minimal-integrationtest:c'))
+        self.assertListEqual(list(node.must_conditions()), ["../b='b'"])
+
+        # leaf lists supports whens and musts
+        node = next(self.ctx.find_path(prefix + '/minimal-integrationtest:d'))
+        self.assertListEqual(list(node.must_conditions()), ["../b!='a'"])
+        self.assertEqual(node.when_condition(), "../a='z'")
+
+        # lists support whens and musts
+        node = next(self.ctx.find_path(prefix + '/minimal-integrationtest:e'))
+        self.assertListEqual(list(node.must_conditions()), ["../b='brewyork'"])
+        self.assertEqual(node.when_condition(), "../a='z'")
+
+        # Choices support when's but not musts - but libyang-python (robin jarry's code)
+        # doesn't support Choices as an object type
+        prefix += '/minimal-integrationtest:beer'
+        node = next(self.ctx.find_path(prefix))
+        # self.assertEqual(node.when_condition(), "../a='z'")
+        # self.assertListEqual(list(node.must_conditions()), ["../b='just-a-couple'"])
+
+        # Cases - upstream doesn't support the cases a specifically in the schema.
+        # really need to rebase my fork from robin jarry's original project to
+        # libyang-python and then contribute the choice/case schema objects bakc
+        # upstream.
+        prefix2 = prefix + '/minimal-integrationtest:jackhammer'
+        node = next(self.ctx.find_path(prefix2 + '/minimal-integrationtest:bitter'))
+        self.assertListEqual(list(node.must_conditions()), ["../b='just-a-couple'"])
+
+        prefix2 = prefix +'/minimal-integrationtest:johnbiscotti'
+        node = next(self.ctx.find_path(prefix2 + '/minimal-integrationtest:pastrystout'))
+        self.assertListEqual(list(node.must_conditions()), ["../b='have-just-one'"])

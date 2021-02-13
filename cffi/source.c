@@ -167,6 +167,7 @@ int lypy_process_attributes(struct lyd_node *root, struct ly_ctx *ctx, struct ly
 					ly_set_merge(nodes_to_remove_from_root, lyd_find_path(root, node_xpath), 0);
 					if(list_xpath != NULL) { free(list_xpath); };
 					lyd_free_attr(ctx, elem, node_attr, 0);
+					break;   // result of segfault
 				}
 			}
 		}

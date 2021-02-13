@@ -706,6 +706,9 @@ class Leaf(Node):
         for i in range(self._leaf.must_size):
             yield c2str(self._leaf.must[i].expr)
 
+    def when_condition(self):
+        return c2str(self._leaf.when.cond)
+
     def __str__(self):
         return '%s %s' % (self.name(), self.type().name())
 
@@ -735,6 +738,9 @@ class LeafList(Node):
         for i in range(self._leaflist.must_size):
             yield c2str(self._leaflist.must[i].expr)
 
+    def when_condition(self):
+        return c2str(self._leaflist.when.cond)
+
     def __str__(self):
         return '%s %s' % (self.name(), self.type().name())
 
@@ -753,6 +759,9 @@ class Container(Node):
     def must_conditions(self):
         for i in range(self._container.must_size):
             yield c2str(self._container.must[i].expr)
+
+    def when_condition(self):
+        return c2str(self._container.when.cond)
 
     def __iter__(self):
         return self.children()
@@ -787,6 +796,9 @@ class List(Node):
     def must_conditions(self):
         for i in range(self._list.must_size):
             yield c2str(self._list.must[i].expr)
+
+    def when_condition(self):
+        return c2str(self._list.when.cond)
 
     def __str__(self):
         return '%s [%s]' % (

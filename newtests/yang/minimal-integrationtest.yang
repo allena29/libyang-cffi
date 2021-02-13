@@ -2,10 +2,90 @@ module minimal-integrationtest {
 
   namespace "http://mellon-collie.net/yang/minimal-integrationtest";
   prefix "minimal-integrationtest";
+  import ietf-inet-types { prefix inet; }
 
   description "A yang module to tets the important things of libyang's data nodes";
 
+
+  container ip {
+    presence true;
+    leaf ipv4 {
+      type inet:ipv4-prefix;
+    }
+    list v4 {
+      key prefix;
+      leaf prefix {
+        type inet:ipv4-prefix;
+      }
+    }
+    leaf-list four {
+      type inet:ipv4-prefix;
+    }
+    leaf-list six {
+      type inet:ipv6-prefix;
+    }
+    leaf ipv6 {
+      type inet:ipv6-prefix;
+    }
+    list v6 {
+      key prefix;
+      leaf prefix {
+        type inet:ipv6-prefix;
+      }
+    }
+  }
   container types {
+    container when-condition {
+      presence true;
+      leaf a {
+        type string;
+        when "../b='a'";
+      }
+      leaf b {
+        type string;
+      }
+      leaf c {
+        type string;
+        must "../b='b'";
+      }
+      leaf-list d {
+        type string;
+        when "../a='z'";
+        must "../b!='a'";
+      }
+      list e {
+        key f;
+        leaf g {
+          type string;
+        }
+        leaf f {
+          type string;
+        }
+        when "../a='z'";
+        must "../b='brewyork'";
+
+      }
+      choice beer {
+        case jackhammer {
+          leaf bitter {
+            type empty;
+            must "../b='just-a-couple'";
+            when "../c='fancy-something-west-coast'";
+          }
+        }
+        case johnbiscotti {
+          leaf pastrystout {
+            type empty;
+            when "../c='fancy-something-dark'";
+            must "../b='have-just-one'";
+          }
+        }
+        when "../c='finished-work'";
+      } // end choice
+      when "../str1='z'";
+      must "../str1!='a'";
+      must "../str2!='z'";
+    }
     leaf str1 {
       type string;
     }
