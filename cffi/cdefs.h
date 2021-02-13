@@ -109,6 +109,11 @@ struct lys_ext_instance {
 	...;
 };
 
+struct lys_when {
+	const char *cond;
+	...;
+};
+
 struct lys_restr {
 	const char *expr;
 	...;
@@ -271,13 +276,17 @@ struct lys_node {
 };
 
 struct lys_node_container {
+	struct lys_when *when;
 	uint8_t must_size;
 	struct lys_restr *must;
 	const char *presence;
 	...;
 };
 
-struct lys_node_leaf {
+struct lys_node_leaf {  // extends node which ends with ...; in these - it ends with priv
+	// the ...; from the node could be why we didn't need lys_when here. - TO CHECK CFFI
+	//  error: ‘struct lys_node_leaf’ has no member named ‘mxxx’
+	struct lys_when *when;
 	uint8_t must_size;
 	struct lys_restr *must;
 	struct lys_type type;
@@ -287,6 +296,7 @@ struct lys_node_leaf {
 };
 
 struct lys_node_leaflist {
+	struct lys_when *when;
 	uint8_t must_size;
 	struct lys_restr *must;
 	struct lys_type type;
@@ -299,6 +309,7 @@ struct lys_node_leaflist {
 };
 
 struct lys_node_list {
+	struct lys_when *when;
 	uint8_t must_size;
 	struct lys_restr *must;
 	uint8_t keys_size;
@@ -419,7 +430,6 @@ struct lyd_node {
 	  uint32_t hash;
 		struct hash_table *ht;
 		struct lyd_node *child;
-
 };
 
 struct lyd_node_leaf_list {

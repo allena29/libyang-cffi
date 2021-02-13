@@ -638,3 +638,47 @@ class test_libyangdata(unittest.TestCase):
         node = next(self.data.get_xpath(xpath))
         self.assertEqual(node.value, '2001:8d8:100f::/48')
 
+    def test_when_must_extraction(self):
+        prefix = '/minimal-integrationtest:types/minimal-integrationtest:when-condition'
+
+        # a container with a when and a must
+        node = next(self.ctx.find_path(prefix))
+        self.assertEqual(node.when_condition(), "../str1='z'")
+        self.assertListEqual(list(node.must_conditions()), ["../str1!='a'", "../str2!='z'"])
+
+        # a leaf with a when
+        node = next(self.ctx.find_path(prefix + '/minimal-integrationtest:a'))
+        self.assertEqual(node.when_condition(), "../b='a'")
+
+        #  a leaf with a must
+        node = next(self.ctx.find_path(prefix + '/minimal-integrationtest:c'))
+        self.assertListEqual(list(node.must_conditions()), ["../b='b'"])
+
+        # leaf lists supports whens and musts
+        node = next(self.ctx.find_path(prefix + '/minimal-integrationtest:d'))
+        self.assertListEqual(list(node.must_conditions()), ["../b!='a'"])
+        self.assertEqual(node.when_condition(), "../a='z'")
+
+        # lists support whens and musts
+        node = next(self.ctx.find_path(prefix + '/minimal-integrationtest:e'))
+        self.assertListEqual(list(node.must_conditions()), ["../b='brewyork'"])
+        self.assertEqual(node.when_condition(), "../a='z'")
+
+        # Choices support when's but not musts - but libyang-python (robin jarry's code)
+        # doesn't support Choices as an object type
+        prefix += '/minimal-integrationtest:beer'
+        node = next(self.ctx.find_path(prefix))
+        # self.assertEqual(node.when_condition(), "../a='z'")
+        # self.assertListEqual(list(node.must_conditions()), ["../b='just-a-couple'"])
+
+        # Cases - upstream doesn't support the cases a specifically in the schema.
+        # really need to rebase my fork from robin jarry's original project to
+        # libyang-python and then contribute the choice/case schema objects bakc
+        # upstream.
+        prefix2 = prefix + '/minimal-integrationtest:jackhammer'
+        node = next(self.ctx.find_path(prefix2 + '/minimal-integrationtest:bitter'))
+        self.assertListEqual(list(node.must_conditions()), ["../b='just-a-couple'"])
+
+        prefix2 = prefix +'/minimal-integrationtest:johnbiscotti'
+        node = next(self.ctx.find_path(prefix2 + '/minimal-integrationtest:pastrystout'))
+        self.assertListEqual(list(node.must_conditions()), ["../b='have-just-one'"])
