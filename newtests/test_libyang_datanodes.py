@@ -599,3 +599,42 @@ class test_libyangdata(unittest.TestCase):
             for line in expected_fh:
                 expected += line.strip()
             self.assertEqual(result, expected)
+
+    def test_ipv4addresses(self):
+        xpath = '/minimal-integrationtest:ip/minimal-integrationtest:ipv4'
+        self.data.set_xpath(xpath, '10.4.4.4/8')
+
+        node = next(self.data.get_xpath(xpath))
+        self.assertEqual(node.value, '10.0.0.0/8')
+
+        xpath = "/minimal-integrationtest:ip/minimal-integrationtest:v4[prefix='10.4.4.4/8']"
+        self.data.set_xpath(xpath, '')
+
+        node = next(self.data.get_xpath(xpath +'/prefix'))
+        self.assertEqual(node.value, '10.0.0.0/8')
+
+        xpath = "/minimal-integrationtest:ip/minimal-integrationtest:four[.='10.4.4.4/16']"
+        self.data.set_xpath(xpath, '')
+
+        node = next(self.data.get_xpath(xpath))
+        self.assertEqual(node.value, '10.4.0.0/16')
+
+    def test_ipv6addresses(self):
+        xpath = '/minimal-integrationtest:ip/minimal-integrationtest:ipv6'
+        self.data.set_xpath(xpath, '2001:8d8:100f:f000::2e1/32')
+
+        node = next(self.data.get_xpath(xpath))
+        self.assertEqual(node.value, '2001:8d8::/32')
+
+        xpath = "/minimal-integrationtest:ip/minimal-integrationtest:v6[prefix='2001:8d8:100f:f000::2e1/32']"
+        self.data.set_xpath(xpath, '')
+
+        node = next(self.data.get_xpath(xpath +'/prefix'))
+        self.assertEqual(node.value, '2001:8d8::/32')
+
+        xpath = "/minimal-integrationtest:ip/minimal-integrationtest:six[.='2001:8d8:100f:f000::2e1/48']"
+        self.data.set_xpath(xpath, '')
+
+        node = next(self.data.get_xpath(xpath))
+        self.assertEqual(node.value, '2001:8d8:100f::/48')
+

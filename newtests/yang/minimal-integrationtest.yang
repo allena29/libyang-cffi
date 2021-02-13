@@ -2,9 +2,38 @@ module minimal-integrationtest {
 
   namespace "http://mellon-collie.net/yang/minimal-integrationtest";
   prefix "minimal-integrationtest";
+  import ietf-inet-types { prefix inet; }
 
   description "A yang module to tets the important things of libyang's data nodes";
 
+
+  container ip {
+    presence true;
+    leaf ipv4 {
+      type inet:ipv4-prefix;
+    }
+    list v4 {
+      key prefix;
+      leaf prefix {
+        type inet:ipv4-prefix;
+      }
+    }
+    leaf-list four {
+      type inet:ipv4-prefix;
+    }
+    leaf-list six {
+      type inet:ipv6-prefix;
+    }
+    leaf ipv6 {
+      type inet:ipv6-prefix;
+    }
+    list v6 {
+      key prefix;
+      leaf prefix {
+        type inet:ipv6-prefix;
+      }
+    }
+  }
   container types {
     leaf str1 {
       type string;
