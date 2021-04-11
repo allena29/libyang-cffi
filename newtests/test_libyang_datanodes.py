@@ -639,6 +639,10 @@ class test_libyangdata(unittest.TestCase):
         self.assertEqual(node.value, '2001:8d8:100f::/48')
 
     def test_when_must_extraction(self):
+
+        node = next(self.ctx.find_path('/minimal-integrationtest:nesting'))
+        self.assertEqual(node.when_condition(), None)
+
         prefix = '/minimal-integrationtest:types/minimal-integrationtest:when-condition'
 
         # a container with a when and a must
