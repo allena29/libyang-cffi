@@ -18,10 +18,20 @@ from .util import str2c
 # ------------------------------------------------------------------------------
 class Context(object):
 
+    def _docleanup(self, c):
+        print("DO CLEANUP OF LYCTX %s" %(c))
+        for data_tree in self._data_tree:
+            print("FREE DATA TREE FIRST %s", data_tree)
+            lib.lyd_free_withsiblings(data_tree)
+        lib.ly_ctx_destroy(c, ffi.NULL)
+
     def __init__(self, search_path=None,
                  options=lib.LY_CTX_DISABLE_SEARCHDIR_CWD):
+        self._data_tree = []
         self._ctx = ffi.gc(lib.ly_ctx_new(ffi.NULL, options),
-                           lambda c: lib.ly_ctx_destroy(c, ffi.NULL))
+                           self._docleanup)
+
+
         if not self._ctx:
             raise self.error('cannot create context')
 
@@ -113,8 +123,11 @@ class DataTree:
 
     def __init__(self, ctx):
         self._ctx = ctx
+
         self._lyctx = ctx._ctx
         self._root = None
+
+
 
     def set_xpath(self, xpath, value):
         """
@@ -131,6 +144,7 @@ class DataTree:
             if not node:
                 raise LibyangError('The value {0} was not set at {1}\nCheck the path and value'.format(value, xpath))
             self._root = node
+            self._ctx._data_tree.append(self._root)
         else:
             node = lib.lyd_new_path(self._root, ffi.NULL, str2c(xpath), libyang_value, 0, lib.LYD_PATH_OPT_UPDATE)
 
@@ -217,6 +231,7 @@ class DataTree:
         self._root = lib.lyd_parse_path(self._lyctx , str2c(filename), format, option)
         if self._root == ffi.NULL:
             raise self._ctx.error('Marshalling Error')
+        self._ctx._data_tree.append( self._root)
 
     def loads(self, payload, format=lib.LYD_XML, trusted=False, strict=True):
         """
@@ -233,6 +248,7 @@ class DataTree:
         self._root = lib.lyd_parse_mem(self._lyctx, str2c(payload), format, option)
         if self._root == ffi.NULL:
             raise self._ctx.error('Marshalling Error')
+        self._ctx._data_tree.append( self._root)
 
     def merges(self, payload, format=lib.LYD_XML, trusted=True, strict=True):
         """
