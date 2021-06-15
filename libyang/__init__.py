@@ -1,6 +1,6 @@
 # Copyright (c) 2018-2019 Robin Jarry
 # SPDX-License-Identifier: MIT
-
+import gc
 import logging
 import os
 
@@ -18,18 +18,17 @@ from .util import str2c
 # ------------------------------------------------------------------------------
 class Context(object):
 
-    def _docleanup(self, c):
-        print("DO CLEANUP OF LYCTX %s" %(c))
+    def _do_cleanup(self, c):
         for data_tree in self._data_tree:
-            print("FREE DATA TREE FIRST %s", data_tree)
             lib.lyd_free_withsiblings(data_tree)
         lib.ly_ctx_destroy(c, ffi.NULL)
+        gc.get_objects()
 
     def __init__(self, search_path=None,
                  options=lib.LY_CTX_DISABLE_SEARCHDIR_CWD):
         self._data_tree = []
         self._ctx = ffi.gc(lib.ly_ctx_new(ffi.NULL, options),
-                           self._docleanup)
+                           self._do_cleanup)
 
 
         if not self._ctx:
