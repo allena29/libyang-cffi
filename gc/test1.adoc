@@ -1,0 +1,133 @@
+= TEST 1
+
+`YANGPATH=/home/adam/libyang-cffi/newtests/yang python gc/test1.py`
+
+
+Python doesn't return memory to the OS, so PS is a bad measure over a short period
+of time.
+
+We can see that at the end of the first iteration we have 14.4Mb used- but the
+subsequent iterations don't increase useage.
+
+.Output
+----
+11.4MiB
+PID psutil.Process(pid=422793, name='python', status='running', started='23:31:09')
+import yangvoodoo
+13.2MiB
+********************************************************************************
+Iteration 0
+********************************************************************************
+session = yangvoodoo.DataAccess()
+13.2MiB
+session.connect
+14.3MiB
+del session
+14.3MiB
+17
+  gc.collect()  0
+14.4MiB
+0
+  gc.collect()  1
+14.4MiB
+0
+  gc.collect()  2
+14.4MiB
+0
+  gc.collect()  3
+14.4MiB
+0
+  gc.collect()  4
+********************************************************************************
+Iteration 1
+********************************************************************************
+session = yangvoodoo.DataAccess()
+14.4MiB
+session.connect
+14.4MiB
+del session
+14.4MiB
+17
+  gc.collect()  0
+14.4MiB
+0
+  gc.collect()  1
+14.4MiB
+0
+  gc.collect()  2
+14.4MiB
+0
+  gc.collect()  3
+14.4MiB
+0
+  gc.collect()  4
+********************************************************************************
+Iteration 2
+********************************************************************************
+session = yangvoodoo.DataAccess()
+14.4MiB
+session.connect
+14.5MiB
+del session
+14.5MiB
+17
+  gc.collect()  0
+14.5MiB
+0
+  gc.collect()  1
+14.5MiB
+0
+  gc.collect()  2
+14.5MiB
+0
+  gc.collect()  3
+14.5MiB
+0
+  gc.collect()  4
+********************************************************************************
+Iteration 3
+********************************************************************************
+session = yangvoodoo.DataAccess()
+14.5MiB
+session.connect
+14.5MiB
+del session
+14.5MiB
+17
+  gc.collect()  0
+14.5MiB
+0
+  gc.collect()  1
+14.5MiB
+0
+  gc.collect()  2
+14.5MiB
+0
+  gc.collect()  3
+14.5MiB
+0
+  gc.collect()  4
+********************************************************************************
+Iteration 4
+********************************************************************************
+session = yangvoodoo.DataAccess()
+14.5MiB
+session.connect
+14.5MiB
+del session
+14.5MiB
+17
+  gc.collect()  0
+14.5MiB
+0
+  gc.collect()  1
+14.5MiB
+0
+  gc.collect()  2
+14.5MiB
+0
+  gc.collect()  3
+14.5MiB
+0
+  gc.collect()  4
+----

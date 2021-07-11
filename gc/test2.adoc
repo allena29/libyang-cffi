@@ -1,0 +1,242 @@
+= TEST 2
+
+Looks similair to previous case - no overall use of memory
+after 5 iterations.
+
+
+----
+11.4MiB
+PID psutil.Process(pid=427287, name='python', status='running', started='23:43:23')
+import yangvoodoo
+13.0MiB
+********************************************************************************
+Iteration 0
+********************************************************************************
+session = yangvoodoo.DataAccess()
+13.0MiB
+session.connect
+14.3MiB
+create material /minimal-integrationtest:materials[a='a'][b='b'][c='0']
+14.3MiB
+create material /minimal-integrationtest:materials[a='a'][b='b'][c='1']
+14.3MiB
+create material /minimal-integrationtest:materials[a='a'][b='b'][c='2']
+14.3MiB
+create material /minimal-integrationtest:materials[a='a'][b='b'][c='3']
+14.3MiB
+create material /minimal-integrationtest:materials[a='a'][b='b'][c='4']
+14.3MiB
+... output skipped ...
+create material /minimal-integrationtest:materials[a='a'][b='b'][c='994']
+14.5MiB
+create material /minimal-integrationtest:materials[a='a'][b='b'][c='995']
+14.5MiB
+create material /minimal-integrationtest:materials[a='a'][b='b'][c='996']
+14.5MiB
+create material /minimal-integrationtest:materials[a='a'][b='b'][c='997']
+14.5MiB
+create material /minimal-integrationtest:materials[a='a'][b='b'][c='998']
+14.5MiB
+create material /minimal-integrationtest:materials[a='a'][b='b'][c='999']
+14.5MiB
+del session
+14.5MiB
+17
+  gc.collect()  0
+14.5MiB
+0
+  gc.collect()  1
+14.5MiB
+0
+  gc.collect()  2
+14.5MiB
+0
+  gc.collect()  3
+14.5MiB
+0
+  gc.collect()  4
+********************************************************************************
+Iteration 1
+********************************************************************************
+session = yangvoodoo.DataAccess()
+14.5MiB
+session.connect
+14.7MiB
+create material /minimal-integrationtest:materials[a='a'][b='b'][c='0']
+14.7MiB
+create material /minimal-integrationtest:materials[a='a'][b='b'][c='1']
+14.7MiB
+create material /minimal-integrationtest:materials[a='a'][b='b'][c='2']
+14.7MiB
+create material /minimal-integrationtest:materials[a='a'][b='b'][c='3']
+14.7MiB
+create material /minimal-integrationtest:materials[a='a'][b='b'][c='4']
+14.7MiB
+... output skipped ...
+create material /minimal-integrationtest:materials[a='a'][b='b'][c='994']
+14.7MiB
+create material /minimal-integrationtest:materials[a='a'][b='b'][c='995']
+14.7MiB
+create material /minimal-integrationtest:materials[a='a'][b='b'][c='996']
+14.7MiB
+create material /minimal-integrationtest:materials[a='a'][b='b'][c='997']
+14.7MiB
+create material /minimal-integrationtest:materials[a='a'][b='b'][c='998']
+14.7MiB
+create material /minimal-integrationtest:materials[a='a'][b='b'][c='999']
+14.7MiB
+del session
+14.7MiB
+17
+  gc.collect()  0
+14.7MiB
+0
+  gc.collect()  1
+14.7MiB
+0
+  gc.collect()  2
+14.7MiB
+0
+  gc.collect()  3
+14.7MiB
+0
+  gc.collect()  4
+********************************************************************************
+Iteration 2
+********************************************************************************
+session = yangvoodoo.DataAccess()
+14.7MiB
+session.connect
+14.7MiB
+create material /minimal-integrationtest:materials[a='a'][b='b'][c='0']
+14.7MiB
+create material /minimal-integrationtest:materials[a='a'][b='b'][c='1']
+14.7MiB
+create material /minimal-integrationtest:materials[a='a'][b='b'][c='2']
+14.7MiB
+create material /minimal-integrationtest:materials[a='a'][b='b'][c='3']
+14.7MiB
+create material /minimal-integrationtest:materials[a='a'][b='b'][c='4']
+14.7MiB
+... output skipped ...
+create material /minimal-integrationtest:materials[a='a'][b='b'][c='994']
+14.7MiB
+create material /minimal-integrationtest:materials[a='a'][b='b'][c='995']
+14.7MiB
+create material /minimal-integrationtest:materials[a='a'][b='b'][c='996']
+14.7MiB
+create material /minimal-integrationtest:materials[a='a'][b='b'][c='997']
+14.7MiB
+create material /minimal-integrationtest:materials[a='a'][b='b'][c='998']
+14.7MiB
+create material /minimal-integrationtest:materials[a='a'][b='b'][c='999']
+14.7MiB
+del session
+14.7MiB
+17
+  gc.collect()  0
+14.7MiB
+0
+  gc.collect()  1
+14.7MiB
+0
+  gc.collect()  2
+14.7MiB
+0
+  gc.collect()  3
+14.7MiB
+0
+  gc.collect()  4
+********************************************************************************
+Iteration 3
+********************************************************************************
+session = yangvoodoo.DataAccess()
+14.7MiB
+session.connect
+14.7MiB
+create material /minimal-integrationtest:materials[a='a'][b='b'][c='0']
+14.7MiB
+create material /minimal-integrationtest:materials[a='a'][b='b'][c='1']
+14.7MiB
+create material /minimal-integrationtest:materials[a='a'][b='b'][c='2']
+14.7MiB
+create material /minimal-integrationtest:materials[a='a'][b='b'][c='3']
+14.7MiB
+create material /minimal-integrationtest:materials[a='a'][b='b'][c='4']
+14.7MiB
+... output skipped ...
+create material /minimal-integrationtest:materials[a='a'][b='b'][c='994']
+14.7MiB
+create material /minimal-integrationtest:materials[a='a'][b='b'][c='995']
+14.7MiB
+create material /minimal-integrationtest:materials[a='a'][b='b'][c='996']
+14.7MiB
+create material /minimal-integrationtest:materials[a='a'][b='b'][c='997']
+14.7MiB
+create material /minimal-integrationtest:materials[a='a'][b='b'][c='998']
+14.7MiB
+create material /minimal-integrationtest:materials[a='a'][b='b'][c='999']
+14.7MiB
+del session
+14.7MiB
+17
+  gc.collect()  0
+14.7MiB
+0
+  gc.collect()  1
+14.7MiB
+0
+  gc.collect()  2
+14.7MiB
+0
+  gc.collect()  3
+14.7MiB
+0
+  gc.collect()  4
+********************************************************************************
+Iteration 4
+********************************************************************************
+session = yangvoodoo.DataAccess()
+14.7MiB
+session.connect
+14.7MiB
+create material /minimal-integrationtest:materials[a='a'][b='b'][c='0']
+14.7MiB
+create material /minimal-integrationtest:materials[a='a'][b='b'][c='1']
+14.7MiB
+create material /minimal-integrationtest:materials[a='a'][b='b'][c='2']
+14.7MiB
+create material /minimal-integrationtest:materials[a='a'][b='b'][c='3']
+14.7MiB
+create material /minimal-integrationtest:materials[a='a'][b='b'][c='4']
+14.7MiB
+... output skipped ...
+create material /minimal-integrationtest:materials[a='a'][b='b'][c='994']
+14.7MiB
+create material /minimal-integrationtest:materials[a='a'][b='b'][c='995']
+14.7MiB
+create material /minimal-integrationtest:materials[a='a'][b='b'][c='996']
+14.7MiB
+create material /minimal-integrationtest:materials[a='a'][b='b'][c='997']
+14.7MiB
+create material /minimal-integrationtest:materials[a='a'][b='b'][c='998']
+14.7MiB
+create material /minimal-integrationtest:materials[a='a'][b='b'][c='999']
+14.7MiB
+del session
+14.7MiB
+17
+  gc.collect()  0
+14.7MiB
+0
+  gc.collect()  1
+14.7MiB
+0
+  gc.collect()  2
+14.7MiB
+0
+  gc.collect()  3
+14.7MiB
+0
+  gc.collect()  4
+----

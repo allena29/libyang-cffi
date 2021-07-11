@@ -1,0 +1,3145 @@
+= Test 3 - memory leak? - 27Mbps
+
+.Current
+----
+    def count_xpath(self, xpath):
+        """
+        Count results for a given XPATH
+        """
+        if self._root is None:
+            return 0
+
+        node_set = lib.lyd_find_path(self._root, str2c(xpath))
+        if node_set == ffi.NULL:
+            return 0
+        return int(node_set.number)
+----
+
+
+
+----
+11.3MiB
+PID psutil.Process(pid=440180, name='python', status='running', started='00:08:12')
+import yangvoodoo
+12.9MiB
+********************************************************************************
+Iteration 0
+********************************************************************************
+session = yangvoodoo.DataAccess()
+12.9MiB
+session.connect
+14.2MiB
+... output skipped ...
+count 1000
+14.4MiB
+count 1000
+14.7MiB
+count 1000
+14.7MiB
+count 1000
+14.7MiB
+count 1000
+14.7MiB
+count 1000
+14.7MiB
+count 1000
+14.7MiB
+count 1000
+14.7MiB
+count 1000
+14.7MiB
+count 1000
+14.7MiB
+count 1000
+14.7MiB
+count 1000
+14.7MiB
+count 1000
+14.7MiB
+count 1000
+14.7MiB
+count 1000
+14.7MiB
+count 1000
+14.7MiB
+count 1000
+14.7MiB
+count 1000
+14.7MiB
+count 1000
+14.7MiB
+count 1000
+14.7MiB
+count 1000
+14.7MiB
+count 1000
+15.0MiB
+count 1000
+15.0MiB
+count 1000
+15.0MiB
+count 1000
+15.0MiB
+count 1000
+15.0MiB
+count 1000
+15.0MiB
+count 1000
+15.0MiB
+count 1000
+15.0MiB
+count 1000
+15.0MiB
+count 1000
+15.0MiB
+count 1000
+15.0MiB
+count 1000
+15.0MiB
+count 1000
+15.0MiB
+count 1000
+15.0MiB
+count 1000
+15.0MiB
+count 1000
+15.0MiB
+count 1000
+15.0MiB
+count 1000
+15.0MiB
+count 1000
+15.0MiB
+count 1000
+15.0MiB
+count 1000
+15.2MiB
+count 1000
+15.2MiB
+count 1000
+15.2MiB
+count 1000
+15.2MiB
+count 1000
+15.2MiB
+count 1000
+15.2MiB
+count 1000
+15.2MiB
+count 1000
+15.2MiB
+count 1000
+15.2MiB
+count 1000
+15.2MiB
+count 1000
+15.2MiB
+count 1000
+15.2MiB
+count 1000
+15.2MiB
+count 1000
+15.2MiB
+count 1000
+15.2MiB
+count 1000
+15.2MiB
+count 1000
+15.2MiB
+count 1000
+15.2MiB
+count 1000
+15.2MiB
+count 1000
+15.2MiB
+count 1000
+15.2MiB
+count 1000
+15.2MiB
+count 1000
+15.5MiB
+count 1000
+15.5MiB
+count 1000
+15.5MiB
+count 1000
+15.5MiB
+count 1000
+15.5MiB
+count 1000
+15.5MiB
+count 1000
+15.5MiB
+count 1000
+15.5MiB
+count 1000
+15.5MiB
+count 1000
+15.5MiB
+count 1000
+15.5MiB
+count 1000
+15.5MiB
+count 1000
+15.5MiB
+count 1000
+15.5MiB
+count 1000
+15.5MiB
+count 1000
+15.5MiB
+count 1000
+15.5MiB
+count 1000
+15.5MiB
+count 1000
+15.5MiB
+count 1000
+15.5MiB
+count 1000
+15.5MiB
+count 1000
+15.5MiB
+count 1000
+15.7MiB
+count 1000
+15.7MiB
+count 1000
+15.7MiB
+count 1000
+15.7MiB
+count 1000
+15.7MiB
+count 1000
+15.7MiB
+count 1000
+15.7MiB
+count 1000
+15.7MiB
+count 1000
+15.7MiB
+count 1000
+15.7MiB
+count 1000
+15.7MiB
+count 1000
+15.7MiB
+count 1000
+15.7MiB
+count 1000
+15.7MiB
+count 1000
+15.7MiB
+count 1000
+15.7MiB
+count 1000
+15.7MiB
+count 1000
+15.7MiB
+count 1000
+15.7MiB
+count 1000
+15.7MiB
+count 1000
+15.7MiB
+count 1000
+15.7MiB
+count 1000
+16.0MiB
+count 1000
+16.0MiB
+count 1000
+16.0MiB
+count 1000
+16.0MiB
+count 1000
+16.0MiB
+count 1000
+16.0MiB
+count 1000
+16.0MiB
+count 1000
+16.0MiB
+count 1000
+16.0MiB
+count 1000
+16.0MiB
+count 1000
+16.0MiB
+count 1000
+16.0MiB
+count 1000
+16.0MiB
+count 1000
+16.0MiB
+count 1000
+16.0MiB
+count 1000
+16.0MiB
+count 1000
+16.0MiB
+count 1000
+16.0MiB
+count 1000
+16.0MiB
+count 1000
+16.0MiB
+count 1000
+16.0MiB
+count 1000
+16.0MiB
+count 1000
+16.2MiB
+count 1000
+16.2MiB
+count 1000
+16.2MiB
+count 1000
+16.2MiB
+count 1000
+16.2MiB
+count 1000
+16.2MiB
+count 1000
+16.2MiB
+count 1000
+16.2MiB
+count 1000
+16.2MiB
+count 1000
+16.2MiB
+count 1000
+16.2MiB
+count 1000
+16.2MiB
+count 1000
+16.2MiB
+count 1000
+16.2MiB
+count 1000
+16.2MiB
+count 1000
+16.2MiB
+count 1000
+16.2MiB
+count 1000
+16.2MiB
+count 1000
+16.2MiB
+count 1000
+16.2MiB
+count 1000
+16.2MiB
+count 1000
+16.2MiB
+count 1000
+16.5MiB
+count 1000
+16.5MiB
+count 1000
+16.5MiB
+count 1000
+16.5MiB
+count 1000
+16.5MiB
+count 1000
+16.5MiB
+count 1000
+16.5MiB
+count 1000
+16.5MiB
+count 1000
+16.5MiB
+count 1000
+16.5MiB
+count 1000
+16.5MiB
+count 1000
+16.5MiB
+count 1000
+16.5MiB
+count 1000
+16.5MiB
+count 1000
+16.5MiB
+count 1000
+16.5MiB
+count 1000
+16.5MiB
+count 1000
+16.5MiB
+count 1000
+16.5MiB
+count 1000
+16.5MiB
+count 1000
+16.7MiB
+count 1000
+16.7MiB
+count 1000
+16.7MiB
+count 1000
+16.7MiB
+count 1000
+16.7MiB
+count 1000
+16.7MiB
+count 1000
+16.7MiB
+count 1000
+16.7MiB
+count 1000
+16.7MiB
+count 1000
+16.7MiB
+count 1000
+16.7MiB
+count 1000
+16.7MiB
+count 1000
+16.7MiB
+count 1000
+16.7MiB
+count 1000
+16.7MiB
+count 1000
+16.7MiB
+count 1000
+16.7MiB
+count 1000
+16.7MiB
+count 1000
+16.7MiB
+count 1000
+16.7MiB
+count 1000
+16.7MiB
+count 1000
+17.0MiB
+count 1000
+17.0MiB
+count 1000
+17.0MiB
+count 1000
+17.0MiB
+count 1000
+17.0MiB
+count 1000
+17.0MiB
+count 1000
+17.0MiB
+count 1000
+17.0MiB
+count 1000
+17.0MiB
+count 1000
+17.0MiB
+count 1000
+17.0MiB
+count 1000
+17.0MiB
+count 1000
+17.0MiB
+count 1000
+17.0MiB
+count 1000
+17.0MiB
+count 1000
+17.0MiB
+count 1000
+17.0MiB
+count 1000
+17.0MiB
+count 1000
+17.0MiB
+count 1000
+17.0MiB
+count 1000
+17.0MiB
+count 1000
+17.0MiB
+count 1000
+17.0MiB
+count 1000
+17.2MiB
+count 1000
+17.2MiB
+count 1000
+17.2MiB
+count 1000
+17.2MiB
+count 1000
+17.2MiB
+count 1000
+17.2MiB
+count 1000
+17.2MiB
+count 1000
+17.2MiB
+count 1000
+17.2MiB
+count 1000
+17.2MiB
+count 1000
+17.2MiB
+count 1000
+17.2MiB
+count 1000
+17.2MiB
+count 1000
+17.2MiB
+count 1000
+17.2MiB
+count 1000
+17.2MiB
+count 1000
+17.2MiB
+count 1000
+17.2MiB
+count 1000
+17.2MiB
+count 1000
+17.2MiB
+count 1000
+17.2MiB
+count 1000
+17.5MiB
+count 1000
+17.5MiB
+count 1000
+17.5MiB
+count 1000
+17.5MiB
+count 1000
+17.5MiB
+count 1000
+17.5MiB
+count 1000
+17.5MiB
+count 1000
+17.5MiB
+count 1000
+17.5MiB
+count 1000
+17.5MiB
+count 1000
+17.5MiB
+count 1000
+17.5MiB
+count 1000
+17.5MiB
+count 1000
+17.5MiB
+count 1000
+17.5MiB
+count 1000
+17.5MiB
+count 1000
+17.5MiB
+count 1000
+17.5MiB
+count 1000
+17.5MiB
+count 1000
+17.5MiB
+count 1000
+17.5MiB
+count 1000
+17.5MiB
+count 1000
+17.7MiB
+count 1000
+17.7MiB
+count 1000
+17.7MiB
+count 1000
+17.7MiB
+count 1000
+17.7MiB
+count 1000
+17.7MiB
+count 1000
+17.7MiB
+count 1000
+17.7MiB
+count 1000
+17.7MiB
+count 1000
+17.7MiB
+count 1000
+17.7MiB
+count 1000
+17.7MiB
+count 1000
+17.7MiB
+count 1000
+17.7MiB
+count 1000
+17.7MiB
+count 1000
+17.7MiB
+count 1000
+17.7MiB
+count 1000
+17.7MiB
+count 1000
+17.7MiB
+count 1000
+17.7MiB
+count 1000
+17.7MiB
+count 1000
+17.7MiB
+count 1000
+18.0MiB
+count 1000
+18.0MiB
+count 1000
+18.0MiB
+count 1000
+18.0MiB
+count 1000
+18.0MiB
+count 1000
+18.0MiB
+count 1000
+18.0MiB
+count 1000
+18.0MiB
+count 1000
+18.0MiB
+count 1000
+18.0MiB
+count 1000
+18.0MiB
+count 1000
+18.0MiB
+count 1000
+18.0MiB
+count 1000
+18.0MiB
+count 1000
+18.0MiB
+count 1000
+18.0MiB
+count 1000
+18.0MiB
+count 1000
+18.0MiB
+count 1000
+18.0MiB
+count 1000
+18.0MiB
+del session
+18.0MiB
+17
+  gc.collect()  0
+18.0MiB
+0
+  gc.collect()  1
+18.0MiB
+0
+  gc.collect()  2
+18.0MiB
+0
+  gc.collect()  3
+18.0MiB
+0
+  gc.collect()  4
+********************************************************************************
+Iteration 1
+********************************************************************************
+session = yangvoodoo.DataAccess()
+18.0MiB
+session.connect
+18.2MiB
+... output skipped ...
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.2MiB
+count 1000
+18.4MiB
+count 1000
+18.5MiB
+count 1000
+18.5MiB
+count 1000
+18.5MiB
+count 1000
+18.5MiB
+count 1000
+18.5MiB
+count 1000
+18.5MiB
+count 1000
+18.5MiB
+count 1000
+18.5MiB
+count 1000
+18.5MiB
+count 1000
+18.5MiB
+count 1000
+18.5MiB
+count 1000
+18.5MiB
+count 1000
+18.5MiB
+count 1000
+18.5MiB
+count 1000
+18.5MiB
+count 1000
+18.5MiB
+count 1000
+18.5MiB
+count 1000
+18.5MiB
+count 1000
+18.5MiB
+count 1000
+18.5MiB
+count 1000
+18.5MiB
+count 1000
+18.5MiB
+count 1000
+18.5MiB
+count 1000
+18.5MiB
+count 1000
+18.5MiB
+count 1000
+18.5MiB
+count 1000
+18.5MiB
+count 1000
+18.5MiB
+count 1000
+18.5MiB
+count 1000
+18.5MiB
+count 1000
+18.5MiB
+count 1000
+18.5MiB
+count 1000
+18.5MiB
+count 1000
+18.5MiB
+count 1000
+18.5MiB
+count 1000
+18.5MiB
+count 1000
+18.5MiB
+count 1000
+18.5MiB
+count 1000
+18.5MiB
+count 1000
+18.5MiB
+count 1000
+18.5MiB
+count 1000
+18.8MiB
+count 1000
+18.8MiB
+count 1000
+18.8MiB
+count 1000
+18.8MiB
+count 1000
+18.8MiB
+count 1000
+18.8MiB
+count 1000
+18.8MiB
+count 1000
+18.8MiB
+count 1000
+18.8MiB
+count 1000
+18.8MiB
+count 1000
+18.8MiB
+count 1000
+18.8MiB
+count 1000
+18.8MiB
+count 1000
+18.8MiB
+count 1000
+18.8MiB
+count 1000
+18.8MiB
+count 1000
+18.8MiB
+count 1000
+18.8MiB
+count 1000
+18.8MiB
+count 1000
+18.8MiB
+count 1000
+18.8MiB
+count 1000
+18.8MiB
+count 1000
+18.8MiB
+count 1000
+18.8MiB
+count 1000
+18.8MiB
+count 1000
+18.8MiB
+count 1000
+18.8MiB
+count 1000
+18.8MiB
+count 1000
+18.8MiB
+count 1000
+18.8MiB
+count 1000
+18.8MiB
+count 1000
+18.8MiB
+count 1000
+18.8MiB
+count 1000
+18.8MiB
+count 1000
+19.0MiB
+count 1000
+19.0MiB
+count 1000
+19.0MiB
+count 1000
+19.0MiB
+count 1000
+19.0MiB
+count 1000
+19.0MiB
+count 1000
+19.0MiB
+count 1000
+19.0MiB
+count 1000
+19.0MiB
+count 1000
+19.0MiB
+count 1000
+19.0MiB
+count 1000
+19.0MiB
+count 1000
+19.0MiB
+count 1000
+19.0MiB
+count 1000
+19.0MiB
+count 1000
+19.0MiB
+count 1000
+19.0MiB
+count 1000
+19.0MiB
+count 1000
+19.0MiB
+count 1000
+19.0MiB
+count 1000
+19.0MiB
+count 1000
+19.0MiB
+count 1000
+19.0MiB
+count 1000
+19.0MiB
+count 1000
+19.0MiB
+count 1000
+19.0MiB
+count 1000
+19.0MiB
+count 1000
+19.0MiB
+count 1000
+19.0MiB
+count 1000
+19.0MiB
+count 1000
+19.0MiB
+count 1000
+19.0MiB
+count 1000
+19.0MiB
+count 1000
+19.3MiB
+count 1000
+19.3MiB
+count 1000
+19.3MiB
+count 1000
+19.3MiB
+count 1000
+19.3MiB
+count 1000
+19.3MiB
+count 1000
+19.3MiB
+count 1000
+19.3MiB
+count 1000
+19.3MiB
+count 1000
+19.3MiB
+count 1000
+19.3MiB
+count 1000
+19.3MiB
+count 1000
+19.3MiB
+count 1000
+19.3MiB
+count 1000
+19.3MiB
+count 1000
+19.3MiB
+count 1000
+19.3MiB
+count 1000
+19.3MiB
+count 1000
+19.3MiB
+count 1000
+19.3MiB
+count 1000
+19.3MiB
+count 1000
+19.3MiB
+count 1000
+19.3MiB
+count 1000
+19.3MiB
+count 1000
+19.3MiB
+count 1000
+19.3MiB
+count 1000
+19.3MiB
+count 1000
+19.3MiB
+count 1000
+19.3MiB
+count 1000
+19.3MiB
+count 1000
+19.3MiB
+count 1000
+19.3MiB
+count 1000
+19.3MiB
+count 1000
+19.3MiB
+count 1000
+19.5MiB
+count 1000
+19.5MiB
+count 1000
+19.5MiB
+count 1000
+19.5MiB
+count 1000
+19.5MiB
+count 1000
+19.5MiB
+count 1000
+19.5MiB
+count 1000
+19.5MiB
+count 1000
+19.5MiB
+count 1000
+19.5MiB
+count 1000
+19.5MiB
+count 1000
+19.5MiB
+count 1000
+19.5MiB
+count 1000
+19.5MiB
+count 1000
+19.5MiB
+count 1000
+19.5MiB
+count 1000
+19.5MiB
+count 1000
+19.5MiB
+count 1000
+19.5MiB
+count 1000
+19.5MiB
+count 1000
+19.5MiB
+count 1000
+19.5MiB
+count 1000
+19.5MiB
+count 1000
+19.5MiB
+count 1000
+19.5MiB
+count 1000
+19.5MiB
+count 1000
+19.5MiB
+count 1000
+19.5MiB
+count 1000
+19.5MiB
+count 1000
+19.5MiB
+count 1000
+19.5MiB
+count 1000
+19.8MiB
+count 1000
+19.8MiB
+count 1000
+19.8MiB
+count 1000
+19.8MiB
+count 1000
+19.8MiB
+count 1000
+19.8MiB
+count 1000
+19.8MiB
+count 1000
+19.8MiB
+count 1000
+19.8MiB
+count 1000
+19.8MiB
+count 1000
+19.8MiB
+count 1000
+19.8MiB
+count 1000
+19.8MiB
+count 1000
+19.8MiB
+count 1000
+19.8MiB
+count 1000
+19.8MiB
+count 1000
+19.8MiB
+count 1000
+19.8MiB
+count 1000
+19.8MiB
+count 1000
+19.8MiB
+count 1000
+19.8MiB
+count 1000
+19.8MiB
+count 1000
+20.0MiB
+count 1000
+20.0MiB
+count 1000
+20.0MiB
+count 1000
+20.0MiB
+count 1000
+20.0MiB
+count 1000
+20.0MiB
+count 1000
+20.0MiB
+count 1000
+20.0MiB
+count 1000
+20.0MiB
+count 1000
+20.0MiB
+count 1000
+20.0MiB
+count 1000
+20.0MiB
+count 1000
+20.0MiB
+count 1000
+20.0MiB
+count 1000
+20.0MiB
+count 1000
+20.0MiB
+count 1000
+20.0MiB
+count 1000
+20.0MiB
+count 1000
+20.0MiB
+count 1000
+20.0MiB
+count 1000
+20.3MiB
+del session
+20.3MiB
+17
+  gc.collect()  0
+20.3MiB
+0
+  gc.collect()  1
+20.3MiB
+0
+  gc.collect()  2
+20.3MiB
+0
+  gc.collect()  3
+20.3MiB
+0
+  gc.collect()  4
+********************************************************************************
+Iteration 2
+********************************************************************************
+session = yangvoodoo.DataAccess()
+20.3MiB
+session.connect
+20.3MiB
+... output skipped ...
+count 1000
+20.3MiB
+count 1000
+20.3MiB
+count 1000
+20.3MiB
+count 1000
+20.3MiB
+count 1000
+20.3MiB
+count 1000
+20.3MiB
+count 1000
+20.3MiB
+count 1000
+20.3MiB
+count 1000
+20.3MiB
+count 1000
+20.3MiB
+count 1000
+20.3MiB
+count 1000
+20.3MiB
+count 1000
+20.3MiB
+count 1000
+20.3MiB
+count 1000
+20.3MiB
+count 1000
+20.3MiB
+count 1000
+20.3MiB
+count 1000
+20.3MiB
+count 1000
+20.3MiB
+count 1000
+20.3MiB
+count 1000
+20.3MiB
+count 1000
+20.3MiB
+count 1000
+20.3MiB
+count 1000
+20.3MiB
+count 1000
+20.3MiB
+count 1000
+20.3MiB
+count 1000
+20.3MiB
+count 1000
+20.3MiB
+count 1000
+20.3MiB
+count 1000
+20.3MiB
+count 1000
+20.3MiB
+count 1000
+20.3MiB
+count 1000
+20.3MiB
+count 1000
+20.3MiB
+count 1000
+20.3MiB
+count 1000
+20.6MiB
+count 1000
+20.6MiB
+count 1000
+20.6MiB
+count 1000
+20.6MiB
+count 1000
+20.6MiB
+count 1000
+20.6MiB
+count 1000
+20.6MiB
+count 1000
+20.6MiB
+count 1000
+20.6MiB
+count 1000
+20.6MiB
+count 1000
+20.6MiB
+count 1000
+20.6MiB
+count 1000
+20.6MiB
+count 1000
+20.6MiB
+count 1000
+20.6MiB
+count 1000
+20.6MiB
+count 1000
+20.6MiB
+count 1000
+20.6MiB
+count 1000
+20.6MiB
+count 1000
+20.6MiB
+count 1000
+20.6MiB
+count 1000
+20.6MiB
+count 1000
+20.6MiB
+count 1000
+20.6MiB
+count 1000
+20.6MiB
+count 1000
+20.6MiB
+count 1000
+20.6MiB
+count 1000
+20.6MiB
+count 1000
+20.6MiB
+count 1000
+20.6MiB
+count 1000
+20.6MiB
+count 1000
+20.6MiB
+count 1000
+20.8MiB
+count 1000
+20.8MiB
+count 1000
+20.8MiB
+count 1000
+20.8MiB
+count 1000
+20.8MiB
+count 1000
+20.8MiB
+count 1000
+20.8MiB
+count 1000
+20.8MiB
+count 1000
+20.8MiB
+count 1000
+20.8MiB
+count 1000
+20.8MiB
+count 1000
+20.8MiB
+count 1000
+20.8MiB
+count 1000
+20.8MiB
+count 1000
+20.8MiB
+count 1000
+20.8MiB
+count 1000
+20.8MiB
+count 1000
+20.8MiB
+count 1000
+20.8MiB
+count 1000
+20.8MiB
+count 1000
+20.8MiB
+count 1000
+20.8MiB
+count 1000
+20.8MiB
+count 1000
+20.8MiB
+count 1000
+20.8MiB
+count 1000
+20.8MiB
+count 1000
+20.8MiB
+count 1000
+20.8MiB
+count 1000
+20.8MiB
+count 1000
+20.8MiB
+count 1000
+20.8MiB
+count 1000
+20.8MiB
+count 1000
+20.8MiB
+count 1000
+20.8MiB
+count 1000
+21.1MiB
+count 1000
+21.1MiB
+count 1000
+21.1MiB
+count 1000
+21.1MiB
+count 1000
+21.1MiB
+count 1000
+21.1MiB
+count 1000
+21.1MiB
+count 1000
+21.1MiB
+count 1000
+21.1MiB
+count 1000
+21.1MiB
+count 1000
+21.1MiB
+count 1000
+21.1MiB
+count 1000
+21.1MiB
+count 1000
+21.1MiB
+count 1000
+21.1MiB
+count 1000
+21.1MiB
+count 1000
+21.1MiB
+count 1000
+21.1MiB
+count 1000
+21.1MiB
+count 1000
+21.1MiB
+count 1000
+21.1MiB
+count 1000
+21.1MiB
+count 1000
+21.1MiB
+count 1000
+21.1MiB
+count 1000
+21.1MiB
+count 1000
+21.1MiB
+count 1000
+21.1MiB
+count 1000
+21.1MiB
+count 1000
+21.1MiB
+count 1000
+21.1MiB
+count 1000
+21.1MiB
+count 1000
+21.1MiB
+count 1000
+21.1MiB
+count 1000
+21.3MiB
+count 1000
+21.3MiB
+count 1000
+21.3MiB
+count 1000
+21.3MiB
+count 1000
+21.3MiB
+count 1000
+21.3MiB
+count 1000
+21.3MiB
+count 1000
+21.3MiB
+count 1000
+21.3MiB
+count 1000
+21.3MiB
+count 1000
+21.3MiB
+count 1000
+21.3MiB
+count 1000
+21.3MiB
+count 1000
+21.3MiB
+count 1000
+21.3MiB
+count 1000
+21.3MiB
+count 1000
+21.3MiB
+count 1000
+21.3MiB
+count 1000
+21.3MiB
+count 1000
+21.3MiB
+count 1000
+21.3MiB
+count 1000
+21.3MiB
+count 1000
+21.3MiB
+count 1000
+21.3MiB
+count 1000
+21.3MiB
+count 1000
+21.3MiB
+count 1000
+21.3MiB
+count 1000
+21.3MiB
+count 1000
+21.3MiB
+count 1000
+21.3MiB
+count 1000
+21.3MiB
+count 1000
+21.3MiB
+count 1000
+21.3MiB
+count 1000
+21.6MiB
+count 1000
+21.6MiB
+count 1000
+21.6MiB
+count 1000
+21.6MiB
+count 1000
+21.6MiB
+count 1000
+21.6MiB
+count 1000
+21.6MiB
+count 1000
+21.7MiB
+count 1000
+21.7MiB
+count 1000
+21.7MiB
+count 1000
+21.7MiB
+count 1000
+21.7MiB
+count 1000
+21.7MiB
+count 1000
+21.7MiB
+count 1000
+21.7MiB
+count 1000
+21.7MiB
+count 1000
+21.7MiB
+count 1000
+21.7MiB
+count 1000
+21.7MiB
+count 1000
+21.7MiB
+count 1000
+21.7MiB
+count 1000
+21.7MiB
+count 1000
+21.7MiB
+count 1000
+21.7MiB
+count 1000
+21.7MiB
+count 1000
+21.7MiB
+count 1000
+21.7MiB
+count 1000
+21.7MiB
+count 1000
+21.7MiB
+count 1000
+21.7MiB
+count 1000
+21.7MiB
+count 1000
+21.8MiB
+count 1000
+21.8MiB
+count 1000
+21.8MiB
+count 1000
+21.8MiB
+count 1000
+21.8MiB
+count 1000
+21.8MiB
+count 1000
+21.8MiB
+count 1000
+21.8MiB
+count 1000
+21.8MiB
+count 1000
+21.8MiB
+count 1000
+21.8MiB
+count 1000
+21.8MiB
+count 1000
+21.8MiB
+count 1000
+21.8MiB
+count 1000
+21.8MiB
+count 1000
+21.8MiB
+count 1000
+21.8MiB
+count 1000
+21.8MiB
+count 1000
+21.8MiB
+count 1000
+21.8MiB
+count 1000
+21.8MiB
+count 1000
+21.8MiB
+count 1000
+21.8MiB
+count 1000
+21.8MiB
+count 1000
+21.8MiB
+count 1000
+21.8MiB
+count 1000
+21.8MiB
+count 1000
+21.8MiB
+count 1000
+21.8MiB
+count 1000
+21.8MiB
+count 1000
+21.8MiB
+count 1000
+21.8MiB
+count 1000
+21.8MiB
+count 1000
+21.8MiB
+count 1000
+21.8MiB
+count 1000
+21.8MiB
+count 1000
+22.1MiB
+count 1000
+22.1MiB
+count 1000
+22.1MiB
+count 1000
+22.1MiB
+count 1000
+22.1MiB
+count 1000
+22.1MiB
+count 1000
+22.1MiB
+count 1000
+22.1MiB
+count 1000
+22.1MiB
+count 1000
+22.1MiB
+count 1000
+22.1MiB
+count 1000
+22.1MiB
+count 1000
+22.1MiB
+count 1000
+22.1MiB
+count 1000
+22.1MiB
+count 1000
+22.1MiB
+count 1000
+22.1MiB
+count 1000
+22.1MiB
+count 1000
+22.1MiB
+count 1000
+22.1MiB
+count 1000
+22.1MiB
+count 1000
+22.1MiB
+count 1000
+22.1MiB
+count 1000
+22.1MiB
+count 1000
+22.1MiB
+count 1000
+22.1MiB
+count 1000
+22.1MiB
+count 1000
+22.1MiB
+count 1000
+22.1MiB
+count 1000
+22.1MiB
+count 1000
+22.1MiB
+count 1000
+22.1MiB
+count 1000
+22.1MiB
+count 1000
+22.1MiB
+count 1000
+22.4MiB
+count 1000
+22.4MiB
+count 1000
+22.4MiB
+count 1000
+22.4MiB
+count 1000
+22.4MiB
+count 1000
+22.4MiB
+count 1000
+22.4MiB
+count 1000
+22.4MiB
+count 1000
+22.4MiB
+count 1000
+22.4MiB
+count 1000
+22.4MiB
+count 1000
+22.4MiB
+count 1000
+22.4MiB
+count 1000
+22.4MiB
+count 1000
+22.4MiB
+count 1000
+22.4MiB
+count 1000
+22.4MiB
+count 1000
+22.4MiB
+count 1000
+22.4MiB
+count 1000
+22.4MiB
+count 1000
+22.4MiB
+count 1000
+22.4MiB
+count 1000
+22.4MiB
+count 1000
+22.4MiB
+count 1000
+22.4MiB
+count 1000
+22.4MiB
+count 1000
+22.4MiB
+count 1000
+22.4MiB
+count 1000
+22.4MiB
+count 1000
+22.4MiB
+count 1000
+22.4MiB
+count 1000
+22.4MiB
+del session
+22.4MiB
+17
+  gc.collect()  0
+22.6MiB
+0
+  gc.collect()  1
+22.6MiB
+0
+  gc.collect()  2
+22.6MiB
+0
+  gc.collect()  3
+22.6MiB
+0
+  gc.collect()  4
+********************************************************************************
+Iteration 3
+********************************************************************************
+session = yangvoodoo.DataAccess()
+22.6MiB
+session.connect
+22.6MiB
+... output skipped ...
+count 1000
+22.6MiB
+count 1000
+22.6MiB
+count 1000
+22.6MiB
+count 1000
+22.6MiB
+count 1000
+22.6MiB
+count 1000
+22.6MiB
+count 1000
+22.6MiB
+count 1000
+22.6MiB
+count 1000
+22.6MiB
+count 1000
+22.6MiB
+count 1000
+22.6MiB
+count 1000
+22.6MiB
+count 1000
+22.6MiB
+count 1000
+22.6MiB
+count 1000
+22.6MiB
+count 1000
+22.6MiB
+count 1000
+22.6MiB
+count 1000
+22.6MiB
+count 1000
+22.6MiB
+count 1000
+22.6MiB
+count 1000
+22.6MiB
+count 1000
+22.6MiB
+count 1000
+22.6MiB
+count 1000
+22.6MiB
+count 1000
+22.6MiB
+count 1000
+22.6MiB
+count 1000
+22.6MiB
+count 1000
+22.6MiB
+count 1000
+22.6MiB
+count 1000
+22.6MiB
+count 1000
+22.6MiB
+count 1000
+22.6MiB
+count 1000
+22.6MiB
+count 1000
+22.6MiB
+count 1000
+22.6MiB
+count 1000
+22.6MiB
+count 1000
+22.6MiB
+count 1000
+22.6MiB
+count 1000
+22.9MiB
+count 1000
+22.9MiB
+count 1000
+22.9MiB
+count 1000
+22.9MiB
+count 1000
+22.9MiB
+count 1000
+22.9MiB
+count 1000
+22.9MiB
+count 1000
+22.9MiB
+count 1000
+22.9MiB
+count 1000
+22.9MiB
+count 1000
+22.9MiB
+count 1000
+22.9MiB
+count 1000
+22.9MiB
+count 1000
+22.9MiB
+count 1000
+22.9MiB
+count 1000
+22.9MiB
+count 1000
+22.9MiB
+count 1000
+22.9MiB
+count 1000
+22.9MiB
+count 1000
+22.9MiB
+count 1000
+22.9MiB
+count 1000
+22.9MiB
+count 1000
+22.9MiB
+count 1000
+22.9MiB
+count 1000
+22.9MiB
+count 1000
+22.9MiB
+count 1000
+22.9MiB
+count 1000
+22.9MiB
+count 1000
+22.9MiB
+count 1000
+22.9MiB
+count 1000
+23.2MiB
+count 1000
+23.2MiB
+count 1000
+23.2MiB
+count 1000
+23.2MiB
+count 1000
+23.2MiB
+count 1000
+23.2MiB
+count 1000
+23.2MiB
+count 1000
+23.2MiB
+count 1000
+23.2MiB
+count 1000
+23.2MiB
+count 1000
+23.2MiB
+count 1000
+23.2MiB
+count 1000
+23.2MiB
+count 1000
+23.2MiB
+count 1000
+23.2MiB
+count 1000
+23.2MiB
+count 1000
+23.2MiB
+count 1000
+23.2MiB
+count 1000
+23.2MiB
+count 1000
+23.2MiB
+count 1000
+23.2MiB
+count 1000
+23.2MiB
+count 1000
+23.2MiB
+count 1000
+23.2MiB
+count 1000
+23.2MiB
+count 1000
+23.2MiB
+count 1000
+23.2MiB
+count 1000
+23.2MiB
+count 1000
+23.2MiB
+count 1000
+23.2MiB
+count 1000
+23.2MiB
+count 1000
+23.2MiB
+count 1000
+23.2MiB
+count 1000
+23.2MiB
+count 1000
+23.4MiB
+count 1000
+23.4MiB
+count 1000
+23.4MiB
+count 1000
+23.4MiB
+count 1000
+23.4MiB
+count 1000
+23.4MiB
+count 1000
+23.4MiB
+count 1000
+23.4MiB
+count 1000
+23.4MiB
+count 1000
+23.4MiB
+count 1000
+23.4MiB
+count 1000
+23.4MiB
+count 1000
+23.4MiB
+count 1000
+23.4MiB
+count 1000
+23.4MiB
+count 1000
+23.4MiB
+count 1000
+23.4MiB
+count 1000
+23.4MiB
+count 1000
+23.4MiB
+count 1000
+23.4MiB
+count 1000
+23.4MiB
+count 1000
+23.4MiB
+count 1000
+23.4MiB
+count 1000
+23.4MiB
+count 1000
+23.4MiB
+count 1000
+23.4MiB
+count 1000
+23.4MiB
+count 1000
+23.4MiB
+count 1000
+23.4MiB
+count 1000
+23.4MiB
+count 1000
+23.4MiB
+count 1000
+23.4MiB
+count 1000
+23.4MiB
+count 1000
+23.4MiB
+count 1000
+23.7MiB
+count 1000
+23.7MiB
+count 1000
+23.7MiB
+count 1000
+23.7MiB
+count 1000
+23.7MiB
+count 1000
+23.7MiB
+count 1000
+23.7MiB
+count 1000
+23.7MiB
+count 1000
+23.7MiB
+count 1000
+23.7MiB
+count 1000
+23.7MiB
+count 1000
+23.7MiB
+count 1000
+23.7MiB
+count 1000
+23.7MiB
+count 1000
+23.7MiB
+count 1000
+23.7MiB
+count 1000
+23.7MiB
+count 1000
+23.7MiB
+count 1000
+23.7MiB
+count 1000
+23.7MiB
+count 1000
+23.7MiB
+count 1000
+23.7MiB
+count 1000
+23.7MiB
+count 1000
+23.7MiB
+count 1000
+23.7MiB
+count 1000
+23.7MiB
+count 1000
+23.7MiB
+count 1000
+23.7MiB
+count 1000
+23.7MiB
+count 1000
+23.7MiB
+count 1000
+23.7MiB
+count 1000
+23.7MiB
+count 1000
+23.7MiB
+count 1000
+23.9MiB
+count 1000
+23.9MiB
+count 1000
+23.9MiB
+count 1000
+23.9MiB
+count 1000
+23.9MiB
+count 1000
+23.9MiB
+count 1000
+23.9MiB
+count 1000
+23.9MiB
+count 1000
+23.9MiB
+count 1000
+23.9MiB
+count 1000
+23.9MiB
+count 1000
+23.9MiB
+count 1000
+23.9MiB
+count 1000
+23.9MiB
+count 1000
+23.9MiB
+count 1000
+23.9MiB
+count 1000
+23.9MiB
+count 1000
+23.9MiB
+count 1000
+23.9MiB
+count 1000
+23.9MiB
+count 1000
+23.9MiB
+count 1000
+23.9MiB
+count 1000
+23.9MiB
+count 1000
+23.9MiB
+count 1000
+23.9MiB
+count 1000
+23.9MiB
+count 1000
+23.9MiB
+count 1000
+23.9MiB
+count 1000
+23.9MiB
+count 1000
+23.9MiB
+count 1000
+24.2MiB
+count 1000
+24.2MiB
+count 1000
+24.2MiB
+count 1000
+24.2MiB
+count 1000
+24.2MiB
+count 1000
+24.2MiB
+count 1000
+24.2MiB
+count 1000
+24.2MiB
+count 1000
+24.2MiB
+count 1000
+24.2MiB
+count 1000
+24.2MiB
+count 1000
+24.2MiB
+count 1000
+24.2MiB
+count 1000
+24.2MiB
+count 1000
+24.2MiB
+count 1000
+24.2MiB
+count 1000
+24.2MiB
+count 1000
+24.2MiB
+count 1000
+24.2MiB
+count 1000
+24.2MiB
+count 1000
+24.2MiB
+count 1000
+24.2MiB
+count 1000
+24.2MiB
+count 1000
+24.4MiB
+count 1000
+24.4MiB
+count 1000
+24.4MiB
+count 1000
+24.4MiB
+count 1000
+24.4MiB
+count 1000
+24.4MiB
+count 1000
+24.4MiB
+count 1000
+24.4MiB
+count 1000
+24.4MiB
+count 1000
+24.4MiB
+count 1000
+24.4MiB
+count 1000
+24.4MiB
+count 1000
+24.4MiB
+count 1000
+24.4MiB
+count 1000
+24.4MiB
+count 1000
+24.4MiB
+count 1000
+24.4MiB
+count 1000
+24.4MiB
+count 1000
+24.4MiB
+count 1000
+24.4MiB
+count 1000
+24.4MiB
+count 1000
+24.4MiB
+count 1000
+24.4MiB
+count 1000
+24.7MiB
+count 1000
+24.7MiB
+count 1000
+24.7MiB
+count 1000
+24.7MiB
+count 1000
+24.7MiB
+count 1000
+24.7MiB
+count 1000
+24.7MiB
+count 1000
+24.7MiB
+count 1000
+24.7MiB
+count 1000
+24.7MiB
+count 1000
+24.7MiB
+count 1000
+24.7MiB
+count 1000
+24.7MiB
+count 1000
+24.7MiB
+count 1000
+24.7MiB
+count 1000
+24.7MiB
+count 1000
+24.7MiB
+count 1000
+24.7MiB
+count 1000
+24.7MiB
+count 1000
+24.7MiB
+count 1000
+24.7MiB
+count 1000
+24.7MiB
+count 1000
+24.9MiB
+count 1000
+24.9MiB
+count 1000
+24.9MiB
+count 1000
+24.9MiB
+count 1000
+24.9MiB
+count 1000
+24.9MiB
+count 1000
+24.9MiB
+count 1000
+24.9MiB
+count 1000
+24.9MiB
+count 1000
+24.9MiB
+count 1000
+24.9MiB
+count 1000
+24.9MiB
+count 1000
+24.9MiB
+count 1000
+24.9MiB
+count 1000
+24.9MiB
+count 1000
+24.9MiB
+count 1000
+25.1MiB
+count 1000
+25.1MiB
+count 1000
+25.1MiB
+count 1000
+25.1MiB
+count 1000
+25.1MiB
+count 1000
+25.1MiB
+count 1000
+25.1MiB
+count 1000
+25.1MiB
+count 1000
+25.1MiB
+count 1000
+25.1MiB
+count 1000
+25.1MiB
+count 1000
+25.1MiB
+count 1000
+25.1MiB
+count 1000
+25.1MiB
+count 1000
+25.1MiB
+count 1000
+25.1MiB
+count 1000
+25.1MiB
+del session
+25.1MiB
+17
+  gc.collect()  0
+25.1MiB
+0
+  gc.collect()  1
+25.1MiB
+0
+  gc.collect()  2
+25.1MiB
+0
+  gc.collect()  3
+25.1MiB
+0
+  gc.collect()  4
+********************************************************************************
+Iteration 4
+********************************************************************************
+session = yangvoodoo.DataAccess()
+25.4MiB
+session.connect
+25.4MiB
+... output skipped ...
+count 1000
+25.4MiB
+count 1000
+25.4MiB
+count 1000
+25.4MiB
+count 1000
+25.4MiB
+count 1000
+25.4MiB
+count 1000
+25.4MiB
+count 1000
+25.4MiB
+count 1000
+25.4MiB
+count 1000
+25.4MiB
+count 1000
+25.4MiB
+count 1000
+25.4MiB
+count 1000
+25.4MiB
+count 1000
+25.4MiB
+count 1000
+25.4MiB
+count 1000
+25.4MiB
+count 1000
+25.4MiB
+count 1000
+25.4MiB
+count 1000
+25.4MiB
+count 1000
+25.4MiB
+count 1000
+25.4MiB
+count 1000
+25.4MiB
+count 1000
+25.4MiB
+count 1000
+25.4MiB
+count 1000
+25.4MiB
+count 1000
+25.4MiB
+count 1000
+25.4MiB
+count 1000
+25.4MiB
+count 1000
+25.4MiB
+count 1000
+25.4MiB
+count 1000
+25.4MiB
+count 1000
+25.4MiB
+count 1000
+25.4MiB
+count 1000
+25.4MiB
+count 1000
+25.4MiB
+count 1000
+25.4MiB
+count 1000
+25.4MiB
+count 1000
+25.4MiB
+count 1000
+25.4MiB
+count 1000
+25.4MiB
+count 1000
+25.4MiB
+count 1000
+25.4MiB
+count 1000
+25.4MiB
+count 1000
+25.4MiB
+count 1000
+25.4MiB
+count 1000
+25.4MiB
+count 1000
+25.4MiB
+count 1000
+25.4MiB
+count 1000
+25.4MiB
+count 1000
+25.4MiB
+count 1000
+25.4MiB
+count 1000
+25.4MiB
+count 1000
+25.4MiB
+count 1000
+25.4MiB
+count 1000
+25.6MiB
+count 1000
+25.6MiB
+count 1000
+25.6MiB
+count 1000
+25.6MiB
+count 1000
+25.6MiB
+count 1000
+25.6MiB
+count 1000
+25.6MiB
+count 1000
+25.6MiB
+count 1000
+25.6MiB
+count 1000
+25.6MiB
+count 1000
+25.6MiB
+count 1000
+25.6MiB
+count 1000
+25.6MiB
+count 1000
+25.6MiB
+count 1000
+25.6MiB
+count 1000
+25.6MiB
+count 1000
+25.6MiB
+count 1000
+25.6MiB
+count 1000
+25.6MiB
+count 1000
+25.6MiB
+count 1000
+25.6MiB
+count 1000
+25.6MiB
+count 1000
+25.6MiB
+count 1000
+25.6MiB
+count 1000
+25.6MiB
+count 1000
+25.6MiB
+count 1000
+25.6MiB
+count 1000
+25.6MiB
+count 1000
+25.6MiB
+count 1000
+25.6MiB
+count 1000
+25.6MiB
+count 1000
+25.6MiB
+count 1000
+25.6MiB
+count 1000
+25.6MiB
+count 1000
+25.9MiB
+count 1000
+25.9MiB
+count 1000
+25.9MiB
+count 1000
+25.9MiB
+count 1000
+25.9MiB
+count 1000
+25.9MiB
+count 1000
+25.9MiB
+count 1000
+25.9MiB
+count 1000
+25.9MiB
+count 1000
+25.9MiB
+count 1000
+25.9MiB
+count 1000
+25.9MiB
+count 1000
+25.9MiB
+count 1000
+25.9MiB
+count 1000
+25.9MiB
+count 1000
+25.9MiB
+count 1000
+25.9MiB
+count 1000
+25.9MiB
+count 1000
+25.9MiB
+count 1000
+25.9MiB
+count 1000
+25.9MiB
+count 1000
+25.9MiB
+count 1000
+25.9MiB
+count 1000
+25.9MiB
+count 1000
+25.9MiB
+count 1000
+25.9MiB
+count 1000
+25.9MiB
+count 1000
+25.9MiB
+count 1000
+25.9MiB
+count 1000
+25.9MiB
+count 1000
+25.9MiB
+count 1000
+25.9MiB
+count 1000
+25.9MiB
+count 1000
+25.9MiB
+count 1000
+26.2MiB
+count 1000
+26.2MiB
+count 1000
+26.2MiB
+count 1000
+26.2MiB
+count 1000
+26.2MiB
+count 1000
+26.2MiB
+count 1000
+26.2MiB
+count 1000
+26.2MiB
+count 1000
+26.2MiB
+count 1000
+26.2MiB
+count 1000
+26.2MiB
+count 1000
+26.2MiB
+count 1000
+26.2MiB
+count 1000
+26.2MiB
+count 1000
+26.2MiB
+count 1000
+26.2MiB
+count 1000
+26.2MiB
+count 1000
+26.2MiB
+count 1000
+26.2MiB
+count 1000
+26.2MiB
+count 1000
+26.2MiB
+count 1000
+26.2MiB
+count 1000
+26.2MiB
+count 1000
+26.2MiB
+count 1000
+26.2MiB
+count 1000
+26.2MiB
+count 1000
+26.2MiB
+count 1000
+26.2MiB
+count 1000
+26.2MiB
+count 1000
+26.2MiB
+count 1000
+26.2MiB
+count 1000
+26.2MiB
+count 1000
+26.2MiB
+count 1000
+26.4MiB
+count 1000
+26.4MiB
+count 1000
+26.4MiB
+count 1000
+26.4MiB
+count 1000
+26.4MiB
+count 1000
+26.4MiB
+count 1000
+26.4MiB
+count 1000
+26.4MiB
+count 1000
+26.4MiB
+count 1000
+26.4MiB
+count 1000
+26.4MiB
+count 1000
+26.4MiB
+count 1000
+26.4MiB
+count 1000
+26.4MiB
+count 1000
+26.4MiB
+count 1000
+26.4MiB
+count 1000
+26.4MiB
+count 1000
+26.4MiB
+count 1000
+26.4MiB
+count 1000
+26.4MiB
+count 1000
+26.4MiB
+count 1000
+26.4MiB
+count 1000
+26.4MiB
+count 1000
+26.4MiB
+count 1000
+26.4MiB
+count 1000
+26.7MiB
+count 1000
+26.7MiB
+count 1000
+26.7MiB
+count 1000
+26.7MiB
+count 1000
+26.7MiB
+count 1000
+26.7MiB
+count 1000
+26.7MiB
+count 1000
+26.7MiB
+count 1000
+26.7MiB
+count 1000
+26.7MiB
+count 1000
+26.7MiB
+count 1000
+26.7MiB
+count 1000
+26.7MiB
+count 1000
+26.7MiB
+count 1000
+26.7MiB
+count 1000
+26.7MiB
+count 1000
+26.7MiB
+count 1000
+26.7MiB
+count 1000
+26.7MiB
+count 1000
+26.7MiB
+count 1000
+26.7MiB
+count 1000
+26.9MiB
+count 1000
+26.9MiB
+count 1000
+26.9MiB
+count 1000
+26.9MiB
+count 1000
+26.9MiB
+count 1000
+26.9MiB
+count 1000
+26.9MiB
+count 1000
+26.9MiB
+count 1000
+26.9MiB
+count 1000
+26.9MiB
+count 1000
+26.9MiB
+count 1000
+26.9MiB
+count 1000
+26.9MiB
+count 1000
+26.9MiB
+count 1000
+26.9MiB
+count 1000
+26.9MiB
+count 1000
+26.9MiB
+count 1000
+26.9MiB
+count 1000
+26.9MiB
+count 1000
+26.9MiB
+count 1000
+26.9MiB
+count 1000
+27.2MiB
+count 1000
+27.2MiB
+count 1000
+27.2MiB
+count 1000
+27.2MiB
+count 1000
+27.2MiB
+count 1000
+27.2MiB
+count 1000
+27.2MiB
+count 1000
+27.2MiB
+count 1000
+27.2MiB
+count 1000
+27.2MiB
+count 1000
+27.2MiB
+count 1000
+27.2MiB
+count 1000
+27.2MiB
+count 1000
+27.2MiB
+count 1000
+27.2MiB
+count 1000
+27.2MiB
+count 1000
+27.2MiB
+count 1000
+27.2MiB
+count 1000
+27.2MiB
+count 1000
+27.2MiB
+count 1000
+27.2MiB
+count 1000
+27.2MiB
+count 1000
+27.4MiB
+count 1000
+27.4MiB
+count 1000
+27.4MiB
+count 1000
+27.4MiB
+count 1000
+27.4MiB
+count 1000
+27.4MiB
+count 1000
+27.4MiB
+count 1000
+27.4MiB
+count 1000
+27.4MiB
+count 1000
+27.4MiB
+count 1000
+27.4MiB
+count 1000
+27.4MiB
+count 1000
+27.4MiB
+count 1000
+27.4MiB
+count 1000
+27.4MiB
+count 1000
+27.4MiB
+count 1000
+27.4MiB
+count 1000
+27.4MiB
+count 1000
+27.4MiB
+count 1000
+27.4MiB
+count 1000
+27.4MiB
+count 1000
+27.4MiB
+count 1000
+27.7MiB
+count 1000
+27.7MiB
+count 1000
+27.7MiB
+count 1000
+27.7MiB
+count 1000
+27.7MiB
+count 1000
+27.7MiB
+count 1000
+27.7MiB
+count 1000
+27.7MiB
+count 1000
+27.7MiB
+count 1000
+27.7MiB
+count 1000
+27.7MiB
+count 1000
+27.7MiB
+count 1000
+27.7MiB
+count 1000
+27.7MiB
+count 1000
+27.7MiB
+count 1000
+27.7MiB
+count 1000
+27.7MiB
+count 1000
+27.7MiB
+count 1000
+27.7MiB
+count 1000
+27.7MiB
+count 1000
+27.7MiB
+count 1000
+27.7MiB
+count 1000
+27.9MiB
+count 1000
+27.9MiB
+count 1000
+27.9MiB
+count 1000
+27.9MiB
+count 1000
+27.9MiB
+count 1000
+27.9MiB
+count 1000
+27.9MiB
+count 1000
+27.9MiB
+count 1000
+27.9MiB
+count 1000
+27.9MiB
+count 1000
+27.9MiB
+count 1000
+27.9MiB
+count 1000
+27.9MiB
+del session
+27.9MiB
+17
+  gc.collect()  0
+27.9MiB
+0
+  gc.collect()  1
+27.9MiB
+0
+  gc.collect()  2
+27.9MiB
+0
+  gc.collect()  3
+27.9MiB
+0
+  gc.collect()  4
+----
