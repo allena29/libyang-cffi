@@ -686,3 +686,24 @@ class test_libyangdata(unittest.TestCase):
         prefix2 = prefix +'/minimal-integrationtest:johnbiscotti'
         node = next(self.ctx.find_path(prefix2 + '/minimal-integrationtest:pastrystout'))
         self.assertListEqual(list(node.must_conditions()), ["../b='have-just-one'"])
+
+    def test_parent(self):
+        # Arrange
+        xpath = BASE_XPATH + ":types/collection[x='list']/z/zzz"
+        value = ''
+
+        # Act
+        self.data.set_xpath(xpath, value)
+        result = next(self.data.get_xpath(xpath))
+
+        self.assertEqual(
+            result.parent().xpath,
+            "/minimal-integrationtest:types/collection[x='list']/z",
+        )
+        self.assertEqual(
+            result.parent().parent().xpath,
+            "/minimal-integrationtest:types/collection[x='list']",
+        )
+        self.assertEqual(
+            result.parent().parent().parent().xpath, '/minimal-integrationtest:types'
+        )

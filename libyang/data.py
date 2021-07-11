@@ -7,6 +7,7 @@ from _libyang import lib
 from .schema import Node
 from .util import c2str
 from .util import str2c
+from .util import LibyangError
 
 
 class DataNode(object):
@@ -42,6 +43,11 @@ class DataNode(object):
 
     def get_root(self):
         return DataNode(self.context, lib.lypy_get_root_node(self.lyd_node))
+
+    def parent(self):
+        if self.lyd_node.parent == ffi.NULL:
+            raise LibyangError('cannot use parent() to go above a root node %s' %(self.xpath))
+        return DataNode(self.context, self.lyd_node.parent, self.xpath[:self.xpath.rfind('/')])
 
     def get_schema(self):
         return Node(self.context, self.lyd_node.schema)
