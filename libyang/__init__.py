@@ -1,6 +1,6 @@
 # Copyright (c) 2018-2019 Robin Jarry
 # SPDX-License-Identifier: MIT
-
+import gc
 import logging
 import os
 
@@ -18,10 +18,13 @@ from .util import str2c
 # ------------------------------------------------------------------------------
 class Context(object):
 
+
     def __init__(self, search_path=None,
                  options=lib.LY_CTX_DISABLE_SEARCHDIR_CWD):
+        self._data_tree = []
         self._ctx = ffi.gc(lib.ly_ctx_new(ffi.NULL, options),
-                           lambda c: lib.ly_ctx_destroy(c, ffi.NULL))
+                           self.destroy)
+
         if not self._ctx:
             raise self.error('cannot create context')
 
@@ -41,7 +44,23 @@ class Context(object):
             if lib.ly_ctx_set_searchdir(self._ctx, str2c(path)) != 0:
                 raise self.error('cannot set search dir')
 
+    def destroy(self, c):
+        for data_tree in self._data_tree:
+            lib.lyd_free_withsiblings(data_tree)
+        if self._ctx is not None:
+            lib.ly_ctx_destroy(c, ffi.NULL)
+            self._ctx =None
+        gc.collect()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args, **kwargs):
+        self.destroy()
+
     def error(self, msg, *args):
+        if not self._ctx:
+            raise RuntimeError('context already destoryed')
         errors = []
         try:
             err = lib.ly_err_first(self._ctx)
@@ -66,6 +85,8 @@ class Context(object):
         return LibyangError(msg)
 
     def load_module(self, name):
+        if not self._ctx:
+            raise RuntimeError('context already destoryed')
         mod = lib.ly_ctx_load_module(self._ctx, str2c(name), ffi.NULL)
         if not mod:
             raise self.error('cannot load module')
@@ -73,6 +94,8 @@ class Context(object):
         return Module(self, mod)
 
     def get_module(self, name):
+        if not self._ctx:
+            raise RuntimeError('context already destoryed')
         mod = lib.ly_ctx_get_module(self._ctx, str2c(name), ffi.NULL, False)
         if not mod:
             raise self.error('cannot get module')
@@ -80,6 +103,8 @@ class Context(object):
         return Module(self, mod)
 
     def find_path(self, path):
+        if not self._ctx:
+            raise RuntimeError('context already destoryed')
         node_set = ffi.gc(lib.ly_ctx_find_path(self._ctx, str2c(path)),
                           lib.ly_set_free)
         if not node_set:
@@ -92,6 +117,8 @@ class Context(object):
         """
         Return an iterator that yields all implemented modules from the context
         """
+        if not self._ctx:
+            raise RuntimeError('context already destoryed')
         idx = ffi.new('uint32_t *')
         mod = lib.ly_ctx_get_module_iter(self._ctx, idx)
         while mod:
@@ -109,12 +136,17 @@ class DataTree:
 
     As elements of data are set they will be validated against the schema of
     that particular node.
+
+    At the time this fork was taken there was little in the way of DataTree
+    upstream in robin jarry's project, which itself has moved across to the
+    main libyang repo. Ultimately this project needs to contribute back there.
     """
 
     def __init__(self, ctx):
         self._ctx = ctx
         self._lyctx = ctx._ctx
         self._root = None
+
 
     def set_xpath(self, xpath, value):
         """
@@ -123,6 +155,8 @@ class DataTree:
         If the path already exists with the same value (no data change0 then lyd_new_path
         will return NULL.
         """
+        if not self._ctx:
+            raise RuntimeError('context already destoryed')
 
         libyang_value = DataNode.convert_python_value(value)
 
@@ -131,11 +165,12 @@ class DataTree:
             if not node:
                 raise LibyangError('The value {0} was not set at {1}\nCheck the path and value'.format(value, xpath))
             self._root = node
+            self._ctx._data_tree.append(self._root)
         else:
             node = lib.lyd_new_path(self._root, ffi.NULL, str2c(xpath), libyang_value, 0, lib.LYD_PATH_OPT_UPDATE)
 
         if not node:
-            node_set = lib.lyd_find_path(self._root, str2c(xpath))
+            node_set = ffi.gc(lib.lyd_find_path(self._root, str2c(xpath)), lib.ly_set_free)
             if node_set.number == 0:
                 raise LibyangError('The value {0} was not set at {1}\nCheck the path and value'.format(value, xpath))
 
@@ -143,29 +178,29 @@ class DataTree:
         """
         Get the value at XPATH - returns a generator
         """
-        # TODO: work out what happens with a python generator, if the caller just calls next() does gc get as
-        # far as actually calling ly_set_free()????
+        if not self._ctx:
+            raise RuntimeError('context already destoryed')
         if self._root is not None:
-            node_set = lib.lyd_find_path(self._root, str2c(xpath))
+            node_set = ffi.gc(lib.lyd_find_path(self._root, str2c(xpath)), lib.ly_set_free)
             if node_set == ffi.NULL:
                 yield None
 
             for i in range(node_set.number):
                 yield DataNode(self, node_set.set.d[i], xpath)
-            lib.ly_set_free(node_set)
 
     def gets_xpath(self, xpath):
         """
         Get the XPATH of each list element wtithin the list - returns a generator
         """
+        if not self._ctx:
+            raise RuntimeError('context already destoryed')
         if self._root is not None:
-            node_set = lib.lyd_find_path(self._root, str2c(xpath))
+            node_set = ffi.gc(lib.lyd_find_path(self._root, str2c(xpath)), lib.ly_set_free)
             if node_set == ffi.NULL:
                 yield []
             else:
                 for i in range(node_set.number):
                     yield c2str(lib.lyd_path(node_set.set.d[i]))
-            lib.ly_set_free(node_set)
 
     def delete_xpath(self, xpath):
         """
@@ -173,8 +208,10 @@ class DataTree:
         """
         if self._root is None:
             return
+        if not self._ctx:
+            raise RuntimeError('context already destoryed')
 
-        node_set = lib.lyd_find_path(self._root, str2c(xpath))
+        node_set = ffi.gc(lib.lyd_find_path(self._root, str2c(xpath)), lib.ly_set_free)
         if node_set == ffi.NULL:
             return
 
@@ -187,10 +224,12 @@ class DataTree:
         """
         Count results for a given XPATH
         """
+        if not self._ctx:
+            raise RuntimeError('context already destoryed')
         if self._root is None:
             return 0
 
-        node_set = lib.lyd_find_path(self._root, str2c(xpath))
+        node_set = ffi.gc(lib.lyd_find_path(self._root, str2c(xpath)), lib.ly_set_free)
         if node_set == ffi.NULL:
             return 0
         return int(node_set.number)
@@ -199,6 +238,8 @@ class DataTree:
         """
         Dump to a file with the specified format
         """
+        if not self._ctx:
+            raise RuntimeError('context already destoryed')
         with open(filename, 'w') as fh:
             lib.lyd_print_file(fh, self._root, format, lib.LYP_WITHSIBLINGS)
 
@@ -207,6 +248,8 @@ class DataTree:
         Load from a file with the specified format
         # TODO:  what about freeing an initial root if one exists
         """
+        if not self._ctx:
+            raise RuntimeError('context already destoryed')
         option = lib.LYD_OPT_CONFIG
         if strict:
             option = option | lib.LYD_OPT_STRICT
@@ -217,11 +260,14 @@ class DataTree:
         self._root = lib.lyd_parse_path(self._lyctx , str2c(filename), format, option)
         if self._root == ffi.NULL:
             raise self._ctx.error('Marshalling Error')
+        self._ctx._data_tree.append( self._root)
 
     def loads(self, payload, format=lib.LYD_XML, trusted=False, strict=True):
         """
         Load from a string with the specified format
         """
+        if not self._ctx:
+            raise RuntimeError('context already destoryed')
         option = lib.LYD_OPT_CONFIG
         if strict:
             option = option | lib.LYD_OPT_STRICT
@@ -233,11 +279,14 @@ class DataTree:
         self._root = lib.lyd_parse_mem(self._lyctx, str2c(payload), format, option)
         if self._root == ffi.NULL:
             raise self._ctx.error('Marshalling Error')
+        self._ctx._data_tree.append( self._root)
 
     def merges(self, payload, format=lib.LYD_XML, trusted=True, strict=True):
         """
         Load from a string with the specified format
         """
+        if not self._ctx:
+            raise RuntimeError('context already destoryed')
         option = lib.LYD_OPT_CONFIG
         if strict:
             option = option | lib.LYD_OPT_STRICT
@@ -254,6 +303,8 @@ class DataTree:
             return self._ctx.error('Merge Error')
     
     def advancedmerge(self, payload, format=lib.LYD_XML, trusted=True, strict=True):
+        if not self._ctx:
+            raise RuntimeError('context already destoryed')
         if self._root:
             option = lib.LYD_OPT_CONFIG
             if strict:
@@ -270,6 +321,8 @@ class DataTree:
             raise LibyangError('advanced merges() not possible until data exists on the root object.')
 
     def dumps(self, format=lib.LYD_XML):
+        if not self._ctx:
+            raise RuntimeError('context already destoryed')
         """
         Load from a string with the specified format
         """
@@ -281,6 +334,8 @@ class DataTree:
         return c2str(buf[0])
 
     def dump_datanodes(self):
+        if not self._ctx:
+            raise RuntimeError('context already destoryed')
         # This is suboptimal at present - want to move this down to C or
         # avoid the extra funaction call.
         nodelist = {}
@@ -292,6 +347,8 @@ class DataTree:
             yield nodelist[node]
 
     def validate(self):
+        if not self._ctx:
+            raise RuntimeError('context already destoryed')
         if not self._root:
             return True
 
