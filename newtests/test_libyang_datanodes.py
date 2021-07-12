@@ -354,6 +354,7 @@ class test_libyangdata(unittest.TestCase):
         self.assertEqual(node.xpath, xpath)
         self.assertEqual(node.value, '')
         self.assertEqual(repr(node.get_schema()), '<libyang.schema.Container: ip>')
+        self.assertEqual(node.get_schema_path(), '/minimal-integrationtest:ip')
         self.assertEqual(node.get_schema().presence(), 'true')
     
     def test_get_non_presence_container(self):

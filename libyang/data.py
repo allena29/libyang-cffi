@@ -48,6 +48,10 @@ class DataNode(object):
     def get_schema(self):
         return Node.new(self.context, self.lyd_node.schema)
     
+    def get_schema_path(self):
+        return Node(self.context, self.lyd_node.schema).schema_path()
+    
+    
     @staticmethod
     def convert_python_value(value):
         if isinstance(value, bool):
