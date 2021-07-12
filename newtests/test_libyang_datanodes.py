@@ -354,7 +354,7 @@ class test_libyangdata(unittest.TestCase):
         self.assertEqual(node.xpath, xpath)
         self.assertEqual(node.value, 'down here')
         self.assertEqual(repr(node.get_schema()), '<libyang.schema.Node: deep>')
-        self.assertEqual(repr(root), '<libyang.data.DataNode: />')
+        self.assertEqual(repr(root), '<libyang.data.DataNode: /minimal-integrationtest:nesting>')
 
     def test_dump_datanodes(self):
         """
@@ -689,7 +689,7 @@ class test_libyangdata(unittest.TestCase):
 
     def test_parent(self):
         # Arrange
-        xpath = BASE_XPATH + ":types/collection[x='list']/z/zzz"
+        xpath = BASE_XPATH + ":types/collection[x='l[/]\"ist']/z/zzz"
         value = ''
 
         # Act
@@ -698,11 +698,11 @@ class test_libyangdata(unittest.TestCase):
 
         self.assertEqual(
             result.parent().xpath,
-            "/minimal-integrationtest:types/collection[x='list']/z",
+            "/minimal-integrationtest:types/collection[x='l[/]\"ist']/z",
         )
         self.assertEqual(
             result.parent().parent().xpath,
-            "/minimal-integrationtest:types/collection[x='list']",
+            "/minimal-integrationtest:types/collection[x='l[/]\"ist']",
         )
         self.assertEqual(
             result.parent().parent().parent().xpath, '/minimal-integrationtest:types'

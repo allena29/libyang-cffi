@@ -186,7 +186,7 @@ class DataTree:
                 yield None
 
             for i in range(node_set.number):
-                yield DataNode(self, node_set.set.d[i], xpath)
+                yield DataNode(self, node_set.set.d[i])
 
     def gets_xpath(self, xpath):
         """
