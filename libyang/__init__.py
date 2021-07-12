@@ -60,7 +60,9 @@ class Context(object):
 
     def error(self, msg, *args):
         if not self._ctx:
-            raise RuntimeError('context already destoryed')
+            msg %= args
+            return LibyangError(msg)
+
         errors = []
         try:
             err = lib.ly_err_first(self._ctx)
