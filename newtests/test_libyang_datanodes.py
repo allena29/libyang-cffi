@@ -341,6 +341,38 @@ class test_libyangdata(unittest.TestCase):
         expected_result += '<metal><iron><ore>a</ore></iron><steel><girder>c</girder></steel></metal></metals>'
         self.assertEqual(result, expected_result)
 
+    def test_get_presence_container(self):
+        # Arrange
+        xpath = '/minimal-integrationtest:ip'
+
+        # Act
+        self.data.set_xpath(xpath, '')
+        node = next(self.data.get_xpath(xpath))
+        root = node.get_root()
+
+        # Assert
+        self.assertEqual(node.xpath, xpath)
+        self.assertEqual(node.value, '')
+        self.assertEqual(repr(node.get_schema()), '<libyang.schema.Container: ip>')
+        self.assertEqual(node.get_schema().presence(), 'true')
+    
+    def test_get_non_presence_container(self):
+        # Arrange
+        xpath = '/minimal-integrationtest:nesting/bronze/silver/gold'
+
+        # Act
+        self.data.set_xpath(xpath, '')
+        node = next(self.data.get_xpath(xpath))
+        root = node.get_root()
+
+        # Assert
+        self.assertEqual(node.xpath, xpath)
+        self.assertEqual(node.value, '')
+        self.assertEqual(repr(node.get_schema()), '<libyang.schema.Container: gold>')
+        self.assertEqual(node.get_schema().presence(), None)
+        self.assertEqual(repr(node), '<libyang.data.DataNode: /minimal-integrationtest:nesting/bronze/silver/gold>')
+        self.assertEqual(repr(root), '<libyang.data.DataNode: /minimal-integrationtest:nesting>')
+
     def test_deep_nodes_and_get_schema(self):
         # Arrange
         xpath = '/minimal-integrationtest:nesting/bronze/silver/gold/platinum/deep'
@@ -353,7 +385,7 @@ class test_libyangdata(unittest.TestCase):
         # Assert
         self.assertEqual(node.xpath, xpath)
         self.assertEqual(node.value, 'down here')
-        self.assertEqual(repr(node.get_schema()), '<libyang.schema.Node: deep>')
+        self.assertEqual(repr(node.get_schema()), '<libyang.schema.Leaf: deep string>')
         self.assertEqual(repr(root), '<libyang.data.DataNode: /minimal-integrationtest:nesting>')
 
     def test_dump_datanodes(self):

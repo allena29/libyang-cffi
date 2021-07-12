@@ -46,8 +46,8 @@ class DataNode(object):
         return DataNode(self.context, self.lyd_node.parent)
 
     def get_schema(self):
-        return Node(self.context, self.lyd_node.schema)
-
+        return Node.new(self.context, self.lyd_node.schema)
+    
     @staticmethod
     def convert_python_value(value):
         if isinstance(value, bool):
