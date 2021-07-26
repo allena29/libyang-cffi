@@ -31,7 +31,7 @@ class DataNode(object):
 
     def __init__(self, context, lyd_node):
         self.value = self._get_value_from_lyd_node(lyd_node)
-        self.xpath = c2str(lib.lyd_path(lyd_node))
+        self.xpath = c2str(ffi.gc(lib.lyd_path(lyd_node), lib.free))
         self.lyd_node = lyd_node
         self.context = context
 

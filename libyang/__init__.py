@@ -202,7 +202,7 @@ class DataTree:
                 yield []
             else:
                 for i in range(node_set.number):
-                    yield c2str(lib.lyd_path(node_set.set.d[i]))
+                    yield c2str(ffi.gc(lib.lyd_path(node_set.set.d[i]), lib.free))
 
     def delete_xpath(self, xpath):
         """
