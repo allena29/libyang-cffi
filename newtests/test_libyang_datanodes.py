@@ -652,6 +652,25 @@ class test_libyangdata(unittest.TestCase):
         node = next(self.data.get_xpath(xpath))
         self.assertEqual(node.value, '10.4.0.0/16')
 
+    def test_ipv6addresses_test2(self):
+        xpath = '/minimal-integrationtest:ip/minimal-integrationtest:ipv6'
+        self.data.set_xpath(xpath, '1:2:3::1/126')
+
+        node = next(self.data.get_xpath(xpath))
+        self.assertEqual(node.value, '1:2:3::/126')
+
+        xpath = "/minimal-integrationtest:ip/minimal-integrationtest:v6[prefix='1:2:3::1/126']"
+        self.data.set_xpath(xpath, '')
+
+        node = next(self.data.get_xpath(xpath +'/prefix'))
+        self.assertEqual(node.value, '1:2:3::/126')
+
+        xpath = "/minimal-integrationtest:ip/minimal-integrationtest:six[.='1:2:3::1/126']"
+        self.data.set_xpath(xpath, '')
+
+        node = next(self.data.get_xpath(xpath))
+        self.assertEqual(node.value, '1:2:3::/126')
+
     def test_ipv6addresses(self):
         xpath = '/minimal-integrationtest:ip/minimal-integrationtest:ipv6'
         self.data.set_xpath(xpath, '2001:8d8:100f:f000::2e1/32')
