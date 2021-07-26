@@ -107,16 +107,24 @@ class DataNode(object):
         return "<%s.%s: %s>" % (cls.__module__, cls.__name__, str(self))
 
     @staticmethod
-    def _find_nodes(context, start_node):
+    def _find_nodes(context, start_node, base_schema_path):
         node = start_node
         while 1:
             if node.schema.nodetype in (1, 4, 8):  # LEAF or LEAF_LIST
-                xpath = c2str(lib.lyd_path(node))
-                yield DataNode(context, node)
+                xpath = c2str(ffi.gc(lib.lyd_path(node), lib.free))
+                if base_schema_path:
+                    if c2str(ffi.gc(lib.lys_path(node.schema, 0), lib.free)).startswith(base_schema_path):
+                        yield DataNode(context, node)
+                else:
+                    yield DataNode(context, node)
 
             if node.schema.nodetype not in (4, 8):  # LEAF or LEAF_LIST
                 if not node.child == ffi.NULL:
-                    yield from DataNode._find_nodes(context, node.child)
+                    if base_schema_path:
+                        if c2str(ffi.gc(lib.lys_path(node.child.schema, 0), lib.free)).startswith(base_schema_path):
+                            yield from DataNode._find_nodes(context, node.child, base_schema_path)
+                    else:
+                        yield from DataNode._find_nodes(context, node.child, base_schema_path)
 
             if node.next == ffi.NULL:
                 break

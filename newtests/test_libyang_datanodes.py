@@ -428,6 +428,69 @@ class test_libyangdata(unittest.TestCase):
             self.assertEqual(expected_results.pop(0), repr(result))
 
 
+    def test_dump_datanodes_starting_at_top_branch(self):
+        # Arrange
+        xpath0 = '/minimal-integrationtest:nesting'
+        xpath1 = '/minimal-integrationtest:nesting/bronze/silver/gold/platinum/deep'
+        xpath2 = '/minimal-integrationtest:nesting/bronze/silver/gold/platinum/deep2'
+        xpath3 = '/minimal-integrationtest:nesting/bronze/silver/gold/platinum/deep3'
+        xpath4 = '/minimal-integrationtest:types/str1'
+
+        # Act
+        self.data.set_xpath(xpath1, 'down here')
+        self.data.set_xpath(xpath2, 'down here too')
+        self.data.set_xpath(xpath3, 'im down here too')
+        self.data.set_xpath(xpath4, 'top level string')
+
+        node = next(self.data.get_xpath(xpath0))
+        results = list(self.data.dump_datanodes(start_node=node))
+
+        # Assert
+        expected_results = [
+            '<libyang.data.DataNode: /minimal-integrationtest:nesting>',
+            '<libyang.data.DataNode: /minimal-integrationtest:nesting/bronze>',
+            '<libyang.data.DataNode: /minimal-integrationtest:nesting/bronze/silver>',
+            '<libyang.data.DataNode: /minimal-integrationtest:nesting/bronze/silver/gold>',
+            '<libyang.data.DataNode: /minimal-integrationtest:nesting/bronze/silver/gold/platinum>',
+            '<libyang.data.DataNode: /minimal-integrationtest:nesting/bronze/silver/gold/platinum/deep>',
+            '<libyang.data.DataNode: /minimal-integrationtest:nesting/bronze/silver/gold/platinum/deep2>',
+            '<libyang.data.DataNode: /minimal-integrationtest:nesting/bronze/silver/gold/platinum/deep3>',
+            'shit'
+        ]
+
+        for result in results:
+            self.assertEqual(expected_results.pop(0), repr(result))
+
+    def test_dump_datanodes_starting_deeper_down_the_data_tree(self):
+        """
+        """
+        # Arrange
+        xpath = '/minimal-integrationtest:nesting/bronze/silver/gold/platinum/deep'
+        xpath2 = '/minimal-integrationtest:nesting/bronze/silver/gold/platinum/deep2'
+        xpath3 = '/minimal-integrationtest:nesting/bronze/silver/gold/platinum/deep3'
+        xpath4 = '/minimal-integrationtest:types/str1'
+
+        # Act
+        self.data.set_xpath(xpath, 'down here')
+        self.data.set_xpath(xpath2, 'down here too')
+        self.data.set_xpath(xpath3, 'im down here too')
+        self.data.set_xpath(xpath4, 'top level string')
+
+        node = next(self.data.get_xpath(xpath2))
+        results = list(self.data.dump_datanodes(start_node=node))
+
+        # Assert
+        expected_results = [
+            '<libyang.data.DataNode: /minimal-integrationtest:nesting/bronze/silver/gold/platinum/deep2>',
+            '<libyang.data.DataNode: /minimal-integrationtest:nesting/bronze/silver/gold/platinum/deep3>',
+            '<libyang.data.DataNode: /minimal-integrationtest:types>',
+            '<libyang.data.DataNode: /minimal-integrationtest:types/str1>'
+        ]
+
+        for result in results:
+            self.assertEqual(expected_results.pop(0), repr(result))
+
+
     def test_loads_with_unrecognised_nodes(self):
         # Arrange
         payload = '{"minimal-integrationtest:types":{"invalid-node-name":"this-should-blowup"}}'
