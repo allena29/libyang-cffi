@@ -338,15 +338,10 @@ class DataTree:
     def dump_datanodes(self):
         if not self._ctx:
             raise RuntimeError('context already destoryed')
-        # This is suboptimal at present - want to move this down to C or
-        # avoid the extra funaction call.
-        nodelist = {}
         start_node = lib.lypy_get_root_node(self._root)
 
-        DataNode._find_nodes(self._lyctx, nodelist, start_node)
+        yield from DataNode._find_nodes(self._lyctx, start_node)
 
-        for node in nodelist:
-            yield nodelist[node]
 
     def validate(self):
         if not self._ctx:
