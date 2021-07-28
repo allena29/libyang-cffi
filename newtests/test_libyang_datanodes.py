@@ -776,3 +776,101 @@ class test_libyangdata(unittest.TestCase):
         self.assertEqual(
             result.parent().parent().parent().xpath, '/minimal-integrationtest:types'
         )
+    
+
+    def test_get_list_key_values(self):
+        # Arrange
+        xpath = BASE_XPATH + ":types/collection[x='xxx']/inner[a='A'][b='B']/e[.='ll1']"
+        value = ''
+
+        # Act / Assert
+        self.data.set_xpath(xpath, value)
+        datanode = next(self.data.get_xpath(xpath))
+
+        self.assertEqual(datanode.xpath, xpath)
+        
+        with self.assertRaises(libyang.util.LibyangError) as err:
+            next(datanode.get_list_key_values())
+        self.assertTrue('cannot extract list keys from non-list node' in str(err.exception))
+            
+        result = list(datanode.parent().get_list_key_values())
+        self.assertEqual(result, [('a', 'A'), ('b', 'B')])
+       
+        root = next(self.data.get_xpath(BASE_XPATH + ":types/collection"))
+        result = list(root.get_list_key_values(datanode.parent()))
+        self.assertEqual(result, [('a', 'A'), ('b', 'B')])
+
+
+    def test_get_all_list_key_values(self):
+        # Arrange
+        xpath = BASE_XPATH + ":types/collection[x='xxx']/inner[a='A'][b='B']/e[.='ll1']"
+        value = ''
+
+        # Act / Assert
+        self.data.set_xpath(xpath, value)
+        datanode = next(self.data.get_xpath(xpath))
+
+        self.assertEqual(datanode.xpath, xpath)
+            
+        result = list(datanode.get_all_list_key_values())
+        self.assertEqual(result, [('x', 'xxx'), ('a', 'A'), ('b', 'B')])
+       
+        
+        xpath = BASE_XPATH + ":types/collection[x='xxx']/inner[a='A'][b='B']/g"
+        value = 'true'
+
+        # Act / Assert
+        self.data.set_xpath(xpath, value)
+        datanode = next(self.data.get_xpath(xpath))
+
+        self.assertEqual(datanode.xpath, xpath)
+            
+        result = list(datanode.get_all_list_key_values())
+        self.assertEqual(result, [('x', 'xxx'), ('a', 'A'), ('b', 'B')])
+       
+
+    def test_get_all_node_names(self):
+        # Arrange
+        xpath = BASE_XPATH + ":types/collection[x='xxx']/inner[a='A'][b='B']/e[.='ll1']"
+        value = ''
+
+        # Act / Assert
+        self.data.set_xpath(xpath, value)
+        datanode = next(self.data.get_xpath(xpath))
+
+        self.assertEqual(datanode.xpath, xpath)
+        self.assertEqual(datanode.name, 'e')
+        self.assertEqual(datanode.parent().name, 'inner')
+            
+        result = list(datanode.get_all_node_names())
+        self.assertEqual(result, ['types', 'collection', 'inner', 'e'])
+       
+        # Arrange
+        xpath = BASE_XPATH + ":types/collection[x='xxx']/inner[a='A'][b='B']/g"
+        value = 'a'
+
+        # Act / Assert
+        self.data.set_xpath(xpath, value)
+        datanode = next(self.data.get_xpath(xpath))
+
+        self.assertEqual(datanode.xpath, xpath)
+        self.assertEqual(datanode.name, 'g')
+        self.assertEqual(datanode.parent().name, 'inner')
+            
+        result = list(datanode.get_all_node_names())
+        self.assertEqual(result, ['types', 'collection', 'inner', 'g'])
+        
+        # Arrange
+        xpath = BASE_XPATH + ":types/collection[x='xxx']/inner[a='A'][b='B']/g"
+        value = 'true'
+
+        # Act / Assert
+        self.data.set_xpath(xpath, value)
+        datanode = next(self.data.get_xpath(xpath))
+
+        self.assertEqual(datanode.xpath, xpath)
+        self.assertEqual(datanode.name, 'g')
+        self.assertEqual(datanode.parent().name, 'inner')
+            
+        result = list(datanode.get_all_node_names())
+        self.assertEqual(result, ['types', 'collection', 'inner', 'g'])

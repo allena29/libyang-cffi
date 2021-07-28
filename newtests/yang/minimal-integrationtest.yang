@@ -163,6 +163,32 @@ module minimal-integrationtest {
           type empty;
         }
       }
+      list inner {
+        key "a b";
+        leaf a {
+          type string;
+        }
+        leaf b {
+          type string;
+        }
+        choice c {
+          case d {
+            leaf-list e {
+              type string;
+            }
+          }
+          case f {
+            leaf g {
+              type union {
+                type enumeration {
+                  enum a;
+                }
+                type boolean;
+              }
+            }
+          }
+        }
+      }
     }
     leaf-list simplecollection {
       type string;

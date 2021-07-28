@@ -31,6 +31,7 @@ class DataNode(object):
 
     def __init__(self, context, lyd_node):
         self.value = self._get_value_from_lyd_node(lyd_node)
+        self.name = c2str(lyd_node.schema.name)
         self.xpath = c2str(ffi.gc(lib.lyd_path(lyd_node), lib.free))
         self.lyd_node = lyd_node
         self.context = context
@@ -50,7 +51,48 @@ class DataNode(object):
     
     def get_schema_path(self):
         return Node(self.context, self.lyd_node.schema).schema_path()
+   
+    def get_list_key_values(self, data_node=None):
+        if data_node:
+            lyd_node = data_node.lyd_node
+            xpath = data_node.xpath
+        else:
+            lyd_node = self.lyd_node
+            xpath = self.xpath
+        if lyd_node.schema.nodetype != lib.LYS_LIST:
+            raise LibyangError("cannot extract list keys from non-list node without back_to_root option")
+
+        lyd_list_node = ffi.cast('struct lys_node_list *', lyd_node.schema)
+        for i in range(lyd_list_node.keys_size):
+            list_key = c2str(ffi.cast('struct lys_node *', lyd_list_node.keys[i]).name)
+            node_set = ffi.gc(lib.lyd_find_path(lyd_node, str2c(xpath+"/"+list_key)), lib.ly_set_free)
+            if node_set == ffi.NULL:
+                raise LibyangError('Inconsistent data-tree - list-key does not exist in the data tree')
+            list_val = self._get_value_from_lyd_node(node_set.set.d[0])
+            yield list_key, list_val
+
+    def get_all_list_key_values(self):
+        result = []
+        lyd_node = self.lyd_node
+        while lyd_node != ffi.NULL:
+            if lyd_node.schema.nodetype == lib.LYS_LIST:
+                result.append(self.get_list_key_values(DataNode(self.context, lyd_node)))
+            lyd_node = lyd_node.parent
+        
+        result.reverse()
+        for r in result:
+            yield from r
     
+    def get_all_node_names(self):
+        result = []
+        lyd_node = self.lyd_node
+        while lyd_node != ffi.NULL:
+            result.append(c2str(lyd_node.schema.name))
+            lyd_node = lyd_node.parent
+
+        result.reverse()
+        for r in result:
+            yield r
     
     @staticmethod
     def convert_python_value(value):
