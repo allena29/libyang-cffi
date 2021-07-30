@@ -60,7 +60,7 @@ class DataNode(object):
             lyd_node = self.lyd_node
             xpath = self.xpath
         if lyd_node.schema.nodetype != lib.LYS_LIST:
-            raise LibyangError("cannot extract list keys from non-list node without back_to_root option")
+            raise LibyangError("cannot extract list keys from non-list node")
 
         lyd_list_node = ffi.cast('struct lys_node_list *', lyd_node.schema)
         for i in range(lyd_list_node.keys_size):
