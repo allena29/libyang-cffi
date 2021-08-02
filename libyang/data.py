@@ -31,7 +31,8 @@ class DataNode(object):
 
     def __init__(self, context, lyd_node):
         self.value = self._get_value_from_lyd_node(lyd_node)
-        self.xpath = c2str(lib.lyd_path(lyd_node))
+        self.name = c2str(lyd_node.schema.name)
+        self.xpath = c2str(ffi.gc(lib.lyd_path(lyd_node), lib.free))
         self.lyd_node = lyd_node
         self.context = context
 
@@ -50,7 +51,48 @@ class DataNode(object):
     
     def get_schema_path(self):
         return Node(self.context, self.lyd_node.schema).schema_path()
+   
+    def get_list_key_values(self, data_node=None):
+        if data_node:
+            lyd_node = data_node.lyd_node
+            xpath = data_node.xpath
+        else:
+            lyd_node = self.lyd_node
+            xpath = self.xpath
+        if lyd_node.schema.nodetype != lib.LYS_LIST:
+            raise LibyangError("cannot extract list keys from non-list node")
+
+        lyd_list_node = ffi.cast('struct lys_node_list *', lyd_node.schema)
+        for i in range(lyd_list_node.keys_size):
+            list_key = c2str(ffi.cast('struct lys_node *', lyd_list_node.keys[i]).name)
+            node_set = ffi.gc(lib.lyd_find_path(lyd_node, str2c(xpath+"/"+list_key)), lib.ly_set_free)
+            if node_set == ffi.NULL:
+                raise LibyangError('Inconsistent data-tree - list-key does not exist in the data tree')
+            list_val = self._get_value_from_lyd_node(node_set.set.d[0])
+            yield list_key, list_val
+
+    def get_all_list_key_values(self):
+        result = []
+        lyd_node = self.lyd_node
+        while lyd_node != ffi.NULL:
+            if lyd_node.schema.nodetype == lib.LYS_LIST:
+                result.append(self.get_list_key_values(DataNode(self.context, lyd_node)))
+            lyd_node = lyd_node.parent
+        
+        result.reverse()
+        for r in result:
+            yield from r
     
+    def get_all_node_names(self):
+        result = []
+        lyd_node = self.lyd_node
+        while lyd_node != ffi.NULL:
+            result.append(c2str(lyd_node.schema.name))
+            lyd_node = lyd_node.parent
+
+        result.reverse()
+        for r in result:
+            yield r
     
     @staticmethod
     def convert_python_value(value):
@@ -106,31 +148,25 @@ class DataNode(object):
         cls = self.__class__
         return "<%s.%s: %s>" % (cls.__module__, cls.__name__, str(self))
 
-    def dump_datanodes(self):
-        # This is suboptimal at present - want to move this down to C or
-        # avoid the extra funaction call.
-        nodelist = {}
-        start_node = self.lyd_node
-
-        DataNode._find_nodes(self.context, nodelist, start_node)
-
-        sorted_keys = list(nodelist.keys())
-        sorted_keys.sort()
-
-        for key in sorted_keys:
-            yield nodelist[key]
-
     @staticmethod
-    def _find_nodes(context, nodelist, start_node):
+    def _find_nodes(context, start_node, base_schema_path):
         node = start_node
         while 1:
             if node.schema.nodetype in (1, 4, 8):  # LEAF or LEAF_LIST
-                xpath = c2str(lib.lyd_path(node))
-                nodelist[xpath] = DataNode(context, node)
+                xpath = c2str(ffi.gc(lib.lyd_path(node), lib.free))
+                if base_schema_path:
+                    if c2str(ffi.gc(lib.lys_path(node.schema, 0), lib.free)).startswith(base_schema_path):
+                        yield DataNode(context, node)
+                else:
+                    yield DataNode(context, node)
 
             if node.schema.nodetype not in (4, 8):  # LEAF or LEAF_LIST
                 if not node.child == ffi.NULL:
-                    DataNode._find_nodes(context, nodelist, node.child)
+                    if base_schema_path:
+                        if c2str(ffi.gc(lib.lys_path(node.child.schema, 0), lib.free)).startswith(base_schema_path):
+                            yield from DataNode._find_nodes(context, node.child, base_schema_path)
+                    else:
+                        yield from DataNode._find_nodes(context, node.child, base_schema_path)
 
             if node.next == ffi.NULL:
                 break

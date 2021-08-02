@@ -202,7 +202,7 @@ class DataTree:
                 yield []
             else:
                 for i in range(node_set.number):
-                    yield c2str(lib.lyd_path(node_set.set.d[i]))
+                    yield c2str(ffi.gc(lib.lyd_path(node_set.set.d[i]), lib.free))
 
     def delete_xpath(self, xpath):
         """
@@ -335,18 +335,17 @@ class DataTree:
         lib.lyd_print_mem(buf, self._root, format, lib.LYP_WITHSIBLINGS)
         return c2str(buf[0])
 
-    def dump_datanodes(self):
+    def dump_datanodes(self, start_node=None):
         if not self._ctx:
             raise RuntimeError('context already destoryed')
-        # This is suboptimal at present - want to move this down to C or
-        # avoid the extra funaction call.
-        nodelist = {}
-        start_node = lib.lypy_get_root_node(self._root)
+        if not start_node:
+            start_node = lib.lypy_get_root_node(self._root)
+            base_schema_path = None
+        else:
+            start_node = start_node.lyd_node
+            base_schema_path = c2str(ffi.gc(lib.lys_path(start_node.schema, 0), lib.free))
+        yield from DataNode._find_nodes(self._lyctx, start_node, base_schema_path)
 
-        DataNode._find_nodes(self._lyctx, nodelist, start_node)
-
-        for node in nodelist:
-            yield nodelist[node]
 
     def validate(self):
         if not self._ctx:

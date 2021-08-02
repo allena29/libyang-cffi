@@ -394,8 +394,7 @@ class test_libyangdata(unittest.TestCase):
         libyang definetely keeps track of insertion order.
 
         If we change the order of the set_xpath()'s operations we will get a different
-        order in the results. This (for now) is mitigated by sorting the result by
-        xpath - see data/dump_datanodes (i.e. sorted_keys.sort())
+        order in the results.
         """
         # Arrange
         xpath = '/minimal-integrationtest:nesting/bronze/silver/gold/platinum/deep'
@@ -409,17 +408,9 @@ class test_libyangdata(unittest.TestCase):
         self.data.set_xpath(xpath3, 'im down here too')
         self.data.set_xpath(xpath4, 'top level string')
 
-        node = next(self.data.get_xpath(xpath))
-        root = node.get_root()
-        results = list(root.dump_datanodes())
+        results = list(self.data.dump_datanodes())
 
         # Assert
-        expected_results = [
-            '<libyang.data.DataNode: /minimal-integrationtest:nesting/bronze/silver/gold/platinum/deep>',
-            '<libyang.data.DataNode: /minimal-integrationtest:nesting/bronze/silver/gold/platinum/deep2>',
-            '<libyang.data.DataNode: /minimal-integrationtest:nesting/bronze/silver/gold/platinum/deep3>',
-            '<libyang.data.DataNode: /minimal-integrationtest:types/str1>'
-        ]
         expected_results = [
             '<libyang.data.DataNode: /minimal-integrationtest:nesting>',
             '<libyang.data.DataNode: /minimal-integrationtest:nesting/bronze>',
@@ -436,28 +427,23 @@ class test_libyangdata(unittest.TestCase):
         for result in results:
             self.assertEqual(expected_results.pop(0), repr(result))
 
-    def test_deep_nodes_and_get_schema_different_order(self):
-        """
-        libyang definetely keeps track of insertion order.
 
-        If we change the order of the set_xpath()'s operations we will get a different
-        order in the results.
-        """
+    def test_dump_datanodes_starting_at_top_branch(self):
         # Arrange
-        xpath = '/minimal-integrationtest:nesting/bronze/silver/gold/platinum/deep'
+        xpath0 = '/minimal-integrationtest:nesting'
+        xpath1 = '/minimal-integrationtest:nesting/bronze/silver/gold/platinum/deep'
         xpath2 = '/minimal-integrationtest:nesting/bronze/silver/gold/platinum/deep2'
         xpath3 = '/minimal-integrationtest:nesting/bronze/silver/gold/platinum/deep3'
         xpath4 = '/minimal-integrationtest:types/str1'
 
         # Act
-        self.data.set_xpath(xpath4, 'top level string')
-        self.data.set_xpath(xpath3, 'im down here too')
+        self.data.set_xpath(xpath1, 'down here')
         self.data.set_xpath(xpath2, 'down here too')
-        self.data.set_xpath(xpath, 'down here')
+        self.data.set_xpath(xpath3, 'im down here too')
+        self.data.set_xpath(xpath4, 'top level string')
 
-        node = next(self.data.get_xpath(xpath))
-        root = node.get_root()
-        results = list(root.dump_datanodes())
+        node = next(self.data.get_xpath(xpath0))
+        results = list(self.data.dump_datanodes(start_node=node))
 
         # Assert
         expected_results = [
@@ -468,11 +454,42 @@ class test_libyangdata(unittest.TestCase):
             '<libyang.data.DataNode: /minimal-integrationtest:nesting/bronze/silver/gold/platinum>',
             '<libyang.data.DataNode: /minimal-integrationtest:nesting/bronze/silver/gold/platinum/deep>',
             '<libyang.data.DataNode: /minimal-integrationtest:nesting/bronze/silver/gold/platinum/deep2>',
-            '<libyang.data.DataNode: /minimal-integrationtest:nesting/bronze/silver/gold/platinum/deep3>'
+            '<libyang.data.DataNode: /minimal-integrationtest:nesting/bronze/silver/gold/platinum/deep3>',
+            'shit'
         ]
 
         for result in results:
             self.assertEqual(expected_results.pop(0), repr(result))
+
+    def test_dump_datanodes_starting_deeper_down_the_data_tree(self):
+        """
+        """
+        # Arrange
+        xpath = '/minimal-integrationtest:nesting/bronze/silver/gold/platinum/deep'
+        xpath2 = '/minimal-integrationtest:nesting/bronze/silver/gold/platinum/deep2'
+        xpath3 = '/minimal-integrationtest:nesting/bronze/silver/gold/platinum/deep3'
+        xpath4 = '/minimal-integrationtest:types/str1'
+
+        # Act
+        self.data.set_xpath(xpath, 'down here')
+        self.data.set_xpath(xpath2, 'down here too')
+        self.data.set_xpath(xpath3, 'im down here too')
+        self.data.set_xpath(xpath4, 'top level string')
+
+        node = next(self.data.get_xpath(xpath2))
+        results = list(self.data.dump_datanodes(start_node=node))
+
+        # Assert
+        expected_results = [
+            '<libyang.data.DataNode: /minimal-integrationtest:nesting/bronze/silver/gold/platinum/deep2>',
+            '<libyang.data.DataNode: /minimal-integrationtest:nesting/bronze/silver/gold/platinum/deep3>',
+            '<libyang.data.DataNode: /minimal-integrationtest:types>',
+            '<libyang.data.DataNode: /minimal-integrationtest:types/str1>'
+        ]
+
+        for result in results:
+            self.assertEqual(expected_results.pop(0), repr(result))
+
 
     def test_loads_with_unrecognised_nodes(self):
         # Arrange
@@ -652,6 +669,25 @@ class test_libyangdata(unittest.TestCase):
         node = next(self.data.get_xpath(xpath))
         self.assertEqual(node.value, '10.4.0.0/16')
 
+    def test_ipv6addresses_test2(self):
+        xpath = '/minimal-integrationtest:ip/minimal-integrationtest:ipv6'
+        self.data.set_xpath(xpath, '1:2:3::1/126')
+
+        node = next(self.data.get_xpath(xpath))
+        self.assertEqual(node.value, '1:2:3::/126')
+
+        xpath = "/minimal-integrationtest:ip/minimal-integrationtest:v6[prefix='1:2:3::1/126']"
+        self.data.set_xpath(xpath, '')
+
+        node = next(self.data.get_xpath(xpath +'/prefix'))
+        self.assertEqual(node.value, '1:2:3::/126')
+
+        xpath = "/minimal-integrationtest:ip/minimal-integrationtest:six[.='1:2:3::1/126']"
+        self.data.set_xpath(xpath, '')
+
+        node = next(self.data.get_xpath(xpath))
+        self.assertEqual(node.value, '1:2:3::/126')
+
     def test_ipv6addresses(self):
         xpath = '/minimal-integrationtest:ip/minimal-integrationtest:ipv6'
         self.data.set_xpath(xpath, '2001:8d8:100f:f000::2e1/32')
@@ -740,3 +776,101 @@ class test_libyangdata(unittest.TestCase):
         self.assertEqual(
             result.parent().parent().parent().xpath, '/minimal-integrationtest:types'
         )
+    
+
+    def test_get_list_key_values(self):
+        # Arrange
+        xpath = BASE_XPATH + ":types/collection[x='xxx']/inner[a='A'][b='B']/e[.='ll1']"
+        value = ''
+
+        # Act / Assert
+        self.data.set_xpath(xpath, value)
+        datanode = next(self.data.get_xpath(xpath))
+
+        self.assertEqual(datanode.xpath, xpath)
+        
+        with self.assertRaises(libyang.util.LibyangError) as err:
+            next(datanode.get_list_key_values())
+        self.assertTrue('cannot extract list keys from non-list node' in str(err.exception))
+            
+        result = list(datanode.parent().get_list_key_values())
+        self.assertEqual(result, [('a', 'A'), ('b', 'B')])
+       
+        root = next(self.data.get_xpath(BASE_XPATH + ":types/collection"))
+        result = list(root.get_list_key_values(datanode.parent()))
+        self.assertEqual(result, [('a', 'A'), ('b', 'B')])
+
+
+    def test_get_all_list_key_values(self):
+        # Arrange
+        xpath = BASE_XPATH + ":types/collection[x='xxx']/inner[a='A'][b='B']/e[.='ll1']"
+        value = ''
+
+        # Act / Assert
+        self.data.set_xpath(xpath, value)
+        datanode = next(self.data.get_xpath(xpath))
+
+        self.assertEqual(datanode.xpath, xpath)
+            
+        result = list(datanode.get_all_list_key_values())
+        self.assertEqual(result, [('x', 'xxx'), ('a', 'A'), ('b', 'B')])
+       
+        
+        xpath = BASE_XPATH + ":types/collection[x='xxx']/inner[a='A'][b='B']/g"
+        value = 'true'
+
+        # Act / Assert
+        self.data.set_xpath(xpath, value)
+        datanode = next(self.data.get_xpath(xpath))
+
+        self.assertEqual(datanode.xpath, xpath)
+            
+        result = list(datanode.get_all_list_key_values())
+        self.assertEqual(result, [('x', 'xxx'), ('a', 'A'), ('b', 'B')])
+       
+
+    def test_get_all_node_names(self):
+        # Arrange
+        xpath = BASE_XPATH + ":types/collection[x='xxx']/inner[a='A'][b='B']/e[.='ll1']"
+        value = ''
+
+        # Act / Assert
+        self.data.set_xpath(xpath, value)
+        datanode = next(self.data.get_xpath(xpath))
+
+        self.assertEqual(datanode.xpath, xpath)
+        self.assertEqual(datanode.name, 'e')
+        self.assertEqual(datanode.parent().name, 'inner')
+            
+        result = list(datanode.get_all_node_names())
+        self.assertEqual(result, ['types', 'collection', 'inner', 'e'])
+       
+        # Arrange
+        xpath = BASE_XPATH + ":types/collection[x='xxx']/inner[a='A'][b='B']/g"
+        value = 'a'
+
+        # Act / Assert
+        self.data.set_xpath(xpath, value)
+        datanode = next(self.data.get_xpath(xpath))
+
+        self.assertEqual(datanode.xpath, xpath)
+        self.assertEqual(datanode.name, 'g')
+        self.assertEqual(datanode.parent().name, 'inner')
+            
+        result = list(datanode.get_all_node_names())
+        self.assertEqual(result, ['types', 'collection', 'inner', 'g'])
+        
+        # Arrange
+        xpath = BASE_XPATH + ":types/collection[x='xxx']/inner[a='A'][b='B']/g"
+        value = 'true'
+
+        # Act / Assert
+        self.data.set_xpath(xpath, value)
+        datanode = next(self.data.get_xpath(xpath))
+
+        self.assertEqual(datanode.xpath, xpath)
+        self.assertEqual(datanode.name, 'g')
+        self.assertEqual(datanode.parent().name, 'inner')
+            
+        result = list(datanode.get_all_node_names())
+        self.assertEqual(result, ['types', 'collection', 'inner', 'g'])
