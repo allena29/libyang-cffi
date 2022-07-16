@@ -10,7 +10,7 @@ from _libyang import lib
 from .data import DataNode
 from .schema import Module
 from .schema import Node
-from .util import LibyangError
+from .util import LibyangError, InvalidSchemaOrValueError
 from .util import c2str
 from .util import str2c
 
@@ -163,9 +163,20 @@ class DataTree:
         libyang_value = DataNode.convert_python_value(value)
 
         if self._root is None:
-            node = lib.lyd_new_path(ffi.NULL, self._lyctx , str2c(xpath), libyang_value, 0, lib.LYD_PATH_OPT_UPDATE)
+            node = lib.lyd_new_path(
+                ffi.NULL,
+                self._lyctx,
+                str2c(xpath),
+                libyang_value,
+                0,
+                lib.LYD_PATH_OPT_UPDATE,
+            )
             if not node:
-                raise LibyangError('The value {0} was not set at {1}\nCheck the path and value'.format(value, xpath))
+                raise LibyangError(
+                    "The value {0} was not set at {1}\nCheck the path and value".format(
+                        value, xpath
+                    )
+                )
             self._root = node
             self._ctx._data_tree.append(self._root)
         else:

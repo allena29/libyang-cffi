@@ -10,6 +10,17 @@ class LibyangError(Exception):
 
 
 #------------------------------------------------------------------------------
+class InvalidSchemaOrValueError(LibyangError):
+    def __init__(self, value, xpath):
+        super().__init__(
+            (
+                "The value could not be set, either the value or path is invalid\n"
+                f'Value: "{value}"\n'
+                f"XPATH: {xpath}\n"
+            )
+        )
+
+
 def str2c(s):
     if s is None:
         return ffi.NULL
