@@ -310,7 +310,7 @@ class test_libyangdata(unittest.TestCase):
         payload = '{"minimal-integrationtest:types":{"u_int_8":"this-is-a-string"}}'
 
         # Act
-        with self.assertRaises(libyang.util.LibyangError) as err_context:
+        with self.assertRaises(libyang.util.LibyangMarshallingError) as err_context:
             self.data.merges(payload, libyang.lib.LYD_JSON)
 
         # Assert
@@ -325,11 +325,56 @@ class test_libyangdata(unittest.TestCase):
         payload = '{"minimal-integrationtest:types":{"int_8":"this-is-a-string"}}'
 
         # Act
-        with self.assertRaises(libyang.util.LibyangError) as err_context:
+        with self.assertRaises(libyang.util.LibyangMarshallingError) as err_context:
             self.data.loads(payload, libyang.lib.LYD_JSON)
 
         # Assert
         self.assertTrue("Marshalling Error" in str(err_context.exception))
+
+    def test_merge_with_file(self):
+        # Arrange
+        payload_one = """<metals xmlns="http://mellon-collie.net/yang/minimal-integrationtest">
+        <a>AA</a><b>BB</b><metal><iron><ore>AAA</ore></iron></metal></metals>"""
+
+        # Act
+        self.data.loads(payload_one)
+        self.data.merge("newtests/yang/mergetest.xml")
+        result = self.data.dumps()
+
+        # # Assert
+        xpath = '/minimal-integrationtest:metals[a="AA"][b="BB"]'
+        self.assertEqual(
+            next(self.data.get_xpath(xpath + "/metal/iron/ore")).value, "AAA"
+        )
+        self.assertEqual(
+            next(self.data.get_xpath(xpath + "/metal/nickel/coin")).value, "b"
+        )
+
+        expected_result = '<metals xmlns="http://mellon-collie.net/yang/minimal-integrationtest"><a>AA</a><b>BB</b>'
+        expected_result += "<metal><iron><ore>AAA</ore></iron></metal></metals>"
+        self.assertEqual(result, expected_result)
+
+    def test_merge_with_file_marshalling_error_missing_file(self):
+        # Arrange
+        payload_one = """<metals xmlns="http://mellon-collie.net/yang/minimal-integrationtest">
+        <a>AA</a><b>BB</b><metal><iron><ore>AAA</ore></iron></metal></metals>"""
+
+        # Act
+        self.data.loads(payload_one)
+
+        with self.assertRaises(libyang.util.LibyangMarshallingError):
+            self.data.merge("newtests/yang/mergetestmissing.xml")
+
+    def test_merge_with_file_marshalling_error(self):
+        # Arrange
+        payload_one = """<metals xmlns="http://mellon-collie.net/yang/minimal-integrationtest">
+        <a>AA</a><b>BB</b><metal><iron><ore>AAA</ore></iron></metal></metals>"""
+
+        # Act
+        self.data.loads(payload_one)
+
+        with self.assertRaises(libyang.util.LibyangMarshallingError):
+            self.data.merge("newtests/yang/mergetestbad.xml")
 
     def test_merges_into_the_same_container(self):
         # Arrange
@@ -650,7 +695,7 @@ class test_libyangdata(unittest.TestCase):
         payload_two = """<metals xmlns="http://mellon-collie.net/yang/minimal-integrationtest" xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0">
         <a>AA</a><b>BB</b><metal><iron><ore nc:operation="remove">AAA</ore></iron><nickel><coin>money</coin></nickel></metal></metals>"""
 
-        self.data.advancedmerge(payload_two)
+        self.data.advanced_merges(payload_two)
 
         # Assert
         xpath = '/minimal-integrationtest:metals[a="AA"][b="BB"]'
@@ -664,7 +709,7 @@ class test_libyangdata(unittest.TestCase):
     def test_merge_complex_tags_delete_simple(self):
         self.data.load("newtests/yang/base.xml")
         with open("newtests/yang/template1.xml") as template:
-            self.data.advancedmerge(template.read())
+            self.data.advanced_merges(template.read())
 
         result = self.data.dumps()
         expected = ""
@@ -676,7 +721,7 @@ class test_libyangdata(unittest.TestCase):
     def test_merge_complex_tags_delete_lists(self):
         self.data.load("newtests/yang/base.xml")
         with open("newtests/yang/template3.xml") as template:
-            self.data.advancedmerge(template.read())
+            self.data.advanced_merges(template.read())
 
         result = self.data.dumps()
         expected = ""
@@ -688,7 +733,7 @@ class test_libyangdata(unittest.TestCase):
     def test_merge_complex_tags_replace_location(self):
         self.data.load("newtests/yang/base.xml")
         with open("newtests/yang/template2.xml") as template:
-            self.data.advancedmerge(template.read())
+            self.data.advanced_merges(template.read())
 
         result = self.data.dumps()
         expected = ""
@@ -701,7 +746,7 @@ class test_libyangdata(unittest.TestCase):
     def test_merge_complex_tags_replace_container(self):
         self.data.load("newtests/yang/base.xml")
         with open("newtests/yang/template4.xml") as template:
-            self.data.advancedmerge(template.read())
+            self.data.advanced_merges(template.read())
 
         result = self.data.dumps()
         expected = ""
@@ -714,7 +759,7 @@ class test_libyangdata(unittest.TestCase):
     def test_merge_multiple_attributes(self):
         self.data.load("newtests/yang/base.xml")
         with open("newtests/yang/template5.xml") as template:
-            self.data.advancedmerge(template.read())
+            self.data.advanced_merges(template.read())
 
         result = self.data.dumps()
         expected = ""
@@ -723,6 +768,21 @@ class test_libyangdata(unittest.TestCase):
             for line in expected_fh:
                 expected += line.strip()
             self.assertEqual(result, expected)
+
+    def test_advanced_merge_creating_an_invalid_result(self):
+        self.data.set_xpath("/minimal-integrationtest:merges/a", "a")
+        with self.assertRaises(libyang.util.LibyangError) as err:
+            self.data.advanced_merge("newtests/yang/template6.xml")
+        self.assertTrue('Must condition "../a" not satisfied.' in str(err.exception))
+
+    def test_advanced_merges_creating_an_invalid_result(self):
+        self.data.set_xpath("/minimal-integrationtest:merges/a", "a")
+        # raise ValueError(self.data.dumps())
+        with self.assertRaises(libyang.util.LibyangError) as err:
+            with open("newtests/yang/template6.xml") as template:
+                self.data.advanced_merges(template.read())
+
+        self.assertTrue('Must condition "../a" not satisfied.' in str(err.exception))
 
     def test_ipv4addresses(self):
         xpath = "/minimal-integrationtest:ip/minimal-integrationtest:ipv4"

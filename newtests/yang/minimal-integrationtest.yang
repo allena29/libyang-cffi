@@ -7,6 +7,16 @@ module minimal-integrationtest {
   description "A yang module to tets the important things of libyang's data nodes";
 
 
+  container merges {
+    presence true;
+    leaf a {
+      type string;
+    }
+    leaf b {
+      type string;
+      must "../a";
+    }
+  }
   container ip {
     presence true;
     leaf ipv4 {

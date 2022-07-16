@@ -10,6 +10,37 @@ class LibyangError(Exception):
 
 
 #------------------------------------------------------------------------------
+class LibyangMarshallingError(LibyangError):
+    def __init__(self, msg, merge_or_load_format=None):
+        extra_checks = ""
+        if merge_or_load_format:
+            if merge_or_load_format == 1:
+                merge_or_load_format = "xml"
+            if merge_or_load_format == 2:
+                merge_or_load_format = "json"
+            extra_checks += f" - the structure of the {merge_or_load_format} is well formed and free from syntax issues\n"
+
+        super().__init__(
+            (
+                f"{msg}\n"
+                "\nCarefully check\n"
+                " - the data has valid values according to the yang model\n"
+                f"{extra_checks}"
+            )
+        )
+
+
+# ------------------------------------------------------------------------------
+class DataTreeEmptyError(LibyangError):
+    pass
+
+
+# ------------------------------------------------------------------------------
+class DataTreeExistsError(LibyangError):
+    pass
+
+
+# ------------------------------------------------------------------------------
 class InvalidSchemaOrValueError(LibyangError):
     def __init__(self, value, xpath):
         super().__init__(

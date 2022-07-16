@@ -15,6 +15,9 @@ from .util import (
     InvalidSchemaOrValueError,
     DataXpathDoesNotExistError,
     DataXpathResultsInMultipleResultsError,
+    DataTreeExistsError,
+    DataTreeEmptyError,
+    LibyangMarshallingError,
     AttributeCannotBeSetError,
 )
 from .util import c2str
@@ -151,6 +154,32 @@ class DataTree:
         self._lyctx = ctx._ctx
         self._root = None
 
+    def error(self, msg, *args, exception_type=LibyangMarshallingError):
+        if not self._lyctx:
+            return LibyangError(msg)
+
+        errors = []
+        try:
+            err = lib.ly_err_first(self._lyctx)
+            while err:
+                e = []
+                if err.path:
+                    e.append(c2str(err.path))
+                if err.msg:
+                    e.append(c2str(err.msg))
+                if err.apptag:
+                    e.append(c2str(err.apptag))
+                if e:
+                    errors.append(": ".join(e))
+                err = err.next
+        finally:
+            lib.ly_err_clean(self._lyctx, ffi.NULL)
+
+        if errors:
+            msg += ": " + " ".join(errors)
+
+        return exception_type(msg, *args)
+
     def set_xpath(self, xpath, value):
         """
         Set a value by XPAH - with siblings/dependent nodes getting created.
@@ -173,11 +202,7 @@ class DataTree:
                 lib.LYD_PATH_OPT_UPDATE,
             )
             if not node:
-                raise LibyangError(
-                    "The value {0} was not set at {1}\nCheck the path and value".format(
-                        value, xpath
-                    )
-                )
+                raise InvalidSchemaOrValueError(value, xpath)
             self._root = node
             self._ctx._data_tree.append(self._root)
         else:
@@ -360,12 +385,15 @@ class DataTree:
         if trusted:
             option = option | lib.LYD_OPT_TRUSTED
         if self._root:
-            raise LibyangError(
-                "load() not supported when data is already set - because the old node is not cleanly released."
+            raise DataTreeExistsError(
+                (
+                    "load() not supported when data is already set - because the old node will not be freed\n"
+                    "use merge() instead."
+                )
             )
         self._root = lib.lyd_parse_path(self._lyctx, str2c(filename), format, option)
         if self._root == ffi.NULL:
-            raise self._ctx.error("Marshalling Error")
+            raise self.error("Marshalling Error", format)
         self._ctx._data_tree.append(self._root)
 
     def loads(self, payload, format=lib.LYD_XML, trusted=False, strict=True):
@@ -380,18 +408,21 @@ class DataTree:
         if trusted:
             option = option | lib.LYD_OPT_TRUSTED
         if self._root:
-            raise LibyangError(
-                "load() not supported when data is already set - because the old note is not cleanly released."
+            raise DataTreeExistsError(
+                (
+                    "loads() not supported when data is already set - because the old node will not be freed\n"
+                    "use merges() instead"
+                )
             )
 
         self._root = lib.lyd_parse_mem(self._lyctx, str2c(payload), format, option)
         if self._root == ffi.NULL:
-            raise self._ctx.error("Marshalling Error")
+            raise self.error("Marshalling Error", format)
         self._ctx._data_tree.append(self._root)
 
-    def merges(self, payload, format=lib.LYD_XML, trusted=True, strict=True):
+    def merge(self, filename, format=lib.LYD_XML, trusted=True, strict=True):
         """
-        Load from a string with the specified format
+        Merge from a file with the specified format
         """
         if not self._ctx:
             raise RuntimeError("context already destroyed")
@@ -401,18 +432,65 @@ class DataTree:
         if trusted:
             option = option | lib.LYD_OPT_TRUSTED
         if not self._root:
-            raise LibyangError(
+            raise DataTreeEmptyError(
+                "merges() not possible until data exists on the root object."
+            )
+
+        tmp = lib.lyd_parse_path(self._lyctx, str2c(filename), format, option)
+        if tmp == ffi.NULL:
+            raise self.error("Marshalling Merge Error", format)
+
+        if not lib.lyd_merge(self._root, tmp, lib.LYD_OPT_EXPLICIT) == 0:
+            raise self.error("Merge Error")
+
+    def merges(self, payload, format=lib.LYD_XML, trusted=True, strict=True):
+        """
+        Merge from a string with the specified format
+        """
+        if not self._ctx:
+            raise RuntimeError("context already destroyed")
+        option = lib.LYD_OPT_CONFIG
+        if strict:
+            option = option | lib.LYD_OPT_STRICT
+        if trusted:
+            option = option | lib.LYD_OPT_TRUSTED
+        if not self._root:
+            raise DataTreeEmptyError(
                 "merges() not possible until data exists on the root object."
             )
 
         tmp = lib.lyd_parse_mem(self._lyctx, str2c(payload), format, option)
         if tmp == ffi.NULL:
-            raise self._ctx.error("Marshalling Merge Error")
+            raise self.error("Marshalling Merge Error", format)
 
         if not lib.lyd_merge(self._root, tmp, lib.LYD_OPT_EXPLICIT) == 0:
-            return self._ctx.error("Merge Error")
+            raise self.error("Merge Error")
 
-    def advancedmerge(self, payload, format=lib.LYD_XML, trusted=True, strict=True):
+    def advanced_merge(self, filename, format=lib.LYD_XML, trusted=True, strict=True):
+        if not self._ctx:
+            raise RuntimeError("context already destroyed")
+        if self._root:
+            option = lib.LYD_OPT_CONFIG
+            if strict:
+                option = option | lib.LYD_OPT_STRICT
+            if trusted:
+                option = option | lib.LYD_OPT_TRUSTED
+            template_root = lib.lyd_parse_path(
+                self._lyctx, str2c(filename), format, option
+            )
+            if template_root == ffi.NULL:
+                raise self.error("Marshalling Error")
+
+            if lib.lypy_process_attributes(self._root, self._lyctx, template_root) == 1:
+                raise self.error(
+                    "Validation failed after processing attributes to remove/replace items in the existing data tree.",
+                )
+        else:
+            raise DataTreeEmptyError(
+                "advanced merges() not possible until data exists on the root object."
+            )
+
+    def advanced_merges(self, payload, format=lib.LYD_XML, trusted=True, strict=True):
         if not self._ctx:
             raise RuntimeError("context already destroyed")
         if self._root:
@@ -425,14 +503,14 @@ class DataTree:
                 self._lyctx, str2c(payload), format, option
             )
             if template_root == ffi.NULL:
-                raise self._ctx.error("Marshalling Advanced Merge Error")
+                raise self.error("Marshalling Error")
 
             if lib.lypy_process_attributes(self._root, self._lyctx, template_root) == 1:
                 raise self._ctx.error(
                     "Validation failed after processing attributes to replace/remove items before merging into the data tree."
                 )
         else:
-            raise LibyangError(
+            raise DataTreeEmptyError(
                 "advanced merges() not possible until data exists on the root object."
             )
 
@@ -443,7 +521,7 @@ class DataTree:
         Load from a string with the specified format
         """
         if not self._root:
-            raise LibyangError("No data to dump")
+            raise DataTreeEmptyError("No data to dump")
 
         buf = ffi.new("char **")
         lib.lyd_print_mem(buf, self._root, format, lib.LYP_WITHSIBLINGS)
