@@ -954,3 +954,112 @@ class test_libyangdata(unittest.TestCase):
 
         result = list(datanode.get_all_node_names())
         self.assertEqual(result, ["types", "collection", "inner", "g"])
+
+    def test_insert_attribute_onto_an_existing_data_node(self):
+        # Arrange
+        xpath1 = BASE_XPATH + ":types/str1"
+        value1 = "HELLO"
+        self.data.set_xpath(xpath1, value1)
+        self.data.insert_attribute(xpath1, "ietf-netconf", "operation", "remove")
+        self.assertEqual(
+            self.data.dumps(),
+            (
+                '<types xmlns="http://mellon-collie.net/yang/minimal-integrationtest"'
+                ' xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0">'
+                '<str1 nc:operation="remove">HELLO</str1></types>'
+            ),
+        )
+
+    def test_remove_attribute_from_a_data_node(self):
+        # Arrange
+        xpath1 = BASE_XPATH + ":types/str1"
+        xpath2 = BASE_XPATH + ":types/u_int_8_x"
+        value1 = "HELLO"
+        self.data.set_xpath(xpath1, value1)
+        self.data.insert_attribute(xpath1, "ietf-netconf", "operation", "remove")
+        self.assertEqual(
+            self.data.dumps(),
+            (
+                '<types xmlns="http://mellon-collie.net/yang/minimal-integrationtest"'
+                ' xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0">'
+                '<str1 nc:operation="remove">HELLO</str1></types>'
+            ),
+        )
+
+        self.data.remove_attribute(xpath1, "operation", "replace")
+        self.assertEqual(
+            self.data.dumps(),
+            (
+                '<types xmlns="http://mellon-collie.net/yang/minimal-integrationtest"'
+                ' xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0">'
+                '<str1 nc:operation="remove">HELLO</str1></types>'
+            ),
+        )
+
+        self.data.remove_attribute(xpath1, "operation", "remove")
+        self.assertEqual(
+            self.data.dumps(),
+            (
+                '<types xmlns="http://mellon-collie.net/yang/minimal-integrationtest">'
+                "<str1>HELLO</str1></types>"
+            ),
+        )
+
+        self.data.insert_attribute(xpath1, "ietf-netconf", "operation", "remove")
+        self.assertEqual(
+            self.data.dumps(),
+            (
+                '<types xmlns="http://mellon-collie.net/yang/minimal-integrationtest"'
+                ' xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0">'
+                '<str1 nc:operation="remove">HELLO</str1></types>'
+            ),
+        )
+        self.data.remove_attribute(xpath1, "operation")
+        self.assertEqual(
+            self.data.dumps(),
+            (
+                '<types xmlns="http://mellon-collie.net/yang/minimal-integrationtest">'
+                "<str1>HELLO</str1></types>"
+            ),
+        )
+
+        self.data.remove_attribute(xpath1, "non_existing_attribute")
+
+        with self.assertRaises(libyang.util.DataXpathDoesNotExistError):
+            self.data.remove_attribute(xpath2, "operation")
+
+    def test_insert_attribute_onto_an_existing_data_node_not_set(self):
+        # Arrange
+        xpath1 = BASE_XPATH + ":types/str1"
+        value1 = "HELLO"
+        self.data.set_xpath(xpath1, value1)
+        with self.assertRaises(libyang.util.AttributeCannotBeSetError) as err:
+            self.data.insert_attribute(
+                xpath1, "non_existing_module", "operation", "remove"
+            )
+
+        # Assert
+        self.assertEqual(
+            (
+                'The attribute non_existing_module:operation could not be set to "remove"\n'
+                "XPATH: /minimal-integrationtest:types/str1\n"
+            ),
+            str(err.exception),
+        )
+
+    def test_insert_attribute_onto_an_existing_data_node_not_exists(self):
+        # Arrange
+        xpath1 = BASE_XPATH + ":types/str1"
+        with self.assertRaises(libyang.util.DataXpathDoesNotExistError) as err:
+            self.data.insert_attribute(
+                xpath1, "non_existing_module", "operation", "remove"
+            )
+
+        # Assert
+        self.assertEqual(
+            (
+                "The provided XPATH did not provide any results - check the XPATH\n"
+                "XPATH: /minimal-integrationtest:types/str1\n"
+            ),
+            str(err.exception),
+        )

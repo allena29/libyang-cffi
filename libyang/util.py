@@ -21,6 +21,40 @@ class InvalidSchemaOrValueError(LibyangError):
         )
 
 
+# ------------------------------------------------------------------------------
+class DataXpathDoesNotExistError(LibyangError):
+    def __init__(self, xpath):
+        super().__init__(
+            (
+                f"The provided XPATH did not provide any results - check the XPATH\n"
+                f"XPATH: {xpath}\n"
+            )
+        )
+
+
+# ------------------------------------------------------------------------------
+class DataXpathResultsInMultipleResultsError(LibyangError):
+    def __init__(self, xpath, results):
+        super().__init__(
+            (
+                f"The provided XPATH provided {results}- "
+                "correct the XPATH to specify a single result by specifying predicates.\n"
+                f"XPATH: {xpath}\n"
+            )
+        )
+
+
+# ------------------------------------------------------------------------------
+class AttributeCannotBeSetError(LibyangError):
+    def __init__(self, xpath, module, attribute_name, attribute_value):
+        super().__init__(
+            (
+                f'The attribute {module}:{attribute_name} could not be set to "{attribute_value}"\n'
+                f"XPATH: {xpath}\n"
+            )
+        )
+
+
 def str2c(s):
     if s is None:
         return ffi.NULL

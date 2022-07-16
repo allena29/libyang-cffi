@@ -10,7 +10,13 @@ from _libyang import lib
 from .data import DataNode
 from .schema import Module
 from .schema import Node
-from .util import LibyangError, InvalidSchemaOrValueError
+from .util import (
+    LibyangError,
+    InvalidSchemaOrValueError,
+    DataXpathDoesNotExistError,
+    DataXpathResultsInMultipleResultsError,
+    AttributeCannotBeSetError,
+)
 from .util import c2str
 from .util import str2c
 
@@ -190,6 +196,83 @@ class DataTree:
             )
             if node_set.number == 0:
                 raise InvalidSchemaOrValueError(value, xpath)
+
+    def remove_attribute(
+        self,
+        xpath: str,
+        attribute_name: str,
+        attribute_value: str = None,
+    ) -> bool:
+        """
+        Delete an attribute
+
+        Attributes:
+            xpath: the xpath to an existing data node
+            attribute_name: the name of the attribute (e.g. operation)
+            attribute_value: the value of the attribute (e.g. replace) - optional
+
+        Returns:
+            True if the attribute was removed
+        """
+        if not self._ctx:
+            raise RuntimeError("context already destroyed")
+        data_nodes = list(self.get_xpath(xpath))
+        if len(data_nodes) < 1:
+            raise DataXpathDoesNotExistError(xpath)
+        if len(data_nodes) > 1:
+            raise DataXpathResultsInMultipleResultsError(xpath, len(data_nodes))
+
+        attr = data_nodes[0].lyd_node.attr
+        while attr != ffi.NULL:
+            if c2str(attr.name) == attribute_name:
+                if not attribute_value or attribute_value == c2str(attr.value_str):
+                    if lib.lyd_free_attr(self._lyctx, data_nodes[0].lyd_node, attr, 0):
+                        return True
+                    else:
+                        break
+            attr = attr.next
+        return False
+
+    def insert_attribute(
+        self, xpath: str, module: str, attribute_name: str, attribute_value: str
+    ) -> bool:
+        """
+        Insert an attribute:
+
+        Attributes:
+            xpath: the xpath to an existing data node
+            module: may be a python None if the attribute belongs to the same module-
+                    otherwise the prefix of the module (e.g. ietf-netconf)
+            attribute_name: the name of the attribute (e.g. operation)
+            attribute_value: the value of the attribute (e.g. replace)
+
+        Returns:
+            True if the attribute was succesfully set.
+        """
+        if not self._ctx:
+            raise RuntimeError("context already destroyed")
+        data_nodes = list(self.get_xpath(xpath))
+        if len(data_nodes) < 1:
+            raise DataXpathDoesNotExistError(xpath)
+        if len(data_nodes) > 1:
+            raise DataXpathResultsInMultipleResultsError(xpath, len(data_nodes))
+
+        if module:
+            if lib.lyd_insert_attr(
+                data_nodes[0].lyd_node,
+                ffi.NULL,
+                str2c(f"{module}:{attribute_name}"),
+                str2c(attribute_value),
+            ):
+                return True
+        if lib.lyd_insert_attr(
+            data_nodes[0].lyd_node,
+            ffi.NULL,
+            str2c(attribute_name),
+            str2c(attribute_value),
+        ):
+            return True
+        raise AttributeCannotBeSetError(xpath, module, attribute_name, attribute_value)
 
     def get_xpath(self, xpath):
         """
