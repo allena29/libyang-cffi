@@ -17,6 +17,9 @@ class test_libyangdata(unittest.TestCase):
         self.ctx = libyang.Context(YANG_DIR)
         self.ctx.load_module("minimal-integrationtest")
         self.ctx.load_module("ietf-netconf")
+        self.ctx.load_module("ietf-yang-metadata")
+        self.ctx.load_module("other")
+        self.maxDiff = 90000000
         self.data = libyang.DataTree(self.ctx)
 
     def test_basic(self):
@@ -80,7 +83,7 @@ class test_libyangdata(unittest.TestCase):
 
         # Act
         self.data.set_xpath(xpath1, value1)
-        with self.assertRaises(libyang.util.LibyangError) as err:
+        with self.assertRaises(libyang.util.InvalidSchemaOrValueError) as err:
             self.data.set_xpath(xpath2, value2)
 
         # Assert
@@ -102,7 +105,7 @@ class test_libyangdata(unittest.TestCase):
 
         # Act
         self.data.set_xpath(xpath1, value1)
-        with self.assertRaises(libyang.util.LibyangError) as err:
+        with self.assertRaises(libyang.util.InvalidSchemaOrValueError) as err:
             self.data.set_xpath(xpath2, value2)
 
         # Assert
@@ -445,7 +448,6 @@ class test_libyangdata(unittest.TestCase):
         # Act
         self.data.set_xpath(xpath, "")
         node = next(self.data.get_xpath(xpath))
-        root = node.get_root()
 
         # Assert
         self.assertEqual(node.xpath, xpath)
@@ -777,12 +779,64 @@ class test_libyangdata(unittest.TestCase):
 
     def test_advanced_merges_creating_an_invalid_result(self):
         self.data.set_xpath("/minimal-integrationtest:merges/a", "a")
-        # raise ValueError(self.data.dumps())
         with self.assertRaises(libyang.util.LibyangError) as err:
             with open("newtests/yang/template6.xml") as template:
                 self.data.advanced_merges(template.read())
 
         self.assertTrue('Must condition "../a" not satisfied.' in str(err.exception))
+
+    def test_advanced_merge_creating_an_invalid_template(self):
+        self.data.set_xpath("/minimal-integrationtest:merges/a", "a")
+
+        # Act
+        with self.assertRaises(libyang.util.LibyangError) as err:
+            self.data.advanced_merge("newtests/yang/mergetestbad.xml")
+
+        # Assert
+        self.assertEqual(
+            str(err.exception),
+            (
+                'Marshalling Error: /metals/a: Data after closing element tag "a".\n'
+                "\n"
+                "Carefully check\n"
+                " - the data has valid values according to the minimal-integrationtest yang model\n"
+                " - the structure of the xml is well formed and free from syntax issues\n"
+                " - there are no additional nodes that are not part of the minimal-integrationtest yang model\n"
+                " - all mandatory conditions, leaf-refs, must and when expressions are satisfied\n"
+            ),
+        )
+
+    def test_advanced_merges_creating_an_invalid_invalidtemplate(self):
+        self.data.set_xpath("/minimal-integrationtest:merges/a", "a")
+        with self.assertRaises(libyang.util.LibyangError) as err:
+            with open("newtests/yang/mergetestbad.json") as template:
+                self.data.advanced_merges(template.read(), 2)
+
+        # Assert
+        self.assertEqual(
+            str(err.exception),
+            (
+                'Marshalling Error: Unknown element "metals".\n'
+                "\n"
+                "Carefully check\n"
+                " - the data has valid values according to the minimal-integrationtest yang model\n"
+                " - the structure of the json is well formed and free from syntax issues\n"
+                " - there are no excess commas, or comments in the JSON payload\n"
+                " - there are no additional nodes that are not part of the minimal-integrationtest yang model\n"
+                " - all mandatory conditions, leaf-refs, must and when expressions are satisfied\n"
+            ),
+        )
+
+    def test_advanced_merge_json(self):
+        self.data.set_xpath("/minimal-integrationtest:merges/a", "a")
+        with open("newtests/yang/mergetest.json") as template:
+            self.data.advanced_merges(template.read(), 2)
+
+        # Assert
+        self.assertEqual(
+            self.data.dumps(2),
+            '{"minimal-integrationtest:merges":{"a":"a"},"minimal-integrationtest:metals":[{"a":"a","b":"b"}]}',
+        )
 
     def test_ipv4addresses(self):
         xpath = "/minimal-integrationtest:ip/minimal-integrationtest:ipv4"
@@ -1030,6 +1084,74 @@ class test_libyangdata(unittest.TestCase):
             ),
         )
 
+    def test_insert_attribute_onto_an_existing_data_node_from_our_yang_model(self):
+        # Arrange
+        xpath1 = BASE_XPATH + ":types/str1"
+        value1 = "HELLO"
+        xpath2 = BASE_XPATH + ":types/u_int_8"
+
+        self.data.set_xpath(xpath1, value1)
+        self.data.insert_attribute(xpath1, "ietf-netconf", "operation", "remove")
+        self.data.insert_attribute(
+            xpath1, "minimal-integrationtest", "my-second-annotation", "boo"
+        )
+        self.data.insert_attribute(
+            xpath1, "minimal-intnegrationtest", "my-annotation", "hoo"
+        )
+        self.data.insert_attribute(xpath1, None, "my-annotation", "hoo")
+        self.data.insert_attribute(xpath1, "other", "my-foreign-annotation", "bonjour")
+
+        self.assertEqual(self.data.get_attribute(xpath1, "my-annotation"), "hoo")
+
+        self.assertEqual(
+            self.data.get_attribute(xpath1, "my-annotation-not-existing"), None
+        )
+
+        with self.assertRaises(libyang.util.DataXpathDoesNotExistError):
+            self.data.get_attribute(xpath2, "my-annotation-not-existing")
+
+        self.assertEqual(self.data.get_attribute(xpath1, "my-second-annotation"), "boo")
+        self.assertEqual(
+            self.data.get_attribute(xpath1, "my-foreign-annotation"), "bonjour"
+        )
+        self.assertEqual(self.data.get_attribute(xpath1, "operation"), "remove")
+        self.assertEqual(
+            list(self.data.get_attributes(xpath1)),
+            [
+                ("operation", "remove"),
+                ("my-second-annotation", "boo"),
+                ("my-annotation", "hoo"),
+                ("my-foreign-annotation", "bonjour"),
+            ],
+        )
+
+        self.assertEqual(
+            self.data.dumps(),
+            (
+                '<types xmlns="http://mellon-collie.net/yang/minimal-integrationtest"'
+                ' xmlns:other="http://mellon-collie.net/yang/other"'
+                ' xmlns:mit="http://mellon-collie.net/yang/minimal-integrationtest"'
+                ' xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0">'
+                '<str1 nc:operation="remove" mit:my-second-annotation="boo"'
+                ' mit:my-annotation="hoo"'
+                ' other:my-foreign-annotation="bonjour">HELLO</str1></types>'
+            ),
+        )
+
+        self.data.remove_attribute(xpath1, "my-second-annotation")
+        self.assertEqual(
+            self.data.dumps(),
+            (
+                '<types xmlns="http://mellon-collie.net/yang/minimal-integrationtest"'
+                ' xmlns:other="http://mellon-collie.net/yang/other"'
+                ' xmlns:mit="http://mellon-collie.net/yang/minimal-integrationtest"'
+                ' xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0">'
+                '<str1 nc:operation="remove"'
+                ' mit:my-annotation="hoo"'
+                ' other:my-foreign-annotation="bonjour">HELLO</str1></types>'
+            ),
+        )
+
     def test_remove_attribute_from_a_data_node(self):
         # Arrange
         xpath1 = BASE_XPATH + ":types/str1"
@@ -1122,4 +1244,64 @@ class test_libyangdata(unittest.TestCase):
                 "XPATH: /minimal-integrationtest:types/str1\n"
             ),
             str(err.exception),
+        )
+
+    def test_inserting_into_augmented_containers(self):
+        # Act
+        xpath = BASE_XPATH + ":augments/go-in-here/other:room"
+        value = "kitchen"
+        self.data.set_xpath(xpath, value)
+        result = next(self.data.get_xpath(xpath)).value
+
+        # Assert
+        self.assertEqual(result, value)
+
+        xpath = (
+            BASE_XPATH
+            + ":augments/go-in-here/other:cupboards[cupboard='big']/shelves[shelf='topshelf']/front/items[.='cup']"
+        )
+        self.data.set_xpath(xpath, "")
+
+        self.assertEqual(
+            self.data.dumps(2),
+            (
+                '{"minimal-integrationtest:augments":{"go-in-here":{"other:room":"kitchen",'
+                '"other:cupboards":[{"cupboard":"big","shelves":[{"shelf":"topshelf","front":{"items":["cup"]}}]}]}}}'
+            ),
+        )
+        self.assertEqual(
+            self.data.dumps(),
+            (
+                '<augments xmlns="http://mellon-collie.net/yang/minimal-integrationtest"><go-in-here>'
+                '<room xmlns="http://mellon-collie.net/yang/other">kitchen</room><cupboards '
+                'xmlns="http://mellon-collie.net/yang/other"><cupboard>big</cupboard><shelves><shelf>'
+                "topshelf</shelf><front><items>cup</items></front></shelves></cupboards></go-in-here></augments>"
+            ),
+        )
+
+    def test_loading_with_augmented_data_tress(self):
+        # Act
+        xpath = BASE_XPATH + ":augments/go-in-here/other:room"
+        value = "kitchen"
+        self.data.set_xpath(xpath, value)
+
+        # Act
+        self.data.merges(
+            (
+                '{"minimal-integrationtest:augments":{"go-in-here":{"other:room":"bathroom",'
+                '"other:cupboards":[{"cupboard":"big","shelves":'
+                '[{"shelf":"topshelf","front":{"items":["toothbrush"]}}]}]}}}'
+            ),
+            2,
+        )
+
+        # Assert
+        self.assertEqual(
+            self.data.dumps(),
+            (
+                '<augments xmlns="http://mellon-collie.net/yang/minimal-integrationtest"><go-in-here>'
+                '<room xmlns="http://mellon-collie.net/yang/other">bathroom</room><cupboards '
+                'xmlns="http://mellon-collie.net/yang/other"><cupboard>big</cupboard><shelves><shelf>'
+                "topshelf</shelf><front><items>toothbrush</items></front></shelves></cupboards></go-in-here></augments>"
+            ),
         )

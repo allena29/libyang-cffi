@@ -153,6 +153,7 @@ class DataTree:
         self._ctx = ctx
         self._lyctx = ctx._ctx
         self._root = None
+        self.schema_name = "unknown"
 
     def error(self, msg, *args, exception_type=LibyangMarshallingError):
         if not self._lyctx:
@@ -205,6 +206,10 @@ class DataTree:
                 raise InvalidSchemaOrValueError(value, xpath)
             self._root = node
             self._ctx._data_tree.append(self._root)
+            yang_schema = lib.lyd_node_module(self._root)
+            if yang_schema != ffi.NULL:
+                self.schema_name = c2str(yang_schema.name)
+
         else:
             node = lib.lyd_new_path(
                 self._root,
@@ -258,11 +263,59 @@ class DataTree:
             attr = attr.next
         return False
 
+    def get_attributes(self, xpath: str) -> bool:
+        """
+        Get attributes on a node
+
+        Attributes:
+            xpath: the xpath to an existing data node
+
+        Returns:
+            Tuple of each attribute name/value
+        """
+        if not self._ctx:
+            raise RuntimeError("context already destroyed")
+        data_nodes = list(self.get_xpath(xpath))
+        if len(data_nodes) < 1:
+            raise DataXpathDoesNotExistError(xpath)
+        if len(data_nodes) > 1:
+            raise DataXpathResultsInMultipleResultsError(xpath, len(data_nodes))
+
+        attr = data_nodes[0].lyd_node.attr
+        while attr != ffi.NULL:
+            yield (c2str(attr.name), c2str(attr.value_str))
+            attr = attr.next
+
+    def get_attribute(self, xpath: str, name) -> bool:
+        """
+        Get attributes if it exists on the node
+
+        Attributes:
+            xpath: the xpath to an existing data node
+
+        Returns:
+            The value else python none
+        """
+        if not self._ctx:
+            raise RuntimeError("context already destroyed")
+        data_nodes = list(self.get_xpath(xpath))
+        if len(data_nodes) < 1:
+            raise DataXpathDoesNotExistError(xpath)
+        if len(data_nodes) > 1:
+            raise DataXpathResultsInMultipleResultsError(xpath, len(data_nodes))
+
+        attr = data_nodes[0].lyd_node.attr
+        while attr != ffi.NULL:
+            if c2str(attr.name) == name:
+                return c2str(attr.value_str)
+            attr = attr.next
+        return None
+
     def insert_attribute(
         self, xpath: str, module: str, attribute_name: str, attribute_value: str
     ) -> bool:
         """
-        Insert an attribute:
+        Insert an attribute (annotation):
 
         Attributes:
             xpath: the xpath to an existing data node
@@ -281,7 +334,8 @@ class DataTree:
             raise DataXpathDoesNotExistError(xpath)
         if len(data_nodes) > 1:
             raise DataXpathResultsInMultipleResultsError(xpath, len(data_nodes))
-
+        if self.get_attribute(xpath, attribute_name):
+            return False
         if module:
             if lib.lyd_insert_attr(
                 data_nodes[0].lyd_node,
@@ -393,7 +447,12 @@ class DataTree:
             )
         self._root = lib.lyd_parse_path(self._lyctx, str2c(filename), format, option)
         if self._root == ffi.NULL:
-            raise self.error("Marshalling Error", format)
+            raise self.error("Marshalling Error", self.schema_name, format)
+
+        yang_schema = lib.lyd_node_module(self._root)
+        if yang_schema != ffi.NULL:
+            self.schema_name = c2str(yang_schema.name)
+
         self._ctx._data_tree.append(self._root)
 
     def loads(self, payload, format=lib.LYD_XML, trusted=False, strict=True):
@@ -417,7 +476,12 @@ class DataTree:
 
         self._root = lib.lyd_parse_mem(self._lyctx, str2c(payload), format, option)
         if self._root == ffi.NULL:
-            raise self.error("Marshalling Error", format)
+            raise self.error("Marshalling Error", self.schema_name, format)
+
+        yang_schema = lib.lyd_node_module(self._root)
+        if yang_schema != ffi.NULL:
+            self.schema_name = c2str(yang_schema.name)
+
         self._ctx._data_tree.append(self._root)
 
     def merge(self, filename, format=lib.LYD_XML, trusted=True, strict=True):
@@ -438,7 +502,7 @@ class DataTree:
 
         tmp = lib.lyd_parse_path(self._lyctx, str2c(filename), format, option)
         if tmp == ffi.NULL:
-            raise self.error("Marshalling Merge Error", format)
+            raise self.error("Marshalling Merge Error", self.schema_name, format)
 
         if not lib.lyd_merge(self._root, tmp, lib.LYD_OPT_EXPLICIT) == 0:
             raise self.error("Merge Error")
@@ -461,7 +525,7 @@ class DataTree:
 
         tmp = lib.lyd_parse_mem(self._lyctx, str2c(payload), format, option)
         if tmp == ffi.NULL:
-            raise self.error("Marshalling Merge Error", format)
+            raise self.error("Marshalling Merge Error", self.schema_name, format)
 
         if not lib.lyd_merge(self._root, tmp, lib.LYD_OPT_EXPLICIT) == 0:
             raise self.error("Merge Error")
@@ -479,11 +543,15 @@ class DataTree:
                 self._lyctx, str2c(filename), format, option
             )
             if template_root == ffi.NULL:
-                raise self.error("Marshalling Error")
+                raise self.error("Marshalling Error", self.schema_name, format)
 
             if lib.lypy_process_attributes(self._root, self._lyctx, template_root) == 1:
                 raise self.error(
-                    "Validation failed after processing attributes to remove/replace items in the existing data tree.",
+                    (
+                        "Validation failed after processing attributes to remove/replace items"
+                        " and merge into the existing data tree."
+                    ),
+                    self.schema_name,
                 )
         else:
             raise DataTreeEmptyError(
@@ -503,11 +571,15 @@ class DataTree:
                 self._lyctx, str2c(payload), format, option
             )
             if template_root == ffi.NULL:
-                raise self.error("Marshalling Error")
+                raise self.error("Marshalling Error", self.schema_name, format)
 
             if lib.lypy_process_attributes(self._root, self._lyctx, template_root) == 1:
-                raise self._ctx.error(
-                    "Validation failed after processing attributes to replace/remove items before merging into the data tree."
+                raise self.error(
+                    (
+                        "Validation failed after processing attributes to remove/replace items"
+                        " and merge into the existing data tree."
+                    ),
+                    self.schema_name,
                 )
         else:
             raise DataTreeEmptyError(

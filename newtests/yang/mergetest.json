@@ -1,0 +1,8 @@
+{
+  "minimal-integrationtest:metals": [
+    {
+      "a": "a",
+      "b": "b"
+    }
+  ]
+}
