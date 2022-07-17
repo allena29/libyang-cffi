@@ -318,7 +318,7 @@ class DataTree:
                 raise self._ctx.error('Marshalling Advanced Merge Error')
             
             if lib.lypy_process_attributes(self._root, self._lyctx, template_root) == 1:
-                raise LibyangError('Validation failed after processing attributes')
+                raise self._ctx.error('Validation failed after processing attributes to replace/remove items before merging into the data tree.')
         else:
             raise LibyangError('advanced merges() not possible until data exists on the root object.')
 
