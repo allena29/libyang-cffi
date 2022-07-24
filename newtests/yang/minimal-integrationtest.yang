@@ -1,12 +1,40 @@
 module minimal-integrationtest {
 
   namespace "http://mellon-collie.net/yang/minimal-integrationtest";
-  prefix "minimal-integrationtest";
+  prefix "mit";
   import ietf-inet-types { prefix inet; }
+  import ietf-yang-metadata { prefix md; }
 
   description "A yang module to tets the important things of libyang's data nodes";
 
 
+  md:annotation my-annotation {
+    type string;
+    description "This is my annotation.";
+  }
+
+  md:annotation my-second-annotation {
+    type string;
+    description "This is my second annotation.";
+  }
+
+  container augments {
+    container go-in-here {
+      presence true;
+
+    }
+  }
+
+  container merges {
+    presence true;
+    leaf a {
+      type string;
+    }
+    leaf b {
+      type string;
+      must "../a";
+    }
+  }
   container ip {
     presence true;
     leaf ipv4 {
@@ -330,7 +358,7 @@ module minimal-integrationtest {
   container leaf_refs {
     leaf leaf_ref_consumer {
       type leafref {
-        path "/minimal-integrationtest:leaf_refs/minimal-integrationtest:leaf_ref_data/minimal-integrationtest:key";
+        path "/mit:leaf_refs/mit:leaf_ref_data/mit:key";
       }
     }
 

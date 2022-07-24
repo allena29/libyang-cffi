@@ -1,0 +1,47 @@
+module other {
+
+  namespace "http://mellon-collie.net/yang/other";
+  prefix "other";
+  import ietf-yang-metadata { prefix md; }
+  import minimal-integrationtest { prefix mit; }
+
+  description "A yang module to tets the important things of libyang's data nodes";
+
+
+  md:annotation my-foreign-annotation {
+    type string;
+    description "This is my annotation.";
+  }
+
+  augment /mit:augments/mit:go-in-here {
+    leaf room {
+      type string;
+    }
+    list cupboards {
+      key cupboard;
+
+      leaf cupboard {
+        type string;
+      }
+      list shelves {
+        key shelf;
+
+        leaf shelf {
+          type string;
+        }
+
+        container back {
+          leaf-list items {
+            type string;
+          }
+        }
+
+        container front {
+          leaf-list items {
+            type string;
+          }
+        }
+      }
+    }
+  }
+}

@@ -146,9 +146,9 @@ def _version():
 setuptools.setup(
     name='libyang',
     version=_version(),
-    description='CFFI bindings to libyang',
+    description='CFFI bindings to libyang1 (forked from Robin Jarry)',
     long_description=open('README.rst').read(),
-    url='https://github.com/rjarry/libyang-cffi',
+    url='https://github.com/allena29/libyang-cffi',
     license='MIT',
     author='Robin Jarry',
     author_email='robin@jarry.cc',

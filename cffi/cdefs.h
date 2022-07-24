@@ -470,3 +470,6 @@ char *lypy_node_fullname(const struct lys_node *);
 const struct lyd_node *lypy_get_root_node(const struct lyd_node *node);
 int validate_data_tree(struct lyd_node *node, struct ly_ctx *ctx);
 int lypy_process_attributes(struct lyd_node *node, struct ly_ctx *ctx, struct lyd_node *tempRoot);
+struct lyd_attr *lyd_insert_attr(struct lyd_node *parent, const struct lys_module *mod, const char *name, const char *value);
+void lyd_free_attr(struct ly_ctx *ctx, struct lyd_node *parent, struct lyd_attr *attr, int recursive);
+struct lys_module *lyd_node_module(const struct lyd_node *node);
