@@ -586,11 +586,28 @@ class DataTree:
                 "advanced merges() not possible until data exists on the root object."
             )
 
+    def subdumps(self, xpath, format=lib.LYD_XML, select_parent=False):
+        if not self._ctx:
+            raise RuntimeError("context already destroyed")
+        """
+        Return string with the specified format using the a sub portion of the data tree
+        """
+        for node in self.get_xpath(xpath):
+            break
+        else:
+            raise DataTreeEmptyError(f"No data to dump for {xpath}")
+
+        if select_parent:
+            node = node.parent()
+        buf = ffi.new("char **")
+        lib.lyd_print_mem(buf, node.lyd_node, format, lib.LYP_WITHSIBLINGS)
+        return c2str(buf[0])
+
     def dumps(self, format=lib.LYD_XML):
         if not self._ctx:
             raise RuntimeError("context already destroyed")
         """
-        Load from a string with the specified format
+        Return string with the specified format using the root of the data tree
         """
         if not self._root:
             raise DataTreeEmptyError("No data to dump")

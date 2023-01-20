@@ -689,6 +689,61 @@ class test_libyangdata(unittest.TestCase):
 
         self.data.delete_xpath("/minimal-integrationtest:types/collection[x='b']/z/zzz")
 
+    def test_dumps_a_subtree(
+        self,
+    ):
+        # Arrange
+        self.maxDiff = None
+        payload = (
+            '<types xmlns="http://mellon-collie.net/yang/minimal-integrationtest"><collection>'
+            "<x>a</x></collection><collection><x>b</x><y>b</y><z><zzz/></z></collection><collection><x>c</x>"
+            "</collection></types>"
+        )
+
+        # Act
+        self.data.loads(payload, libyang.lib.LYD_XML)
+        self.data.delete_xpath("/minimal-integrationtest:types/collection[x='b']/z")
+
+        # Assert
+
+        expected_result = (
+            '<x xmlns="http://mellon-collie.net/yang/minimal-integrationtest">a</x>'
+        )
+        self.assertEqual(
+            self.data.subdumps("/minimal-integrationtest:types/collection/x"),
+            expected_result,
+        )
+
+    def test_dumps_a_subtree_with_traversing_to_parent(
+        self,
+    ):
+        # Arrange
+        self.maxDiff = None
+        payload = (
+            '<types xmlns="http://mellon-collie.net/yang/minimal-integrationtest"><collection>'
+            "<x>a</x></collection><collection><x>b</x><y>b</y><z><zzz/></z></collection><collection><x>c</x>"
+            "</collection></types>"
+        )
+
+        # Act
+        self.data.loads(payload, libyang.lib.LYD_XML)
+        self.data.delete_xpath("/minimal-integrationtest:types/collection[x='b']/z")
+
+        # Assert
+
+        expected_result = (
+            '<collection xmlns="http://mellon-collie.net/yang/minimal-integrationtest"><x>a</x></collection>'
+            '<collection xmlns="http://mellon-collie.net/yang/minimal-integrationtest"><x>b</x><y>b</y></collection>'
+            '<collection xmlns="http://mellon-collie.net/yang/minimal-integrationtest"><x>c</x></collection>'
+        )
+
+        self.assertEqual(
+            self.data.subdumps(
+                "/minimal-integrationtest:types/collection/x", select_parent=True
+            ),
+            expected_result,
+        )
+
     def test_merge_remove_tags(self):
         payload_one = """<metals xmlns="http://mellon-collie.net/yang/minimal-integrationtest">
         <a>AA</a><b>BB</b><metal><iron><ore>AAA</ore></iron><nickel><coin>money</coin></nickel></metal></metals>"""
